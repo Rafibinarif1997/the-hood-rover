@@ -6,69 +6,84 @@
 <title>REFERRAL — The Hood Rover</title>
 
 <style>
-*{box-sizing:border-box}
+*{
+  box-sizing:border-box;
+}
 
-html{scroll-behavior:smooth}
+html{
+  scroll-behavior:smooth;
+}
 
 body{
   margin:0;
-  background:#eef7fb;
-  color:#12212b;
+  background:#edf7fb;
+  color:#142b36;
   font-family:monospace;
   overflow-x:hidden;
 }
 
-body:before{
+/* =========================
+   CRT / PIXEL EFFECT
+========================= */
+
+body::after{
   content:"";
   position:fixed;
   inset:0;
   pointer-events:none;
-  z-index:999;
-  opacity:.08;
+  z-index:9999;
+  opacity:.055;
   background:repeating-linear-gradient(
-    0deg,
-    transparent 0px,
+    to bottom,
+    transparent 0,
     transparent 3px,
-    #1b6f91 4px
+    #164454 4px
   );
 }
 
-a{text-decoration:none;color:inherit}
+/* =========================
+   BOOT BAR
+========================= */
 
 .boot{
-  height:30px;
+  height:29px;
   padding:0 18px;
   display:flex;
-  justify-content:space-between;
   align-items:center;
-  background:#d7eaf2;
-  border-bottom:2px solid #8bb7c8;
-  font-size:11px;
+  justify-content:space-between;
+  background:#d5e9f1;
+  border-bottom:2px solid #83aebd;
+  color:#244957;
+  font-size:10px;
   font-weight:900;
   letter-spacing:1px;
 }
 
+/* =========================
+   HEADER
+========================= */
+
 header{
   position:sticky;
   top:0;
-  z-index:100;
+  z-index:500;
   min-height:76px;
   padding:12px 22px;
   display:flex;
   align-items:center;
   gap:20px;
-  background:#f8fcfe;
-  border-bottom:3px solid #173b4a;
-  box-shadow:0 4px 0 #8bb7c8;
+  background:#f9fdff;
+  border-bottom:3px solid #173d4c;
+  box-shadow:0 4px 0 #8db8c7;
 }
 
 .brand{
   display:flex;
   align-items:center;
   gap:10px;
-  font-weight:900;
-  font-size:14px;
   white-space:nowrap;
+  font-size:14px;
+  font-weight:900;
 }
 
 .mark{
@@ -76,45 +91,60 @@ header{
   height:36px;
   display:grid;
   place-items:center;
-  background:#1687b5;
+  background:#1688b5;
   color:white;
-  border:3px solid #173b4a;
-  box-shadow:4px 4px 0 #173b4a;
-  font-weight:900;
+  border:3px solid #173d4c;
+  box-shadow:4px 4px 0 #173d4c;
 }
+
+/* =========================
+   DESKTOP MENU
+========================= */
 
 nav{
   flex:1;
   display:flex;
+  align-items:center;
   justify-content:center;
-  flex-wrap:wrap;
-  gap:7px;
+  gap:4px;
 }
 
 nav a{
-  padding:8px 9px;
+  position:relative;
+  padding:9px 10px;
+  color:#173d4c;
+  border:2px solid transparent;
   font-size:10px;
   font-weight:900;
-  border:2px solid transparent;
+  transition:.15s ease;
 }
 
-nav a:hover,
-nav a[href="/referral"]{
-  background:#d9f1fb;
-  border-color:#5aa6bf;
+nav a:hover{
+  background:#d9f1fa;
+  border-color:#68aabd;
 }
+
+nav a[href="../referral/"]{
+  background:#d9f1fa;
+  border-color:#68aabd;
+  box-shadow:2px 2px 0 #91b8c6;
+}
+
+/* =========================
+   BUTTON
+========================= */
 
 .btn{
+  min-height:40px;
+  padding:10px 15px;
   display:inline-flex;
   align-items:center;
   justify-content:center;
-  min-height:40px;
-  padding:10px 15px;
-  background:#ff9e2c;
-  color:#17232a;
-  border:3px solid #173b4a;
-  box-shadow:4px 4px 0 #173b4a;
-  font-size:11px;
+  background:#ff9f2e;
+  color:#162a33;
+  border:3px solid #173d4c;
+  box-shadow:4px 4px 0 #173d4c;
+  font-size:10px;
   font-weight:900;
   cursor:pointer;
   transition:.15s;
@@ -122,17 +152,41 @@ nav a[href="/referral"]{
 
 .btn:hover{
   transform:translate(2px,2px);
-  box-shadow:2px 2px 0 #173b4a;
+  box-shadow:2px 2px 0 #173d4c;
 }
+
+.btn:active{
+  transform:translate(4px,4px);
+  box-shadow:none;
+}
+
+/* =========================
+   MOBILE MENU BUTTON
+========================= */
 
 .menu{
   display:none;
+  width:42px;
+  height:38px;
   margin-left:auto;
-  background:#d9f1fb;
-  border:3px solid #173b4a;
-  padding:8px 11px;
+  padding:0;
+  background:#d9f1fa;
+  color:#173d4c;
+  border:3px solid #173d4c;
+  box-shadow:3px 3px 0 #173d4c;
   font-size:18px;
+  font-weight:900;
+  cursor:pointer;
 }
+
+.menu:active{
+  transform:translate(2px,2px);
+  box-shadow:1px 1px 0 #173d4c;
+}
+
+/* =========================
+   MAIN
+========================= */
 
 main{
   max-width:1180px;
@@ -143,47 +197,47 @@ main{
 .eyebrow{
   display:inline-block;
   padding:7px 10px;
-  background:#173b4a;
+  background:#173d4c;
   color:#fff;
-  font-size:11px;
+  font-size:10px;
   font-weight:900;
   letter-spacing:1px;
-  box-shadow:4px 4px 0 #78abc0;
-}
-
-h1,h2,h3,p{
-  margin-top:0;
+  box-shadow:4px 4px 0 #79aebe;
 }
 
 h2{
   margin:18px 0 35px;
-  font-size:clamp(38px,7vw,78px);
+  font-size:clamp(45px,7vw,78px);
   line-height:.9;
   letter-spacing:-4px;
-  text-shadow:5px 5px 0 #9ed0df;
+  text-shadow:5px 5px 0 #9ed1df;
 }
+
+/* =========================
+   MAIN WINDOW
+========================= */
 
 .panel{
   position:relative;
-  background:#fff;
-  border:3px solid #173b4a;
-  box-shadow:8px 8px 0 #7daebe;
   padding:30px;
+  background:#fff;
+  border:3px solid #173d4c;
+  box-shadow:8px 8px 0 #82afbf;
 }
 
-.panel:before{
+.panel::before{
   content:"REFERRAL.EXE";
   position:absolute;
+  top:0;
   left:0;
   right:0;
-  top:0;
-  height:31px;
+  height:32px;
+  padding-left:13px;
   display:flex;
   align-items:center;
-  padding-left:13px;
-  background:#d7edf5;
-  border-bottom:3px solid #173b4a;
-  font-size:11px;
+  background:#d8edf5;
+  border-bottom:3px solid #173d4c;
+  font-size:10px;
   font-weight:900;
 }
 
@@ -191,21 +245,14 @@ h2{
   padding-top:25px;
 }
 
-.hero-copy{
-  max-width:720px;
-  font-size:17px;
-  line-height:1.7;
-  font-weight:700;
-}
-
 .system-status{
   display:inline-flex;
   align-items:center;
   gap:8px;
-  margin:8px 0 25px;
   padding:8px 11px;
-  border:2px solid #173b4a;
+  margin-bottom:24px;
   background:#eef9fc;
+  border:2px solid #173d4c;
   font-size:10px;
   font-weight:900;
 }
@@ -213,8 +260,8 @@ h2{
 .dot{
   width:9px;
   height:9px;
-  background:#28a86b;
-  border:2px solid #173b4a;
+  background:#27a76b;
+  border:2px solid #173d4c;
   animation:blink 1s steps(2) infinite;
 }
 
@@ -222,17 +269,28 @@ h2{
   50%{opacity:.25}
 }
 
+.hero-copy{
+  max-width:720px;
+  font-size:17px;
+  line-height:1.7;
+  font-weight:900;
+}
+
+/* =========================
+   REFERRAL LINK
+========================= */
+
 .ref-box{
   margin-top:28px;
   padding:22px;
   background:#edf8fc;
-  border:3px solid #173b4a;
+  border:3px solid #173d4c;
 }
 
 .ref-label{
   display:block;
   margin-bottom:10px;
-  font-size:11px;
+  font-size:10px;
   font-weight:900;
 }
 
@@ -246,29 +304,35 @@ h2{
   min-width:0;
   padding:14px;
   background:#fff;
-  border:3px solid #173b4a;
-  color:#173b4a;
+  border:3px solid #173d4c;
+  color:#173d4c;
   font-family:monospace;
-  font-size:13px;
+  font-size:12px;
   font-weight:900;
   outline:none;
 }
 
 .copy-btn{
-  min-width:100px;
-  border:3px solid #173b4a;
-  background:#1687b5;
+  min-width:105px;
+  padding:0 14px;
+  background:#1688b5;
   color:white;
-  box-shadow:4px 4px 0 #173b4a;
+  border:3px solid #173d4c;
+  box-shadow:4px 4px 0 #173d4c;
   font-family:monospace;
+  font-size:10px;
   font-weight:900;
   cursor:pointer;
 }
 
 .copy-btn:active{
   transform:translate(3px,3px);
-  box-shadow:1px 1px 0 #173b4a;
+  box-shadow:1px 1px 0 #173d4c;
 }
+
+/* =========================
+   STATS
+========================= */
 
 .stats{
   display:grid;
@@ -281,8 +345,8 @@ h2{
   min-height:115px;
   padding:18px;
   background:#fff;
-  border:3px solid #173b4a;
-  box-shadow:5px 5px 0 #a4cad8;
+  border:3px solid #173d4c;
+  box-shadow:5px 5px 0 #a3cbd8;
   font-size:10px;
   font-weight:900;
 }
@@ -290,36 +354,42 @@ h2{
 .stat strong{
   display:block;
   margin-top:13px;
-  font-size:27px;
-  line-height:1;
+  font-size:26px;
 }
 
+/* =========================
+   PROGRESS
+========================= */
+
 .progress-wrap{
-  margin-top:28px;
+  margin-top:30px;
 }
 
 .progress-head{
   display:flex;
   justify-content:space-between;
-  gap:15px;
   margin-bottom:9px;
-  font-size:11px;
+  font-size:10px;
   font-weight:900;
 }
 
 .progress{
   height:24px;
   padding:3px;
-  border:3px solid #173b4a;
-  background:#fff;
+  background:white;
+  border:3px solid #173d4c;
 }
 
 .progress-bar{
   height:100%;
   width:0%;
-  background:#1687b5;
+  background:#1688b5;
   transition:width .8s steps(10);
 }
+
+/* =========================
+   RULES
+========================= */
 
 .rules{
   display:grid;
@@ -331,38 +401,43 @@ h2{
 .rule{
   padding:19px;
   background:#f7fcfe;
-  border:3px solid #173b4a;
+  border:3px solid #173d4c;
 }
 
 .rule b{
   display:block;
   margin-bottom:9px;
-  font-size:12px;
+  font-size:11px;
 }
 
 .rule p{
   margin:0;
-  font-size:11px;
+  font-size:10px;
   line-height:1.7;
   font-weight:700;
 }
 
+/* =========================
+   ACTIVITY
+========================= */
+
 .activity{
   margin-top:30px;
   padding:20px;
-  border:3px dashed #6d9eae;
   background:#f5fbfd;
+  border:3px dashed #719eae;
 }
 
 .activity-title{
-  margin-bottom:15px;
-  font-size:12px;
+  margin-bottom:14px;
+  font-size:11px;
   font-weight:900;
 }
 
 .activity-row{
   display:flex;
   justify-content:space-between;
+  gap:20px;
   padding:10px 0;
   border-bottom:1px dotted #8aadb9;
   font-size:10px;
@@ -375,18 +450,22 @@ h2{
 
 .note{
   margin-top:25px;
-  font-size:11px;
+  color:#49636d;
+  font-size:10px;
   line-height:1.8;
-  color:#48616d;
   font-weight:700;
 }
 
 .cta{
-  margin-top:30px;
   display:flex;
-  gap:12px;
   flex-wrap:wrap;
+  gap:12px;
+  margin-top:30px;
 }
+
+/* =========================
+   FOOTER
+========================= */
 
 .footer{
   min-height:90px;
@@ -394,12 +473,16 @@ h2{
   display:flex;
   justify-content:space-between;
   align-items:center;
-  background:#173b4a;
-  color:#dff5fc;
+  background:#173d4c;
+  color:#dff6fc;
   font-size:10px;
   font-weight:900;
   letter-spacing:1px;
 }
+
+/* =========================
+   SCROLL REVEAL
+========================= */
 
 .reveal{
   opacity:0;
@@ -409,13 +492,18 @@ h2{
 
 .reveal.visible{
   opacity:1;
-  transform:none;
+  transform:translateY(0);
 }
 
+/* =========================
+   MOBILE
+========================= */
+
 @media(max-width:950px){
-  nav{display:none}
 
   header{
+    min-height:70px;
+    padding:11px 15px;
     flex-wrap:wrap;
   }
 
@@ -423,21 +511,48 @@ h2{
     display:block;
   }
 
-  header .btn{
+  header>.btn{
     display:none;
+  }
+
+  nav{
+    display:none;
+    width:100%;
+    flex:none;
+    flex-direction:column;
+    align-items:stretch;
+    justify-content:flex-start;
+    gap:0;
+    padding:10px 0 4px;
+    border-top:2px solid #9bc3d0;
   }
 
   nav.open{
     display:flex;
-    width:100%;
-    flex-direction:column;
-    align-items:stretch;
-    padding-top:10px;
+    animation:menuOpen .18s ease-out;
   }
 
-  nav.open a{
-    border:2px solid #8bb7c8;
-    background:#eef8fb;
+  nav a{
+    width:100%;
+    padding:12px 13px;
+    background:#f4fbfd;
+    border:2px solid #a8c8d4;
+    border-bottom:0;
+    font-size:11px;
+  }
+
+  nav a:last-child{
+    border-bottom:2px solid #a8c8d4;
+  }
+
+  nav a:hover{
+    transform:none;
+  }
+
+  nav a[href="../referral/"]{
+    background:#ccecf7;
+    border-color:#4f98b0;
+    box-shadow:none;
   }
 
   .stats{
@@ -445,14 +560,26 @@ h2{
   }
 }
 
+@keyframes menuOpen{
+  from{
+    opacity:0;
+    transform:translateY(-5px);
+  }
+  to{
+    opacity:1;
+    transform:translateY(0);
+  }
+}
+
 @media(max-width:650px){
+
   main{
     padding:45px 14px 70px;
   }
 
   .panel{
     padding:18px;
-    box-shadow:5px 5px 0 #7daebe;
+    box-shadow:5px 5px 0 #82afbf;
   }
 
   h2{
@@ -476,6 +603,11 @@ h2{
     grid-template-columns:1fr;
   }
 
+  .activity-row{
+    flex-direction:column;
+    gap:4px;
+  }
+
   .footer{
     flex-direction:column;
     gap:10px;
@@ -487,12 +619,21 @@ h2{
 
 <body>
 
+<!-- =========================
+     BOOT
+========================= -->
+
 <div class="boot">
   <span>HOOD ROVER SYSTEM</span>
   <span>REFERRAL_READY_</span>
 </div>
 
+<!-- =========================
+     HEADER
+========================= -->
+
 <header>
+
   <a class="brand" href="../">
     <span class="mark">HR</span>
     THE HOOD ROVER
@@ -511,14 +652,23 @@ h2{
     <a href="../faq/">FAQ</a>
   </nav>
 
-  <a class="btn" href="#" data-opensea>MINT ON OPENSEA</a>
+  <a class="btn" href="#" id="openSeaBtn">
+    MINT ON OPENSEA
+  </a>
+
 </header>
+
+<!-- =========================
+     MAIN
+========================= -->
 
 <main>
 
 <section class="reveal">
 
-  <span class="eyebrow">HOOD ROVER // NETWORK MODULE</span>
+  <span class="eyebrow">
+    HOOD ROVER // NETWORK MODULE
+  </span>
 
   <h2>REFERRAL</h2>
 
@@ -535,6 +685,8 @@ h2{
         INVITE REAL ROVERS INTO THE HOOD.
         BUILD YOUR NETWORK AND UNLOCK YOUR REFERRAL PROGRESS.
       </p>
+
+      <!-- REFERRAL LINK -->
 
       <div class="ref-box">
 
@@ -560,6 +712,8 @@ h2{
 
       </div>
 
+      <!-- STATS -->
+
       <div class="stats">
 
         <div class="stat">
@@ -579,6 +733,8 @@ h2{
 
       </div>
 
+      <!-- PROGRESS -->
+
       <div class="progress-wrap">
 
         <div class="progress-head">
@@ -587,46 +743,67 @@ h2{
         </div>
 
         <div class="progress">
-          <div class="progress-bar" id="progressBar"></div>
+
+          <div
+            class="progress-bar"
+            id="progressBar">
+          </div>
+
         </div>
 
       </div>
+
+      <!-- RULES -->
 
       <div class="rules">
 
         <div class="rule">
+
           <b>01 // INVITE</b>
+
           <p>
-            Share your personal referral link with people you actually
-            want to bring into The Hood Rover ecosystem.
+            Share your personal referral link with people
+            you actually want to bring into The Hood Rover ecosystem.
           </p>
+
         </div>
 
         <div class="rule">
+
           <b>02 // REAL ACTIVITY</b>
+
           <p>
-            A referral only becomes successful after the invited user
-            completes the required genuine activity.
+            A referral becomes successful only after the
+            invited user completes the required genuine activity.
           </p>
+
         </div>
 
         <div class="rule">
+
           <b>03 // MAX 10</b>
+
           <p>
-            Each account can have a maximum of 10 successful referrals.
-            Extra invites do not increase the successful count.
+            Each account can have a maximum of 10 successful
+            referrals.
           </p>
+
         </div>
 
         <div class="rule">
+
           <b>04 // NO FAKE FARMING</b>
+
           <p>
-            Duplicate, automated or suspicious activity can be excluded
-            from referral progress.
+            Duplicate, automated or suspicious activity
+            can be excluded from referral progress.
           </p>
+
         </div>
 
       </div>
+
+      <!-- ACTIVITY -->
 
       <div class="activity">
 
@@ -636,7 +813,9 @@ h2{
 
         <div class="activity-row">
           <span>SYSTEM</span>
-          <span>WAITING FOR WALLET</span>
+          <span id="systemActivity">
+            WAITING FOR WALLET
+          </span>
         </div>
 
         <div class="activity-row">
@@ -652,11 +831,13 @@ h2{
       </div>
 
       <p class="note">
-        Referral rewards and verification will be connected to the real
-        backend later. This page does not publicly describe any token.
+        Referral rewards and verification will be connected
+        to the real backend later. This page does not publicly
+        describe any token.
       </p>
 
       <div class="cta">
+
         <a class="btn" href="../rover/">
           OPEN ROVER HUB
         </a>
@@ -668,107 +849,172 @@ h2{
         <a class="btn" href="../">
           BACK HOME
         </a>
+
       </div>
 
     </div>
+
   </div>
 
 </section>
 
 </main>
 
+<!-- =========================
+     FOOTER
+========================= -->
+
 <footer class="footer">
+
   <b>THE HOOD ROVER</b>
-  <span>RETRO NETWORK // 2026</span>
+
+  <span>
+    RETRO NETWORK // 2026
+  </span>
+
 </footer>
 
 <script>
+
+/* =========================
+   MOBILE MENU
+========================= */
+
 const menu = document.getElementById("menu");
 const nav = document.getElementById("nav");
 
-menu.addEventListener("click", () => {
+menu.addEventListener("click", function(){
+
   nav.classList.toggle("open");
+
+  if(nav.classList.contains("open")){
+    menu.textContent = "✕";
+  }else{
+    menu.textContent = "☰";
+  }
+
 });
+
+/* =========================
+   WALLET / REFERRAL
+========================= */
 
 const walletKey = "hoodRoverWallet";
 
-function shortenWallet(address){
-  return address.slice(0,6) + "..." + address.slice(-4);
-}
-
 function createReferralLink(address){
+
   return window.location.origin +
     window.location.pathname +
-    "?ref=" + address.toLowerCase();
+    "?ref=" +
+    address.toLowerCase();
+
 }
 
 async function connectWallet(){
 
   if(!window.ethereum){
-    alert("No Web3 wallet detected. Connect MetaMask or another compatible wallet.");
+
+    alert(
+      "No Web3 wallet detected. Connect MetaMask or another compatible wallet."
+    );
+
     return;
+
   }
 
   try{
 
-    const accounts = await window.ethereum.request({
-      method:"eth_requestAccounts"
-    });
+    const accounts =
+      await window.ethereum.request({
+        method:"eth_requestAccounts"
+      });
 
     if(accounts && accounts[0]){
-      localStorage.setItem(walletKey, accounts[0]);
+
+      const wallet = accounts[0];
+
+      localStorage.setItem(
+        walletKey,
+        wallet
+      );
 
       document.getElementById("refLink").value =
-        createReferralLink(accounts[0]);
+        createReferralLink(wallet);
 
       document.getElementById("status").textContent =
         "ACTIVE";
 
-      document.querySelector(".activity-row span:last-child").textContent =
+      document.getElementById("systemActivity").textContent =
         "WALLET CONNECTED";
+
     }
 
   }catch(error){
+
     console.log(error);
+
   }
+
 }
 
-const copyBtn = document.getElementById("copyBtn");
+/* =========================
+   COPY
+========================= */
 
-copyBtn.addEventListener("click", async () => {
+document
+.getElementById("copyBtn")
+.addEventListener("click", async function(){
 
-  const input = document.getElementById("refLink");
+  const input =
+    document.getElementById("refLink");
 
-  if(input.value === "CONNECT WALLET TO GENERATE"){
+  if(
+    input.value ===
+    "CONNECT WALLET TO GENERATE"
+  ){
+
     await connectWallet();
+
     return;
+
   }
 
   try{
-    await navigator.clipboard.writeText(input.value);
 
-    copyBtn.textContent = "COPIED!";
+    await navigator.clipboard.writeText(
+      input.value
+    );
+
+    this.textContent = "COPIED!";
 
     setTimeout(()=>{
-      copyBtn.textContent = "COPY LINK";
+      this.textContent = "COPY LINK";
     },1500);
 
   }catch(error){
 
     input.select();
+
     document.execCommand("copy");
 
-    copyBtn.textContent = "COPIED!";
+    this.textContent = "COPIED!";
 
     setTimeout(()=>{
-      copyBtn.textContent = "COPY LINK";
+      this.textContent = "COPY LINK";
     },1500);
+
   }
+
 });
 
-window.addEventListener("load", () => {
+/* =========================
+   LOAD WALLET
+========================= */
 
-  const savedWallet = localStorage.getItem(walletKey);
+window.addEventListener("load", function(){
+
+  const savedWallet =
+    localStorage.getItem(walletKey);
 
   if(savedWallet){
 
@@ -778,21 +1024,37 @@ window.addEventListener("load", () => {
     document.getElementById("status").textContent =
       "ACTIVE";
 
-    document.querySelector(".activity-row span:last-child").textContent =
+    document.getElementById("systemActivity").textContent =
       "WALLET CONNECTED";
+
   }
 
-  setTimeout(()=>{
-    document.querySelector(".reveal").classList.add("visible");
+  setTimeout(function(){
+
+    document
+      .querySelector(".reveal")
+      .classList.add("visible");
+
   },100);
+
 });
 
-document.querySelectorAll("[data-opensea]").forEach(button=>{
-  button.addEventListener("click",(e)=>{
-    e.preventDefault();
-    alert("OpenSea mint link will be connected here.");
-  });
+/* =========================
+   OPENSEA
+========================= */
+
+document
+.getElementById("openSeaBtn")
+.addEventListener("click", function(e){
+
+  e.preventDefault();
+
+  alert(
+    "OpenSea mint link will be connected here."
+  );
+
 });
+
 </script>
 
 </body>
