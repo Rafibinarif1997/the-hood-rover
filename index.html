@@ -88,6 +88,7 @@ a{
   margin:auto;
 }
 
+
 /* =========================================================
    ROVER HUB MASTER HEADER
 ========================================================= */
@@ -100,7 +101,7 @@ header{
   display:flex;
   align-items:center;
   gap:18px;
-  padding:10px max(16p,calc((100% - 1160px)/2));
+  padding:10px max(16px,calc((100% - 1160px)/2));
   background:rgba(255,250,240,.95);
   backdrop-filter:blur(12px);
   border-bottom:3px solid var(--line);
@@ -666,7 +667,8 @@ footer{
   }
 }
 
-  /* =========================================================
+
+/* =========================================================
    MINT COMING SOON MODAL
 ========================================================= */
 
@@ -892,7 +894,7 @@ footer{
   }
 
 }
-  
+
 </style>
 </head>
 
@@ -1304,11 +1306,146 @@ footer{
 </footer>
 
 
+<!-- =========================================================
+     MINT COMING SOON MODAL
+========================================================= -->
+
+<div class="mint-modal" id="mintModal">
+
+  <div class="mint-backdrop"></div>
+
+  <div class="mint-window">
+
+    <button class="mint-close" id="mintClose" type="button">
+      ×
+    </button>
+
+    <div class="mint-window-bar">
+      <span>OPEN_SEA.exe</span>
+      <span>● ● ●</span>
+    </div>
+
+    <div class="mint-content">
+
+      <div class="mint-icon">
+        HR
+      </div>
+
+      <span class="mint-status">
+        CONNECTION_PENDING
+      </span>
+
+      <h2>
+        COMING<br>
+        <span>SOON.</span>
+      </h2>
+
+      <p>
+        The Hood Rover collection is preparing
+        for its OpenSea launch on Robinhood Chain.
+      </p>
+
+      <div class="mint-loading">
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+      </div>
+
+      <div class="mint-message">
+        MINT SYSTEM // STANDBY_
+      </div>
+
+      <button class="btn mint-ok" id="mintOk" type="button">
+        GOT IT
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
+
+
 <script>
 
 /* =========================================================
-   OPENSEA
+   MINT MODAL
 ========================================================= */
+
+const mintModal = document.getElementById("mintModal");
+const mintClose = document.getElementById("mintClose");
+const mintOk = document.getElementById("mintOk");
+const mintBackdrop = document.querySelector(".mint-backdrop");
+
+function openMintModal(){
+
+  mintModal.classList.add("open");
+
+  document.body.style.overflow = "hidden";
+
+}
+
+function closeMintModal(){
+
+  mintModal.classList.remove("open");
+
+  document.body.style.overflow = "";
+
+}
+
+
+/* =========================================================
+   MINT BUTTONS
+========================================================= */
+
+["mintTop","mintHero","mintBottom"].forEach(id => {
+
+  const button = document.getElementById(id);
+
+  if(button){
+
+    button.addEventListener("click", function(event){
+
+      event.preventDefault();
+
+      openMintModal();
+
+    });
+
+  }
+
+});
+
+
+/* =========================================================
+   CLOSE MODAL
+========================================================= */
+
+mintClose.addEventListener("click", closeMintModal);
+
+mintOk.addEventListener("click", closeMintModal);
+
+mintBackdrop.addEventListener("click", closeMintModal);
+
+
+/* =========================================================
+   ESC KEY
+========================================================= */
+
+document.addEventListener("keydown", function(event){
+
+  if(event.key === "Escape"){
+
+    closeMintModal();
+
+  }
+
+});
 
 
 /* =========================================================
@@ -1359,109 +1496,6 @@ document
   .forEach(element => observer.observe(element));
 
 </script>
-<!-- MINT COMING SOON MODAL -->
 
-<div class="mint-modal" id="mintModal">
-
-  <div class="mint-backdrop"></div>
-
-  <div class="mint-window">
-
-    <button class="mint-close" id="mintClose">×</button>
-
-    <div class="mint-window-bar">
-      <span>OPEN_SEA.exe</span>
-      <span>● ● ●</span>
-    </div>
-
-    <div class="mint-content">
-
-      <div class="mint-icon">
-        HR
-      </div>
-
-      <span class="mint-status">
-        CONNECTION_PENDING
-      </span>
-
-      <h2>
-        COMING<br>
-        <span>SOON.</span>
-      </h2>
-
-      <p>
-        The Hood Rover collection is preparing
-        for its OpenSea launch on Robinhood Chain.
-      </p>
-
-      <div class="mint-loading">
-        <span></span>
-        <span></span>
-        <span></span>
-        <span></span>
-        <span></span>
-        <span></span>
-        <span></span>
-        <span></span>
-      </div>
-
-      <div class="mint-message">
-        MINT SYSTEM // STANDBY_
-      </div>
-
-      <button class="btn mint-ok" id="mintOk">
-        GOT IT
-      </button>
-
-    </div>
-
-  </div>
-
-</div>
-  
-/* =========================================================
-   MINT MODAL
-========================================================= */
-
-const mintModal = document.getElementById("mintModal");
-const mintClose = document.getElementById("mintClose");
-const mintOk = document.getElementById("mintOk");
-const mintBackdrop = document.querySelector(".mint-backdrop");
-
-function openMintModal(){
-  mintModal.classList.add("open");
-  document.body.style.overflow = "hidden";
-}
-
-function closeMintModal(){
-  mintModal.classList.remove("open");
-  document.body.style.overflow = "";
-}
-
-["mintTop","mintHero","mintBottom"].forEach(id => {
-
-  const button = document.getElementById(id);
-
-  if(button){
-    button.addEventListener("click", function(event){
-      event.preventDefault();
-      openMintModal();
-    });
-  }
-
-});
-
-mintClose.addEventListener("click", closeMintModal);
-mintOk.addEventListener("click", closeMintModal);
-mintBackdrop.addEventListener("click", closeMintModal);
-
-document.addEventListener("keydown", function(event){
-
-  if(event.key === "Escape"){
-    closeMintModal();
-  }
-
-});
-  
 </body>
 </html>
