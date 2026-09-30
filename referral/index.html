@@ -1,1 +1,799 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>REFERRAL — The Hood Rover</title><link rel="stylesheet" href="/assets/styles.css"></head><body><div class="boot"><span>HOOD ROVER SYSTEM</span><span>READY_</span></div><header><a class="brand" href="/"><span class="mark">HR</span>THE HOOD ROVER</a><button class="menu">☰</button><nav><a href="/">HOME</a><a href="/collection">COLLECTION</a><a href="/rover">ROVER HUB</a><a href="/my-rover">MY ROVER</a><a href="/leaderboard">LEADERBOARD</a><a href="/referral">REFERRAL</a><a href="/roadmap">ROADMAP</a><a href="/faq">FAQ</a></nav><a class="btn" href="#" data-opensea>MINT ON OPENSEA</a></header><main><section class="section reveal visible"><span class="eyebrow">HOOD ROVER // MODULE</span><h2>REFERRAL</h2><div class="panel"><p>Every user gets a referral link with a maximum of 10 successful referrals.</p><div class="stats"><div class="stat">STATUS<strong>READY</strong></div><div class="stat">SUPPLY<strong>1,111</strong></div><div class="stat">BACKEND<strong>SUPABASE</strong></div></div><p>No token is publicly described on this page. Real user data and reward logic can be connected later through Supabase.</p><a class="btn" href="/">BACK HOME</a></div></section></main><footer class="footer"><b>THE HOOD ROVER</b><span>RETRO SYSTEM // 2026</span></footer><script src="/assets/app.js"></script></body></html>
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>REFERRAL — The Hood Rover</title>
+
+<style>
+*{box-sizing:border-box}
+
+html{scroll-behavior:smooth}
+
+body{
+  margin:0;
+  background:#eef7fb;
+  color:#12212b;
+  font-family:monospace;
+  overflow-x:hidden;
+}
+
+body:before{
+  content:"";
+  position:fixed;
+  inset:0;
+  pointer-events:none;
+  z-index:999;
+  opacity:.08;
+  background:repeating-linear-gradient(
+    0deg,
+    transparent 0px,
+    transparent 3px,
+    #1b6f91 4px
+  );
+}
+
+a{text-decoration:none;color:inherit}
+
+.boot{
+  height:30px;
+  padding:0 18px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  background:#d7eaf2;
+  border-bottom:2px solid #8bb7c8;
+  font-size:11px;
+  font-weight:900;
+  letter-spacing:1px;
+}
+
+header{
+  position:sticky;
+  top:0;
+  z-index:100;
+  min-height:76px;
+  padding:12px 22px;
+  display:flex;
+  align-items:center;
+  gap:20px;
+  background:#f8fcfe;
+  border-bottom:3px solid #173b4a;
+  box-shadow:0 4px 0 #8bb7c8;
+}
+
+.brand{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  font-weight:900;
+  font-size:14px;
+  white-space:nowrap;
+}
+
+.mark{
+  width:36px;
+  height:36px;
+  display:grid;
+  place-items:center;
+  background:#1687b5;
+  color:white;
+  border:3px solid #173b4a;
+  box-shadow:4px 4px 0 #173b4a;
+  font-weight:900;
+}
+
+nav{
+  flex:1;
+  display:flex;
+  justify-content:center;
+  flex-wrap:wrap;
+  gap:7px;
+}
+
+nav a{
+  padding:8px 9px;
+  font-size:10px;
+  font-weight:900;
+  border:2px solid transparent;
+}
+
+nav a:hover,
+nav a[href="/referral"]{
+  background:#d9f1fb;
+  border-color:#5aa6bf;
+}
+
+.btn{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-height:40px;
+  padding:10px 15px;
+  background:#ff9e2c;
+  color:#17232a;
+  border:3px solid #173b4a;
+  box-shadow:4px 4px 0 #173b4a;
+  font-size:11px;
+  font-weight:900;
+  cursor:pointer;
+  transition:.15s;
+}
+
+.btn:hover{
+  transform:translate(2px,2px);
+  box-shadow:2px 2px 0 #173b4a;
+}
+
+.menu{
+  display:none;
+  margin-left:auto;
+  background:#d9f1fb;
+  border:3px solid #173b4a;
+  padding:8px 11px;
+  font-size:18px;
+}
+
+main{
+  max-width:1180px;
+  margin:auto;
+  padding:65px 20px 90px;
+}
+
+.eyebrow{
+  display:inline-block;
+  padding:7px 10px;
+  background:#173b4a;
+  color:#fff;
+  font-size:11px;
+  font-weight:900;
+  letter-spacing:1px;
+  box-shadow:4px 4px 0 #78abc0;
+}
+
+h1,h2,h3,p{
+  margin-top:0;
+}
+
+h2{
+  margin:18px 0 35px;
+  font-size:clamp(38px,7vw,78px);
+  line-height:.9;
+  letter-spacing:-4px;
+  text-shadow:5px 5px 0 #9ed0df;
+}
+
+.panel{
+  position:relative;
+  background:#fff;
+  border:3px solid #173b4a;
+  box-shadow:8px 8px 0 #7daebe;
+  padding:30px;
+}
+
+.panel:before{
+  content:"REFERRAL.EXE";
+  position:absolute;
+  left:0;
+  right:0;
+  top:0;
+  height:31px;
+  display:flex;
+  align-items:center;
+  padding-left:13px;
+  background:#d7edf5;
+  border-bottom:3px solid #173b4a;
+  font-size:11px;
+  font-weight:900;
+}
+
+.panel-inner{
+  padding-top:25px;
+}
+
+.hero-copy{
+  max-width:720px;
+  font-size:17px;
+  line-height:1.7;
+  font-weight:700;
+}
+
+.system-status{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  margin:8px 0 25px;
+  padding:8px 11px;
+  border:2px solid #173b4a;
+  background:#eef9fc;
+  font-size:10px;
+  font-weight:900;
+}
+
+.dot{
+  width:9px;
+  height:9px;
+  background:#28a86b;
+  border:2px solid #173b4a;
+  animation:blink 1s steps(2) infinite;
+}
+
+@keyframes blink{
+  50%{opacity:.25}
+}
+
+.ref-box{
+  margin-top:28px;
+  padding:22px;
+  background:#edf8fc;
+  border:3px solid #173b4a;
+}
+
+.ref-label{
+  display:block;
+  margin-bottom:10px;
+  font-size:11px;
+  font-weight:900;
+}
+
+.link-row{
+  display:flex;
+  gap:8px;
+}
+
+.link-input{
+  flex:1;
+  min-width:0;
+  padding:14px;
+  background:#fff;
+  border:3px solid #173b4a;
+  color:#173b4a;
+  font-family:monospace;
+  font-size:13px;
+  font-weight:900;
+  outline:none;
+}
+
+.copy-btn{
+  min-width:100px;
+  border:3px solid #173b4a;
+  background:#1687b5;
+  color:white;
+  box-shadow:4px 4px 0 #173b4a;
+  font-family:monospace;
+  font-weight:900;
+  cursor:pointer;
+}
+
+.copy-btn:active{
+  transform:translate(3px,3px);
+  box-shadow:1px 1px 0 #173b4a;
+}
+
+.stats{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:14px;
+  margin-top:30px;
+}
+
+.stat{
+  min-height:115px;
+  padding:18px;
+  background:#fff;
+  border:3px solid #173b4a;
+  box-shadow:5px 5px 0 #a4cad8;
+  font-size:10px;
+  font-weight:900;
+}
+
+.stat strong{
+  display:block;
+  margin-top:13px;
+  font-size:27px;
+  line-height:1;
+}
+
+.progress-wrap{
+  margin-top:28px;
+}
+
+.progress-head{
+  display:flex;
+  justify-content:space-between;
+  gap:15px;
+  margin-bottom:9px;
+  font-size:11px;
+  font-weight:900;
+}
+
+.progress{
+  height:24px;
+  padding:3px;
+  border:3px solid #173b4a;
+  background:#fff;
+}
+
+.progress-bar{
+  height:100%;
+  width:0%;
+  background:#1687b5;
+  transition:width .8s steps(10);
+}
+
+.rules{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:16px;
+  margin-top:30px;
+}
+
+.rule{
+  padding:19px;
+  background:#f7fcfe;
+  border:3px solid #173b4a;
+}
+
+.rule b{
+  display:block;
+  margin-bottom:9px;
+  font-size:12px;
+}
+
+.rule p{
+  margin:0;
+  font-size:11px;
+  line-height:1.7;
+  font-weight:700;
+}
+
+.activity{
+  margin-top:30px;
+  padding:20px;
+  border:3px dashed #6d9eae;
+  background:#f5fbfd;
+}
+
+.activity-title{
+  margin-bottom:15px;
+  font-size:12px;
+  font-weight:900;
+}
+
+.activity-row{
+  display:flex;
+  justify-content:space-between;
+  padding:10px 0;
+  border-bottom:1px dotted #8aadb9;
+  font-size:10px;
+  font-weight:900;
+}
+
+.activity-row:last-child{
+  border-bottom:0;
+}
+
+.note{
+  margin-top:25px;
+  font-size:11px;
+  line-height:1.8;
+  color:#48616d;
+  font-weight:700;
+}
+
+.cta{
+  margin-top:30px;
+  display:flex;
+  gap:12px;
+  flex-wrap:wrap;
+}
+
+.footer{
+  min-height:90px;
+  padding:25px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  background:#173b4a;
+  color:#dff5fc;
+  font-size:10px;
+  font-weight:900;
+  letter-spacing:1px;
+}
+
+.reveal{
+  opacity:0;
+  transform:translateY(20px);
+  transition:.6s ease;
+}
+
+.reveal.visible{
+  opacity:1;
+  transform:none;
+}
+
+@media(max-width:950px){
+  nav{display:none}
+
+  header{
+    flex-wrap:wrap;
+  }
+
+  .menu{
+    display:block;
+  }
+
+  header .btn{
+    display:none;
+  }
+
+  nav.open{
+    display:flex;
+    width:100%;
+    flex-direction:column;
+    align-items:stretch;
+    padding-top:10px;
+  }
+
+  nav.open a{
+    border:2px solid #8bb7c8;
+    background:#eef8fb;
+  }
+
+  .stats{
+    grid-template-columns:1fr;
+  }
+}
+
+@media(max-width:650px){
+  main{
+    padding:45px 14px 70px;
+  }
+
+  .panel{
+    padding:18px;
+    box-shadow:5px 5px 0 #7daebe;
+  }
+
+  h2{
+    font-size:48px;
+    letter-spacing:-3px;
+  }
+
+  .hero-copy{
+    font-size:14px;
+  }
+
+  .link-row{
+    flex-direction:column;
+  }
+
+  .copy-btn{
+    min-height:45px;
+  }
+
+  .rules{
+    grid-template-columns:1fr;
+  }
+
+  .footer{
+    flex-direction:column;
+    gap:10px;
+    text-align:center;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<div class="boot">
+  <span>HOOD ROVER SYSTEM</span>
+  <span>REFERRAL_READY_</span>
+</div>
+
+<header>
+  <a class="brand" href="../">
+    <span class="mark">HR</span>
+    THE HOOD ROVER
+  </a>
+
+  <button class="menu" id="menu">☰</button>
+
+  <nav id="nav">
+    <a href="../">HOME</a>
+    <a href="../collection/">COLLECTION</a>
+    <a href="../rover/">ROVER HUB</a>
+    <a href="../my-rover/">MY ROVER</a>
+    <a href="../leaderboard/">LEADERBOARD</a>
+    <a href="../referral/">REFERRAL</a>
+    <a href="../roadmap/">ROADMAP</a>
+    <a href="../faq/">FAQ</a>
+  </nav>
+
+  <a class="btn" href="#" data-opensea>MINT ON OPENSEA</a>
+</header>
+
+<main>
+
+<section class="reveal">
+
+  <span class="eyebrow">HOOD ROVER // NETWORK MODULE</span>
+
+  <h2>REFERRAL</h2>
+
+  <div class="panel">
+
+    <div class="panel-inner">
+
+      <div class="system-status">
+        <span class="dot"></span>
+        REFERRAL SYSTEM ONLINE
+      </div>
+
+      <p class="hero-copy">
+        INVITE REAL ROVERS INTO THE HOOD.
+        BUILD YOUR NETWORK AND UNLOCK YOUR REFERRAL PROGRESS.
+      </p>
+
+      <div class="ref-box">
+
+        <span class="ref-label">
+          YOUR REFERRAL LINK
+        </span>
+
+        <div class="link-row">
+
+          <input
+            id="refLink"
+            class="link-input"
+            type="text"
+            readonly
+            value="CONNECT WALLET TO GENERATE"
+          >
+
+          <button class="copy-btn" id="copyBtn">
+            COPY LINK
+          </button>
+
+        </div>
+
+      </div>
+
+      <div class="stats">
+
+        <div class="stat">
+          SUCCESSFUL REFERRALS
+          <strong id="refCount">0 / 10</strong>
+        </div>
+
+        <div class="stat">
+          REFERRAL STATUS
+          <strong id="status">READY</strong>
+        </div>
+
+        <div class="stat">
+          MAX NETWORK
+          <strong>10</strong>
+        </div>
+
+      </div>
+
+      <div class="progress-wrap">
+
+        <div class="progress-head">
+          <span>REFERRAL CAPACITY</span>
+          <span id="progressText">0%</span>
+        </div>
+
+        <div class="progress">
+          <div class="progress-bar" id="progressBar"></div>
+        </div>
+
+      </div>
+
+      <div class="rules">
+
+        <div class="rule">
+          <b>01 // INVITE</b>
+          <p>
+            Share your personal referral link with people you actually
+            want to bring into The Hood Rover ecosystem.
+          </p>
+        </div>
+
+        <div class="rule">
+          <b>02 // REAL ACTIVITY</b>
+          <p>
+            A referral only becomes successful after the invited user
+            completes the required genuine activity.
+          </p>
+        </div>
+
+        <div class="rule">
+          <b>03 // MAX 10</b>
+          <p>
+            Each account can have a maximum of 10 successful referrals.
+            Extra invites do not increase the successful count.
+          </p>
+        </div>
+
+        <div class="rule">
+          <b>04 // NO FAKE FARMING</b>
+          <p>
+            Duplicate, automated or suspicious activity can be excluded
+            from referral progress.
+          </p>
+        </div>
+
+      </div>
+
+      <div class="activity">
+
+        <div class="activity-title">
+          RECENT REFERRAL ACTIVITY
+        </div>
+
+        <div class="activity-row">
+          <span>SYSTEM</span>
+          <span>WAITING FOR WALLET</span>
+        </div>
+
+        <div class="activity-row">
+          <span>REFERRALS</span>
+          <span>0 SUCCESSFUL</span>
+        </div>
+
+        <div class="activity-row">
+          <span>LIMIT</span>
+          <span>10 USERS</span>
+        </div>
+
+      </div>
+
+      <p class="note">
+        Referral rewards and verification will be connected to the real
+        backend later. This page does not publicly describe any token.
+      </p>
+
+      <div class="cta">
+        <a class="btn" href="../rover/">
+          OPEN ROVER HUB
+        </a>
+
+        <a class="btn" href="../leaderboard/">
+          VIEW LEADERBOARD
+        </a>
+
+        <a class="btn" href="../">
+          BACK HOME
+        </a>
+      </div>
+
+    </div>
+  </div>
+
+</section>
+
+</main>
+
+<footer class="footer">
+  <b>THE HOOD ROVER</b>
+  <span>RETRO NETWORK // 2026</span>
+</footer>
+
+<script>
+const menu = document.getElementById("menu");
+const nav = document.getElementById("nav");
+
+menu.addEventListener("click", () => {
+  nav.classList.toggle("open");
+});
+
+const walletKey = "hoodRoverWallet";
+
+function shortenWallet(address){
+  return address.slice(0,6) + "..." + address.slice(-4);
+}
+
+function createReferralLink(address){
+  return window.location.origin +
+    window.location.pathname +
+    "?ref=" + address.toLowerCase();
+}
+
+async function connectWallet(){
+
+  if(!window.ethereum){
+    alert("No Web3 wallet detected. Connect MetaMask or another compatible wallet.");
+    return;
+  }
+
+  try{
+
+    const accounts = await window.ethereum.request({
+      method:"eth_requestAccounts"
+    });
+
+    if(accounts && accounts[0]){
+      localStorage.setItem(walletKey, accounts[0]);
+
+      document.getElementById("refLink").value =
+        createReferralLink(accounts[0]);
+
+      document.getElementById("status").textContent =
+        "ACTIVE";
+
+      document.querySelector(".activity-row span:last-child").textContent =
+        "WALLET CONNECTED";
+    }
+
+  }catch(error){
+    console.log(error);
+  }
+}
+
+const copyBtn = document.getElementById("copyBtn");
+
+copyBtn.addEventListener("click", async () => {
+
+  const input = document.getElementById("refLink");
+
+  if(input.value === "CONNECT WALLET TO GENERATE"){
+    await connectWallet();
+    return;
+  }
+
+  try{
+    await navigator.clipboard.writeText(input.value);
+
+    copyBtn.textContent = "COPIED!";
+
+    setTimeout(()=>{
+      copyBtn.textContent = "COPY LINK";
+    },1500);
+
+  }catch(error){
+
+    input.select();
+    document.execCommand("copy");
+
+    copyBtn.textContent = "COPIED!";
+
+    setTimeout(()=>{
+      copyBtn.textContent = "COPY LINK";
+    },1500);
+  }
+});
+
+window.addEventListener("load", () => {
+
+  const savedWallet = localStorage.getItem(walletKey);
+
+  if(savedWallet){
+
+    document.getElementById("refLink").value =
+      createReferralLink(savedWallet);
+
+    document.getElementById("status").textContent =
+      "ACTIVE";
+
+    document.querySelector(".activity-row span:last-child").textContent =
+      "WALLET CONNECTED";
+  }
+
+  setTimeout(()=>{
+    document.querySelector(".reveal").classList.add("visible");
+  },100);
+});
+
+document.querySelectorAll("[data-opensea]").forEach(button=>{
+  button.addEventListener("click",(e)=>{
+    e.preventDefault();
+    alert("OpenSea mint link will be connected here.");
+  });
+});
+</script>
+
+</body>
+</html>
