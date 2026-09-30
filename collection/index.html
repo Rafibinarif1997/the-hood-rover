@@ -11,14 +11,17 @@
 @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Space+Grotesk:wght@400;500;600;700&display=swap');
 
 :root{
-  --ink:#15212b;
-  --blue:#2f8cff;
-  --cyan:#15c8e8;
-  --cream:#fffaf0;
-  --paper:#f4f7f9;
+  --ink:#14232e;
   --line:#173044;
-  --yellow:#ffd34e;
-  --muted:#647482;
+  --blue:#2f8cff;
+  --cyan:#16c8e8;
+  --yellow:#ffd84d;
+  --cream:#fffaf0;
+  --paper:#f3f7fa;
+  --white:#fff;
+  --muted:#687985;
+  --green:#42c98b;
+  --orange:#ff9d42;
 }
 
 *{
@@ -38,6 +41,7 @@ body{
 }
 
 /* PIXEL GRID */
+
 body:before{
   content:"";
   position:fixed;
@@ -52,6 +56,7 @@ body:before{
 }
 
 /* CRT SCANLINES */
+
 body:after{
   content:"";
   position:fixed;
@@ -75,71 +80,119 @@ a{
   margin:auto;
 }
 
-/* =========================
-   NAV
-========================= */
 
-.topbar{
+/* =========================================================
+   ROVER HUB MASTER HEADER
+========================================================= */
+
+header{
   position:sticky;
   top:0;
-  z-index:10;
-  background:rgba(255,250,240,.94);
-  backdrop-filter:blur(10px);
-  border-bottom:3px solid var(--line);
-}
-
-.nav{
+  z-index:30;
   min-height:76px;
   display:flex;
   align-items:center;
-  justify-content:space-between;
   gap:18px;
+  padding:10px max(16px,calc((100% - 1160px)/2));
+  background:rgba(255,250,240,.95);
+  backdrop-filter:blur(12px);
+  border-bottom:3px solid var(--line);
 }
 
-.logo{
-  font-family:"Press Start 2P";
-  font-size:14px;
-  line-height:1.5;
-}
-
-.logo b{
-  color:var(--blue);
-}
-
-.navlinks{
+.brand{
   display:flex;
   align-items:center;
-  gap:6px;
-  flex-wrap:wrap;
+  gap:10px;
+  font-family:"Press Start 2P";
+  font-size:11px;
+  line-height:1.5;
+  white-space:nowrap;
 }
 
-.navlinks a{
-  font-weight:700;
-  font-size:13px;
-  padding:10px 12px;
+.mark{
+  width:38px;
+  height:38px;
+  display:grid;
+  place-items:center;
+  background:var(--blue);
+  color:#fff;
+  border:3px solid var(--line);
+  box-shadow:3px 3px 0 var(--line);
+  font-family:"Press Start 2P";
+  font-size:10px;
+}
+
+nav{
+  margin-left:auto;
+  display:flex;
+  align-items:center;
+  gap:4px;
+}
+
+nav a{
+  padding:9px 10px;
   border:2px solid transparent;
+  font-size:12px;
+  font-weight:800;
 }
 
-.navlinks a:hover,
-.navlinks a.active{
+nav a:hover,
+nav a.active{
   background:#fff;
   border-color:var(--line);
   box-shadow:3px 3px 0 var(--line);
-  transform:translate(-1px,-1px);
 }
 
 .menu{
   display:none;
-  border:3px solid var(--line);
+  margin-left:auto;
   background:#fff;
-  padding:10px 12px;
-  font-weight:900;
+  border:3px solid var(--line);
+  padding:9px 12px;
   cursor:pointer;
+  font-size:18px;
 }
 
-/* =========================
+
+/* =========================================================
+   MASTER BUTTON
+========================================================= */
+
+.btn{
+  display:inline-flex;
+  justify-content:center;
+  align-items:center;
+  gap:8px;
+  border:3px solid var(--line);
+  background:var(--blue);
+  color:#fff;
+  padding:13px 16px;
+  font-family:"Press Start 2P";
+  font-size:9px;
+  box-shadow:5px 5px 0 var(--line);
+  cursor:pointer;
+  transition:.15s ease;
+}
+
+.btn:hover{
+  transform:translate(2px,2px);
+  box-shadow:3px 3px 0 var(--line);
+}
+
+.btn.secondary{
+  background:#fff;
+  color:var(--ink);
+}
+
+.btn.yellow{
+  background:var(--yellow);
+  color:var(--ink);
+}
+
+
+/* =========================================================
    HERO
-========================= */
+========================================================= */
 
 .hero{
   padding:72px 0 38px;
@@ -232,9 +285,10 @@ h1{
   color:var(--muted);
 }
 
-/* =========================
+
+/* =========================================================
    TICKER
-========================= */
+========================================================= */
 
 .ticker{
   margin:30px 0 8px;
@@ -261,9 +315,10 @@ h1{
   }
 }
 
-/* =========================
+
+/* =========================================================
    COLLECTION
-========================= */
+========================================================= */
 
 .collection{
   padding:28px 0 85px;
@@ -290,6 +345,7 @@ h1{
   font-weight:600;
   text-align:right;
 }
+
 
 /* NFT GRID */
 
@@ -366,6 +422,7 @@ h1{
   font-size:10px;
 }
 
+
 /* NOTE */
 
 .note{
@@ -377,9 +434,10 @@ h1{
   color:#586a76;
 }
 
-/* =========================
+
+/* =========================================================
    CTA
-========================= */
+========================================================= */
 
 .cta{
   padding:0 0 90px;
@@ -409,26 +467,10 @@ h1{
   font-weight:600;
 }
 
-.btn{
-  display:inline-block;
-  background:var(--blue);
-  color:#fff;
-  border:3px solid var(--line);
-  padding:15px 18px;
-  font-family:"Press Start 2P";
-  font-size:10px;
-  box-shadow:5px 5px 0 var(--line);
-  white-space:nowrap;
-}
 
-.btn:hover{
-  transform:translate(2px,2px);
-  box-shadow:3px 3px 0 var(--line);
-}
-
-/* =========================
-   FOOTER
-========================= */
+/* =========================================================
+   MASTER FOOTER
+========================================================= */
 
 footer{
   border-top:4px solid var(--line);
@@ -445,9 +487,10 @@ footer{
   font-weight:700;
 }
 
-/* =========================
+
+/* =========================================================
    REVEAL ANIMATION
-========================= */
+========================================================= */
 
 .reveal{
   opacity:0;
@@ -462,32 +505,42 @@ footer{
     transform .65s ease;
 }
 
-/* =========================
-   TABLET
-========================= */
 
-@media(max-width:900px){
+/* =========================================================
+   ROVER HUB MASTER RESPONSIVE
+========================================================= */
 
-  .navlinks{
+@media(max-width:1000px){
+
+  header{
+    padding-left:16px;
+    padding-right:16px;
+  }
+
+  nav{
     display:none;
     position:absolute;
+    top:76px;
     left:16px;
     right:16px;
-    top:72px;
+    padding:8px;
     background:#fff;
     border:3px solid var(--line);
     box-shadow:5px 5px 0 var(--line);
-    padding:8px;
     flex-direction:column;
     align-items:stretch;
   }
 
-  .navlinks.open{
+  nav.open{
     display:flex;
   }
 
-  .navlinks a{
+  nav a{
     padding:13px;
+  }
+
+  header>.btn{
+    display:none;
   }
 
   .menu{
@@ -508,14 +561,24 @@ footer{
   }
 }
 
-/* =========================
-   MOBILE
-========================= */
 
-@media(max-width:580px){
+/* =========================================================
+   MASTER MOBILE
+========================================================= */
+
+@media(max-width:620px){
 
   .wrap{
-    width:min(100% - 20px,1160px);
+    width:calc(100% - 20px);
+  }
+
+  .brand{
+    font-size:9px;
+  }
+
+  .mark{
+    width:34px;
+    height:34px;
   }
 
   .hero{
@@ -560,71 +623,71 @@ footer{
 
 <body>
 
-<!-- =========================
-     NAVIGATION
-========================= -->
 
-<header class="topbar">
+<!-- =========================================================
+     ROVER HUB MASTER HEADER
+========================================================= -->
 
-  <div class="wrap nav">
+<header>
 
-    <a class="logo" href="../">
-      <b>HOOD</b> ROVER
+  <a class="brand" href="../">
+    <span class="mark">HR</span>
+    THE HOOD ROVER
+  </a>
+
+  <button class="menu" id="menu">
+    ☰
+  </button>
+
+  <nav id="nav">
+
+    <a href="../">
+      HOME
     </a>
 
-    <button
-      class="menu"
-      id="menu"
-      aria-label="Open menu">
-      MENU
-    </button>
+    <a class="active" href="../collection/">
+      COLLECTION
+    </a>
 
-    <nav class="navlinks" id="nav">
+    <a href="../rover/">
+      ROVER HUB
+    </a>
 
-      <a href="../">
-        HOME
-      </a>
+    <a href="../my-rover/">
+      MY ROVER
+    </a>
 
-      <a class="active" href="../collection/">
-        COLLECTION
-      </a>
+    <a href="../leaderboard/">
+      LEADERBOARD
+    </a>
 
-      <a href="../rover/">
-        ROVER HUB
-      </a>
+    <a href="../referral/">
+      REFERRAL
+    </a>
 
-      <a href="../my-rover/">
-        MY ROVER
-      </a>
+    <a href="../roadmap/">
+      ROADMAP
+    </a>
 
-      <a href="../leaderboard/">
-        LEADERBOARD
-      </a>
+    <a href="../faq/">
+      FAQ
+    </a>
 
-      <a href="../referral/">
-        REFERRAL
-      </a>
+  </nav>
 
-      <a href="../roadmap/">
-        ROADMAP
-      </a>
-
-      <a href="../faq/">
-        FAQ
-      </a>
-
-    </nav>
-
-  </div>
+  <a class="btn" href="#" id="mintButton">
+    MINT ON OPENSEA
+  </a>
 
 </header>
 
 
 <main>
 
-<!-- =========================
+
+<!-- =========================================================
      HERO
-========================= -->
+========================================================= -->
 
 <section class="hero">
 
@@ -692,9 +755,9 @@ footer{
 </section>
 
 
-<!-- =========================
+<!-- =========================================================
      TICKER
-========================= -->
+========================================================= -->
 
 <div class="ticker">
 
@@ -721,9 +784,9 @@ footer{
 </div>
 
 
-<!-- =========================
+<!-- =========================================================
      NFT COLLECTION
-========================= -->
+========================================================= -->
 
 <section class="collection">
 
@@ -1086,9 +1149,9 @@ footer{
 </section>
 
 
-<!-- =========================
+<!-- =========================================================
      CTA
-========================= -->
+========================================================= -->
 
 <section class="cta">
 
@@ -1121,20 +1184,20 @@ footer{
 </main>
 
 
-<!-- =========================
-     FOOTER
-========================= -->
+<!-- =========================================================
+     ROVER HUB MASTER FOOTER
+========================================================= -->
 
 <footer>
 
   <div class="wrap footer">
 
     <div>
-      © 2026 THE HOOD ROVER
+      <b>THE HOOD ROVER</b>
     </div>
 
     <div>
-      1,111 SUPPLY · PIXEL CULTURE · WEB3 UTILITY
+      RETRO SYSTEM // 2026
     </div>
 
   </div>
@@ -1144,7 +1207,9 @@ footer{
 
 <script>
 
-/* MOBILE MENU */
+/* =========================================================
+   MASTER MOBILE MENU
+========================================================= */
 
 const menu = document.getElementById("menu");
 const nav = document.getElementById("nav");
@@ -1154,7 +1219,23 @@ menu.addEventListener("click", () => {
 });
 
 
-/* SCROLL REVEAL */
+/* =========================================================
+   OPEN OPENSEA
+   Add the real OpenSea URL later.
+========================================================= */
+
+const mintButton = document.getElementById("mintButton");
+
+mintButton.addEventListener("click", (e) => {
+  e.preventDefault();
+
+  alert("OpenSea mint link will be connected here.");
+});
+
+
+/* =========================================================
+   SCROLL REVEAL
+========================================================= */
 
 const io = new IntersectionObserver(
   entries => {
