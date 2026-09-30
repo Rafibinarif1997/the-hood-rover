@@ -6,6 +6,8 @@
 
 <title>ROVER HUB — The Hood Rover</title>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Space+Grotesk:wght@400;500;600;700&display=swap');
 
@@ -39,8 +41,6 @@ body{
   overflow-x:hidden;
 }
 
-/* PIXEL GRID */
-
 body::before{
   content:"";
   position:fixed;
@@ -53,8 +53,6 @@ body::before{
     linear-gradient(90deg,rgba(20,50,70,.16) 1px,transparent 1px);
   background-size:24px 24px;
 }
-
-/* CRT */
 
 body::after{
   content:"";
@@ -699,14 +697,6 @@ footer{
     padding:13px;
   }
 
-  header>.btn{
-    display:none;
-  }
-
-  .menu{
-    display:block;
-  }
-
   .hub-grid{
     grid-template-columns:repeat(2,1fr);
   }
@@ -816,9 +806,9 @@ footer{
 
   </nav>
 
-  <a class="btn" href="#" id="mintButton">
-    MINT ON OPENSEA
-  </a>
+  <button class="btn secondary" id="connectWalletButton" type="button">
+    CONNECT WALLET
+  </button>
 
 </header>
 
@@ -826,10 +816,6 @@ footer{
 <main>
 
 <div class="wrap">
-
-<!-- =========================
-     HERO
-========================= -->
 
 <section class="hero reveal visible">
 
@@ -889,6 +875,10 @@ footer{
           COLLECTION: 1,111
         </div>
 
+        <div class="status-small" id="walletStatus">
+          WALLET: NOT CONNECTED
+        </div>
+
       </div>
 
     </div>
@@ -898,14 +888,8 @@ footer{
 </section>
 
 
-<!-- =========================
-     HUB MODULES
-========================= -->
-
 <section class="hub-grid">
 
-
-<!-- DAILY MISSIONS -->
 
 <article class="card reveal">
 
@@ -976,8 +960,6 @@ footer{
 </article>
 
 
-<!-- QUIZ -->
-
 <article class="card reveal">
 
   <div class="card-head">
@@ -1028,8 +1010,6 @@ footer{
 </article>
 
 
-<!-- STREAK -->
-
 <article class="card reveal">
 
   <div class="card-head">
@@ -1079,8 +1059,6 @@ footer{
 </article>
 
 
-<!-- SPIN -->
-
 <article class="card reveal">
 
   <div class="card-head">
@@ -1122,8 +1100,6 @@ footer{
 </article>
 
 
-<!-- MYSTERY -->
-
 <article class="card reveal">
 
   <div class="card-head">
@@ -1164,8 +1140,6 @@ footer{
 
 </article>
 
-
-<!-- ACHIEVEMENTS -->
 
 <article class="card reveal">
 
@@ -1246,10 +1220,6 @@ footer{
 </section>
 
 
-<!-- =========================
-     QUICK ACCESS
-========================= -->
-
 <div class="quick reveal">
 
   <a href="../my-rover/">
@@ -1286,10 +1256,6 @@ footer{
 
 </div>
 
-
-<!-- =========================
-     SYSTEM INFO
-========================= -->
 
 <div class="info reveal">
 
@@ -1339,6 +1305,314 @@ menu.addEventListener("click", () => {
   nav.classList.toggle("open");
 
 });
+
+
+/* =========================
+   SUPABASE
+========================= */
+
+const SUPABASE_URL =
+  "https://hyshlvuywbwhhjgqwfwi.supabase.co";
+
+const SUPABASE_PUBLISHABLE_KEY =
+  "sb_publishable_LWmPzfGLuzdjDZvnwKs0Ug_Gvs5yROF";
+
+const { createClient } = window.supabase;
+
+const supabaseClient =
+  createClient(
+    SUPABASE_URL,
+    SUPABASE_PUBLISHABLE_KEY
+  );
+
+
+/* =========================
+   WALLET + STREAK
+========================= */
+
+const connectWalletButton =
+  document.getElementById("connectWalletButton");
+
+const walletStatus =
+  document.getElementById("walletStatus");
+
+const checkinButton =
+  document.getElementById("checkinButton");
+
+const streakNumber =
+  document.getElementById("streakNumber");
+
+let walletAddress = null;
+
+
+/* =========================
+   CONNECT WALLET
+========================= */
+
+async function connectWallet(){
+
+  if(!window.ethereum){
+
+    alert(
+      "NO WEB3 WALLET DETECTED.\n\n" +
+      "Please open Rover Hub inside your wallet browser."
+    );
+
+    return;
+
+  }
+
+  try{
+
+    connectWalletButton.disabled = true;
+
+    connectWalletButton.textContent =
+      "CONNECTING...";
+
+    const accounts =
+      await window.ethereum.request({
+        method:"eth_requestAccounts"
+      });
+
+    if(!accounts || !accounts.length){
+
+      throw new Error("No wallet account found");
+
+    }
+
+    walletAddress =
+      accounts[0].toLowerCase();
+
+    walletStatus.textContent =
+      "WALLET: " +
+      walletAddress.slice(0,6) +
+      "..." +
+      walletAddress.slice(-4);
+
+    connectWalletButton.textContent =
+      "WALLET CONNECTED";
+
+    await loadStreak();
+
+  }catch(error){
+
+    console.error(
+      "Wallet connection failed:",
+      error
+    );
+
+    connectWalletButton.textContent =
+      "CONNECT WALLET";
+
+    alert(
+      "WALLET CONNECTION FAILED."
+    );
+
+  }finally{
+
+    connectWalletButton.disabled = false;
+
+  }
+
+}
+
+
+connectWalletButton.addEventListener(
+  "click",
+  connectWallet
+);
+
+
+/* =========================
+   LOAD STREAK
+========================= */
+
+async function loadStreak(){
+
+  if(!walletAddress) return;
+
+  try{
+
+    const { data: profile, error } =
+      await supabaseClient
+        .from("profiles")
+        .select("id")
+        .eq(
+          "wallet_address",
+          walletAddress
+        )
+        .maybeSingle();
+
+    if(error){
+
+      console.error(
+        "Profile lookup failed:",
+        error
+      );
+
+      return;
+
+    }
+
+    if(!profile){
+
+      streakNumber.textContent = "0";
+
+      checkinButton.textContent =
+        "DAILY CHECK-IN";
+
+      checkinButton.disabled = false;
+
+      return;
+
+    }
+
+    const { data: streak, error: streakError } =
+      await supabaseClient
+        .from("daily_streaks")
+        .select(
+          "current_streak,last_checkin_date,total_checkins"
+        )
+        .eq(
+          "user_id",
+          profile.id
+        )
+        .maybeSingle();
+
+    if(streakError){
+
+      console.error(
+        "Streak lookup failed:",
+        streakError
+      );
+
+      return;
+
+    }
+
+    if(streak){
+
+      streakNumber.textContent =
+        streak.current_streak;
+
+      const today =
+        new Date().toLocaleDateString(
+          "en-CA"
+        );
+
+      if(
+        streak.last_checkin_date === today
+      ){
+
+        checkinButton.textContent =
+          "ALREADY CHECKED IN";
+
+        checkinButton.disabled = true;
+
+      }
+
+    }
+
+  }catch(error){
+
+    console.error(
+      "Streak loading failed:",
+      error
+    );
+
+  }
+
+}
+
+
+/* =========================
+   DAILY CHECK-IN
+========================= */
+
+checkinButton.addEventListener(
+  "click",
+  async () => {
+
+    if(!walletAddress){
+
+      alert(
+        "CONNECT YOUR WALLET FIRST."
+      );
+
+      return;
+
+    }
+
+    checkinButton.disabled = true;
+
+    checkinButton.textContent =
+      "CHECKING...";
+
+    try{
+
+      const { data, error } =
+        await supabaseClient.rpc(
+          "daily_checkin",
+          {
+            p_wallet: walletAddress
+          }
+        );
+
+      if(error){
+
+        console.error(
+          "Check-in error:",
+          error
+        );
+
+        throw error;
+
+      }
+
+      if(!data){
+
+        throw new Error(
+          "No response from database."
+        );
+
+      }
+
+      streakNumber.textContent =
+        data.streak;
+
+      if(data.already_checked_in){
+
+        checkinButton.textContent =
+          "ALREADY CHECKED IN";
+
+      }else{
+
+        checkinButton.textContent =
+          "CHECKED IN ✓";
+
+      }
+
+    }catch(error){
+
+      console.error(
+        "Daily check-in failed:",
+        error
+      );
+
+      checkinButton.disabled = false;
+
+      checkinButton.textContent =
+        "DAILY CHECK-IN";
+
+      alert(
+        "DAILY CHECK-IN FAILED.\n\n" +
+        "Please try again."
+      );
+
+    }
+
+  }
+);
 
 
 /* =========================
@@ -1441,59 +1715,6 @@ mysteryButton.addEventListener("click", () => {
 
 
 /* =========================
-   DAILY CHECK-IN
-========================= */
-
-const checkinButton =
-  document.getElementById("checkinButton");
-
-const streakNumber =
-  document.getElementById("streakNumber");
-
-let streak =
-  Number(localStorage.getItem("hoodRoverStreak") || 0);
-
-streakNumber.textContent = streak;
-
-checkinButton.addEventListener("click", () => {
-
-  const today =
-    new Date().toISOString().slice(0,10);
-
-  const last =
-    localStorage.getItem("hoodRoverLastCheckin");
-
-  if(last === today){
-
-    checkinButton.textContent =
-      "ALREADY CHECKED IN";
-
-    return;
-
-  }
-
-  streak++;
-
-  localStorage.setItem(
-    "hoodRoverStreak",
-    streak
-  );
-
-  localStorage.setItem(
-    "hoodRoverLastCheckin",
-    today
-  );
-
-  streakNumber.textContent =
-    streak;
-
-  checkinButton.textContent =
-    "CHECKED IN ✓";
-
-});
-
-
-/* =========================
    QUIZ DEMO
 ========================= */
 
@@ -1544,23 +1765,6 @@ const observer =
 document
   .querySelectorAll(".reveal")
   .forEach(el => observer.observe(el));
-
-
-/* =========================
-   OPENSEA PLACEHOLDER
-========================= */
-
-document
-  .getElementById("mintButton")
-  .addEventListener("click", event => {
-
-    event.preventDefault();
-
-    alert(
-      "OpenSea mint link will be connected here."
-    );
-
-  });
 
 </script>
 
