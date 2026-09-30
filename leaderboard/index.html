@@ -1,1 +1,1534 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>LEADERBOARD — The Hood Rover</title><link rel="stylesheet" href="/assets/styles.css"></head><body><div class="boot"><span>HOOD ROVER SYSTEM</span><span>READY_</span></div><header><a class="brand" href="/"><span class="mark">HR</span>THE HOOD ROVER</a><button class="menu">☰</button><nav><a href="/">HOME</a><a href="/collection">COLLECTION</a><a href="/rover">ROVER HUB</a><a href="/my-rover">MY ROVER</a><a href="/leaderboard">LEADERBOARD</a><a href="/referral">REFERRAL</a><a href="/roadmap">ROADMAP</a><a href="/faq">FAQ</a></nav><a class="btn" href="#" data-opensea>MINT ON OPENSEA</a></header><main><section class="section reveal visible"><span class="eyebrow">HOOD ROVER // MODULE</span><h2>LEADERBOARD</h2><div class="panel"><p>Rover earned, referral count and event rankings. No XP ranking.</p><div class="stats"><div class="stat">STATUS<strong>READY</strong></div><div class="stat">SUPPLY<strong>1,111</strong></div><div class="stat">BACKEND<strong>SUPABASE</strong></div></div><p>No token is publicly described on this page. Real user data and reward logic can be connected later through Supabase.</p><a class="btn" href="/">BACK HOME</a></div></section></main><footer class="footer"><b>THE HOOD ROVER</b><span>RETRO SYSTEM // 2026</span></footer><script src="/assets/app.js"></script></body></html>
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+
+<title>LEADERBOARD — The Hood Rover</title>
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Space+Grotesk:wght@400;500;600;700&display=swap');
+
+:root{
+  --ink:#14232e;
+  --line:#173044;
+  --blue:#2f8cff;
+  --cyan:#16c8e8;
+  --yellow:#ffd84d;
+  --cream:#fffaf0;
+  --paper:#f3f7fa;
+  --white:#fff;
+  --muted:#687985;
+  --green:#42c98b;
+  --orange:#ff9d42;
+}
+
+*{box-sizing:border-box}
+
+html{scroll-behavior:smooth}
+
+body{
+  margin:0;
+  color:var(--ink);
+  background:var(--paper);
+  font-family:"Space Grotesk",sans-serif;
+  overflow-x:hidden;
+}
+
+body::before{
+  content:"";
+  position:fixed;
+  inset:0;
+  pointer-events:none;
+  z-index:-2;
+  opacity:.13;
+  background-image:
+    linear-gradient(rgba(20,50,70,.16) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(20,50,70,.16) 1px,transparent 1px);
+  background-size:24px 24px;
+}
+
+body::after{
+  content:"";
+  position:fixed;
+  inset:0;
+  pointer-events:none;
+  z-index:50;
+  background:repeating-linear-gradient(
+    0deg,
+    transparent 0 3px,
+    rgba(20,40,55,.035) 3px 4px
+  );
+}
+
+a{
+  color:inherit;
+  text-decoration:none;
+}
+
+button{
+  font-family:inherit;
+}
+
+.wrap{
+  width:min(1160px,calc(100% - 32px));
+  margin:auto;
+}
+
+/* =========================
+   NAVIGATION
+========================= */
+
+header{
+  position:sticky;
+  top:0;
+  z-index:30;
+  min-height:76px;
+  display:flex;
+  align-items:center;
+  gap:18px;
+  padding:10px max(16px,calc((100% - 1160px)/2));
+  background:rgba(255,250,240,.95);
+  backdrop-filter:blur(12px);
+  border-bottom:3px solid var(--line);
+}
+
+.brand{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  font-family:"Press Start 2P";
+  font-size:11px;
+  line-height:1.5;
+  white-space:nowrap;
+}
+
+.mark{
+  width:38px;
+  height:38px;
+  display:grid;
+  place-items:center;
+  background:var(--blue);
+  color:#fff;
+  border:3px solid var(--line);
+  box-shadow:3px 3px 0 var(--line);
+  font-family:"Press Start 2P";
+  font-size:10px;
+}
+
+nav{
+  margin-left:auto;
+  display:flex;
+  align-items:center;
+  gap:4px;
+}
+
+nav a{
+  padding:9px 10px;
+  border:2px solid transparent;
+  font-size:12px;
+  font-weight:800;
+}
+
+nav a:hover,
+nav a.active{
+  background:#fff;
+  border-color:var(--line);
+  box-shadow:3px 3px 0 var(--line);
+}
+
+.menu{
+  display:none;
+  margin-left:auto;
+  background:#fff;
+  border:3px solid var(--line);
+  padding:9px 12px;
+  cursor:pointer;
+  font-size:18px;
+}
+
+/* =========================
+   BUTTON
+========================= */
+
+.btn{
+  display:inline-flex;
+  justify-content:center;
+  align-items:center;
+  gap:8px;
+  border:3px solid var(--line);
+  background:var(--blue);
+  color:#fff;
+  padding:13px 16px;
+  font-family:"Press Start 2P";
+  font-size:9px;
+  box-shadow:5px 5px 0 var(--line);
+  cursor:pointer;
+  transition:.15s ease;
+}
+
+.btn:hover{
+  transform:translate(2px,2px);
+  box-shadow:3px 3px 0 var(--line);
+}
+
+.btn.secondary{
+  background:#fff;
+  color:var(--ink);
+}
+
+.btn.yellow{
+  background:var(--yellow);
+  color:var(--ink);
+}
+
+/* =========================
+   MAIN
+========================= */
+
+main{
+  padding:55px 0 90px;
+}
+
+/* =========================
+   HERO WINDOW
+========================= */
+
+.window{
+  background:#fff;
+  border:4px solid var(--line);
+  box-shadow:8px 8px 0 var(--line);
+}
+
+.window-bar{
+  min-height:42px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:9px 13px;
+  background:#dceaf2;
+  border-bottom:4px solid var(--line);
+  font-family:"Press Start 2P";
+  font-size:9px;
+}
+
+.window-lights{
+  display:flex;
+  gap:6px;
+}
+
+.light{
+  width:12px;
+  height:12px;
+  border:2px solid var(--line);
+  background:#fff;
+}
+
+.light:nth-child(2){
+  background:var(--yellow);
+}
+
+.light:nth-child(3){
+  background:var(--cyan);
+}
+
+.hero{
+  padding:34px;
+  display:grid;
+  grid-template-columns:1fr auto;
+  gap:30px;
+  align-items:end;
+}
+
+.eyebrow{
+  display:inline-block;
+  margin-bottom:14px;
+  color:var(--blue);
+  font-family:"Press Start 2P";
+  font-size:10px;
+}
+
+h1{
+  margin:0 0 15px;
+  font-family:"Press Start 2P";
+  font-size:clamp(27px,5vw,52px);
+  line-height:1.3;
+  letter-spacing:-2px;
+}
+
+.hero p{
+  max-width:720px;
+  margin:0;
+  color:var(--muted);
+  font-size:16px;
+  line-height:1.65;
+}
+
+.live{
+  min-width:200px;
+  padding:18px;
+  background:var(--cream);
+  border:3px solid var(--line);
+}
+
+.live-line{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  font-weight:900;
+  margin-bottom:8px;
+}
+
+.live-dot{
+  width:12px;
+  height:12px;
+  border-radius:50%;
+  background:var(--green);
+  border:2px solid var(--line);
+  animation:pulse 1.5s infinite;
+}
+
+@keyframes pulse{
+  50%{opacity:.35}
+}
+
+.live small{
+  color:var(--muted);
+}
+
+/* =========================
+   TABS
+========================= */
+
+.tabs{
+  display:flex;
+  gap:10px;
+  margin:25px 0 20px;
+  flex-wrap:wrap;
+}
+
+.tab{
+  border:3px solid var(--line);
+  background:#fff;
+  padding:13px 16px;
+  font-family:"Press Start 2P";
+  font-size:8px;
+  box-shadow:4px 4px 0 var(--line);
+  cursor:pointer;
+  transition:.15s;
+}
+
+.tab:hover{
+  transform:translate(2px,2px);
+  box-shadow:2px 2px 0 var(--line);
+}
+
+.tab.active{
+  background:var(--blue);
+  color:#fff;
+}
+
+/* =========================
+   LEADERBOARD PANEL
+========================= */
+
+.board{
+  background:#fff;
+  border:4px solid var(--line);
+  box-shadow:7px 7px 0 var(--line);
+  overflow:hidden;
+}
+
+.board-head{
+  display:grid;
+  grid-template-columns:80px 1fr 180px;
+  gap:15px;
+  padding:14px 18px;
+  background:#173044;
+  color:#fff;
+  font-family:"Press Start 2P";
+  font-size:8px;
+}
+
+.row{
+  display:grid;
+  grid-template-columns:80px 1fr 180px;
+  gap:15px;
+  align-items:center;
+  padding:17px 18px;
+  border-bottom:2px solid #d6e0e5;
+  transition:.18s;
+}
+
+.row:last-child{
+  border-bottom:0;
+}
+
+.row:hover{
+  background:#eefaff;
+}
+
+.rank{
+  font-family:"Press Start 2P";
+  font-size:13px;
+}
+
+.rank.gold{
+  color:#d99c00;
+}
+
+.rank.silver{
+  color:#75838d;
+}
+
+.rank.bronze{
+  color:#a76536;
+}
+
+.user{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  min-width:0;
+}
+
+.avatar{
+  width:42px;
+  height:42px;
+  display:grid;
+  place-items:center;
+  flex-shrink:0;
+  background:#dff7ff;
+  border:3px solid var(--line);
+  font-size:21px;
+}
+
+.wallet{
+  min-width:0;
+}
+
+.wallet strong{
+  display:block;
+  font-size:13px;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+
+.wallet span{
+  display:block;
+  margin-top:3px;
+  color:var(--muted);
+  font-size:10px;
+}
+
+.value{
+  text-align:right;
+  font-family:"Press Start 2P";
+  font-size:9px;
+  color:var(--blue);
+}
+
+/* =========================
+   PODIUM
+========================= */
+
+.podium{
+  margin:25px 0;
+  display:grid;
+  grid-template-columns:1fr 1.15fr 1fr;
+  gap:12px;
+  align-items:end;
+}
+
+.podium-card{
+  background:#fff;
+  border:4px solid var(--line);
+  box-shadow:5px 5px 0 var(--line);
+  text-align:center;
+  padding:20px 12px;
+}
+
+.podium-card.first{
+  background:#fff7d9;
+  padding-top:28px;
+}
+
+.podium-icon{
+  font-size:35px;
+  margin-bottom:10px;
+}
+
+.podium-place{
+  font-family:"Press Start 2P";
+  font-size:8px;
+  margin-bottom:10px;
+}
+
+.podium-name{
+  font-weight:900;
+  font-size:12px;
+  margin-bottom:7px;
+}
+
+.podium-score{
+  color:var(--blue);
+  font-family:"Press Start 2P";
+  font-size:8px;
+}
+
+/* =========================
+   YOUR POSITION
+========================= */
+
+.your-position{
+  margin-top:22px;
+  background:#dff7ff;
+  border:4px solid var(--line);
+  box-shadow:6px 6px 0 var(--line);
+  padding:20px;
+}
+
+.your-title{
+  margin-bottom:15px;
+  font-family:"Press Start 2P";
+  font-size:10px;
+}
+
+.your-row{
+  display:grid;
+  grid-template-columns:80px 1fr 180px;
+  gap:15px;
+  align-items:center;
+}
+
+.your-rank{
+  font-family:"Press Start 2P";
+  font-size:15px;
+  color:var(--blue);
+}
+
+.your-user{
+  font-weight:900;
+}
+
+.your-user small{
+  display:block;
+  margin-top:4px;
+  color:var(--muted);
+  font-weight:500;
+}
+
+.your-value{
+  text-align:right;
+  font-family:"Press Start 2P";
+  font-size:8px;
+}
+
+/* =========================
+   INFO CARDS
+========================= */
+
+.info-grid{
+  margin-top:22px;
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:16px;
+}
+
+.info-card{
+  background:#fff;
+  border:3px solid var(--line);
+  box-shadow:4px 4px 0 var(--line);
+  padding:18px;
+}
+
+.info-card h3{
+  margin:0 0 9px;
+  font-family:"Press Start 2P";
+  font-size:10px;
+  line-height:1.6;
+}
+
+.info-card p{
+  margin:0;
+  color:var(--muted);
+  font-size:12px;
+  line-height:1.6;
+}
+
+/* =========================
+   FOOTER
+========================= */
+
+footer{
+  border-top:4px solid var(--line);
+  background:#fff;
+  padding:28px 0 40px;
+}
+
+.footer{
+  display:flex;
+  justify-content:space-between;
+  gap:20px;
+  color:var(--muted);
+  font-size:13px;
+  font-weight:700;
+}
+
+/* =========================
+   REVEAL
+========================= */
+
+.reveal{
+  opacity:0;
+  transform:translateY(20px);
+}
+
+.reveal.visible{
+  opacity:1;
+  transform:none;
+  transition:
+    opacity .65s ease,
+    transform .65s ease;
+}
+
+/* =========================
+   TABLET
+========================= */
+
+@media(max-width:1000px){
+
+  nav{
+    display:none;
+    position:absolute;
+    top:76px;
+    left:16px;
+    right:16px;
+    padding:8px;
+    background:#fff;
+    border:3px solid var(--line);
+    box-shadow:5px 5px 0 var(--line);
+    flex-direction:column;
+    align-items:stretch;
+  }
+
+  nav.open{
+    display:flex;
+  }
+
+  nav a{
+    padding:13px;
+  }
+
+  header>.btn{
+    display:none;
+  }
+
+  .menu{
+    display:block;
+  }
+
+  .hero{
+    grid-template-columns:1fr;
+  }
+
+  .live{
+    width:100%;
+  }
+
+  .info-grid{
+    grid-template-columns:1fr;
+  }
+}
+
+/* =========================
+   MOBILE
+========================= */
+
+@media(max-width:650px){
+
+  .wrap{
+    width:calc(100% - 20px);
+  }
+
+  main{
+    padding-top:30px;
+  }
+
+  .brand{
+    font-size:9px;
+  }
+
+  .mark{
+    width:34px;
+    height:34px;
+  }
+
+  .hero{
+    padding:24px 20px;
+  }
+
+  h1{
+    font-size:27px;
+  }
+
+  .hero p{
+    font-size:14px;
+  }
+
+  .board-head{
+    grid-template-columns:55px 1fr 100px;
+    font-size:7px;
+  }
+
+  .row{
+    grid-template-columns:55px 1fr 100px;
+    padding:13px 10px;
+  }
+
+  .rank{
+    font-size:10px;
+  }
+
+  .value{
+    font-size:7px;
+  }
+
+  .wallet strong{
+    font-size:11px;
+  }
+
+  .podium{
+    grid-template-columns:1fr;
+  }
+
+  .podium-card.first{
+    order:-1;
+  }
+
+  .your-row{
+    grid-template-columns:55px 1fr 100px;
+  }
+
+  .your-value{
+    font-size:7px;
+  }
+
+  .footer{
+    display:block;
+  }
+
+  .footer div+div{
+    margin-top:10px;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+
+  <a class="brand" href="../">
+    <span class="mark">HR</span>
+    THE HOOD ROVER
+  </a>
+
+  <button class="menu" id="menu">
+    ☰
+  </button>
+
+  <nav id="nav">
+
+    <a href="../">HOME</a>
+
+    <a href="../collection/">COLLECTION</a>
+
+    <a href="../rover/">ROVER HUB</a>
+
+    <a href="../my-rover/">MY ROVER</a>
+
+    <a class="active" href="../leaderboard/">LEADERBOARD</a>
+
+    <a href="../referral/">REFERRAL</a>
+
+    <a href="../roadmap/">ROADMAP</a>
+
+    <a href="../faq/">FAQ</a>
+
+  </nav>
+
+  <a class="btn" href="#" id="mintButton">
+    MINT ON OPENSEA
+  </a>
+
+</header>
+
+
+<main>
+
+<div class="wrap">
+
+<!-- =========================
+     HERO
+========================= -->
+
+<section class="window reveal visible">
+
+  <div class="window-bar">
+
+    <span>
+      LEADERBOARD.EXE
+    </span>
+
+    <span class="window-lights">
+      <i class="light"></i>
+      <i class="light"></i>
+      <i class="light"></i>
+    </span>
+
+  </div>
+
+
+  <div class="hero">
+
+    <div>
+
+      <span class="eyebrow">
+        HOOD ROVER // COMMUNITY TERMINAL
+      </span>
+
+      <h1>
+        LEADERBOARD
+      </h1>
+
+      <p>
+        Track community activity across Rover rewards,
+        successful referrals and special events.
+        Rankings update from the live account system.
+      </p>
+
+    </div>
+
+
+    <div class="live">
+
+      <div class="live-line">
+
+        <span class="live-dot"></span>
+
+        SYSTEM READY
+
+      </div>
+
+      <small>
+        LIVE RANKINGS
+      </small>
+
+    </div>
+
+  </div>
+
+</section>
+
+
+<!-- =========================
+     RANKING TABS
+========================= -->
+
+<div class="tabs reveal">
+
+  <button class="tab active" data-board="rover">
+    ROVER EARNED
+  </button>
+
+  <button class="tab" data-board="referrals">
+    REFERRALS
+  </button>
+
+  <button class="tab" data-board="events">
+    EVENTS
+  </button>
+
+</div>
+
+
+<!-- =========================
+     PODIUM
+========================= -->
+
+<section class="podium reveal">
+
+  <div class="podium-card">
+
+    <div class="podium-icon">
+      🥈
+    </div>
+
+    <div class="podium-place">
+      #02
+    </div>
+
+    <div class="podium-name">
+      ROVER_02
+    </div>
+
+    <div class="podium-score">
+      0000
+    </div>
+
+  </div>
+
+
+  <div class="podium-card first">
+
+    <div class="podium-icon">
+      🥇
+    </div>
+
+    <div class="podium-place">
+      #01
+    </div>
+
+    <div class="podium-name">
+      ROVER_01
+    </div>
+
+    <div class="podium-score">
+      0000
+    </div>
+
+  </div>
+
+
+  <div class="podium-card">
+
+    <div class="podium-icon">
+      🥉
+    </div>
+
+    <div class="podium-place">
+      #03
+    </div>
+
+    <div class="podium-name">
+      ROVER_03
+    </div>
+
+    <div class="podium-score">
+      0000
+    </div>
+
+  </div>
+
+</section>
+
+
+<!-- =========================
+     LEADERBOARD TABLE
+========================= -->
+
+<section class="board reveal">
+
+  <div class="board-head">
+
+    <span>
+      RANK
+    </span>
+
+    <span>
+      ROVER
+    </span>
+
+    <span style="text-align:right">
+      ROVER EARNED
+    </span>
+
+  </div>
+
+
+  <div id="leaderRows">
+
+
+    <div class="row">
+
+      <div class="rank gold">
+        #01
+      </div>
+
+      <div class="user">
+
+        <div class="avatar">
+          🧑‍🚀
+        </div>
+
+        <div class="wallet">
+
+          <strong>
+            ROVER_01
+          </strong>
+
+          <span>
+            WALLET NOT CONNECTED
+          </span>
+
+        </div>
+
+      </div>
+
+      <div class="value">
+        0000
+      </div>
+
+    </div>
+
+
+    <div class="row">
+
+      <div class="rank silver">
+        #02
+      </div>
+
+      <div class="user">
+
+        <div class="avatar">
+          🧑‍🚀
+        </div>
+
+        <div class="wallet">
+
+          <strong>
+            ROVER_02
+          </strong>
+
+          <span>
+            WALLET NOT CONNECTED
+          </span>
+
+        </div>
+
+      </div>
+
+      <div class="value">
+        0000
+      </div>
+
+    </div>
+
+
+    <div class="row">
+
+      <div class="rank bronze">
+        #03
+      </div>
+
+      <div class="user">
+
+        <div class="avatar">
+          🧑‍🚀
+        </div>
+
+        <div class="wallet">
+
+          <strong>
+            ROVER_03
+          </strong>
+
+          <span>
+            WALLET NOT CONNECTED
+          </span>
+
+        </div>
+
+      </div>
+
+      <div class="value">
+        0000
+      </div>
+
+    </div>
+
+
+    <div class="row">
+
+      <div class="rank">
+        #04
+      </div>
+
+      <div class="user">
+
+        <div class="avatar">
+          🧑‍🚀
+        </div>
+
+        <div class="wallet">
+
+          <strong>
+            ROVER_04
+          </strong>
+
+          <span>
+            WALLET NOT CONNECTED
+          </span>
+
+        </div>
+
+      </div>
+
+      <div class="value">
+        0000
+      </div>
+
+    </div>
+
+
+    <div class="row">
+
+      <div class="rank">
+        #05
+      </div>
+
+      <div class="user">
+
+        <div class="avatar">
+          🧑‍🚀
+        </div>
+
+        <div class="wallet">
+
+          <strong>
+            ROVER_05
+          </strong>
+
+          <span>
+            WALLET NOT CONNECTED
+          </span>
+
+        </div>
+
+      </div>
+
+      <div class="value">
+        0000
+      </div>
+
+    </div>
+
+
+    <div class="row">
+
+      <div class="rank">
+        #06
+      </div>
+
+      <div class="user">
+
+        <div class="avatar">
+          🧑‍🚀
+        </div>
+
+        <div class="wallet">
+
+          <strong>
+            ROVER_06
+          </strong>
+
+          <span>
+            WALLET NOT CONNECTED
+          </span>
+
+        </div>
+
+      </div>
+
+      <div class="value">
+        0000
+      </div>
+
+    </div>
+
+
+    <div class="row">
+
+      <div class="rank">
+        #07
+      </div>
+
+      <div class="user">
+
+        <div class="avatar">
+          🧑‍🚀
+        </div>
+
+        <div class="wallet">
+
+          <strong>
+            ROVER_07
+          </strong>
+
+          <span>
+            WALLET NOT CONNECTED
+          </span>
+
+        </div>
+
+      </div>
+
+      <div class="value">
+        0000
+      </div>
+
+    </div>
+
+
+    <div class="row">
+
+      <div class="rank">
+        #08
+      </div>
+
+      <div class="user">
+
+        <div class="avatar">
+          🧑‍🚀
+        </div>
+
+        <div class="wallet">
+
+          <strong>
+            ROVER_08
+          </strong>
+
+          <span>
+            WALLET NOT CONNECTED
+          </span>
+
+        </div>
+
+      </div>
+
+      <div class="value">
+        0000
+      </div>
+
+    </div>
+
+
+    <div class="row">
+
+      <div class="rank">
+        #09
+      </div>
+
+      <div class="user">
+
+        <div class="avatar">
+          🧑‍🚀
+        </div>
+
+        <div class="wallet">
+
+          <strong>
+            ROVER_09
+          </strong>
+
+          <span>
+            WALLET NOT CONNECTED
+          </span>
+
+        </div>
+
+      </div>
+
+      <div class="value">
+        0000
+      </div>
+
+    </div>
+
+
+    <div class="row">
+
+      <div class="rank">
+        #10
+      </div>
+
+      <div class="user">
+
+        <div class="avatar">
+          🧑‍🚀
+        </div>
+
+        <div class="wallet">
+
+          <strong>
+            ROVER_10
+          </strong>
+
+          <span>
+            WALLET NOT CONNECTED
+          </span>
+
+        </div>
+
+      </div>
+
+      <div class="value">
+        0000
+      </div>
+
+    </div>
+
+
+  </div>
+
+</section>
+
+
+<!-- =========================
+     YOUR POSITION
+========================= -->
+
+<section class="your-position reveal">
+
+  <div class="your-title">
+    YOUR POSITION
+  </div>
+
+  <div class="your-row">
+
+    <div class="your-rank">
+      —
+    </div>
+
+    <div class="your-user">
+
+      CONNECT WALLET
+
+      <small>
+        Connect your wallet to see your live position.
+      </small>
+
+    </div>
+
+    <div class="your-value">
+      —
+    </div>
+
+  </div>
+
+</section>
+
+
+<!-- =========================
+     INFO
+========================= -->
+
+<section class="info-grid reveal">
+
+  <article class="info-card">
+
+    <h3>
+      ROVER EARNED
+    </h3>
+
+    <p>
+      Ranking based on the total Rover earned through
+      eligible platform activity.
+    </p>
+
+  </article>
+
+
+  <article class="info-card">
+
+    <h3>
+      REFERRALS
+    </h3>
+
+    <p>
+      Ranking based on successful referrals.
+      The system is designed around genuine user activity.
+    </p>
+
+  </article>
+
+
+  <article class="info-card">
+
+    <h3>
+      EVENTS
+    </h3>
+
+    <p>
+      Temporary event rankings can appear here when
+      official Hood Rover events are active.
+    </p>
+
+  </article>
+
+</section>
+
+
+</div>
+
+</main>
+
+
+<footer>
+
+  <div class="wrap footer">
+
+    <div>
+      <b>THE HOOD ROVER</b>
+    </div>
+
+    <div>
+      RETRO SYSTEM // 2026
+    </div>
+
+  </div>
+
+</footer>
+
+
+<script>
+
+/* =========================
+   MOBILE MENU
+========================= */
+
+const menu =
+  document.getElementById("menu");
+
+const nav =
+  document.getElementById("nav");
+
+menu.addEventListener("click", () => {
+
+  nav.classList.toggle("open");
+
+});
+
+
+/* =========================
+   TABS
+========================= */
+
+const tabs =
+  document.querySelectorAll(".tab");
+
+const boardHead =
+  document.querySelector(".board-head");
+
+const values =
+  document.querySelectorAll(".value");
+
+tabs.forEach(tab => {
+
+  tab.addEventListener("click", () => {
+
+    tabs.forEach(t =>
+      t.classList.remove("active")
+    );
+
+    tab.classList.add("active");
+
+    const type =
+      tab.dataset.board;
+
+    if(type === "rover"){
+
+      boardHead.children[2].textContent =
+        "ROVER EARNED";
+
+      values.forEach(v =>
+        v.textContent = "0000"
+      );
+
+    }
+
+    if(type === "referrals"){
+
+      boardHead.children[2].textContent =
+        "REFERRALS";
+
+      values.forEach((v,i) =>
+        v.textContent = "0"
+      );
+
+    }
+
+    if(type === "events"){
+
+      boardHead.children[2].textContent =
+        "EVENT SCORE";
+
+      values.forEach(v =>
+        v.textContent = "0000"
+      );
+
+    }
+
+  });
+
+});
+
+
+/* =========================
+   OPENSEA
+========================= */
+
+document
+  .getElementById("mintButton")
+  .addEventListener("click",event => {
+
+    event.preventDefault();
+
+    alert(
+      "OpenSea mint link will be connected here."
+    );
+
+  });
+
+
+/* =========================
+   SCROLL REVEAL
+========================= */
+
+const observer =
+  new IntersectionObserver(
+    entries => {
+
+      entries.forEach((entry,index) => {
+
+        if(entry.isIntersecting){
+
+          setTimeout(() => {
+
+            entry.target.classList.add("visible");
+
+          },index * 60);
+
+          observer.unobserve(entry.target);
+
+        }
+
+      });
+
+    },
+    {
+      threshold:.08
+    }
+  );
+
+
+document
+  .querySelectorAll(".reveal")
+  .forEach(el => observer.observe(el));
+
+</script>
+
+</body>
+</html>
