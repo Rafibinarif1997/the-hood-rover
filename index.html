@@ -1083,30 +1083,6 @@ footer{
    OPENSEA
 ========================================================= */
 
-const OPENSEA_URL = "#";
-
-["mintTop","mintHero","mintBottom"].forEach(id => {
-
-  const button = document.getElementById(id);
-
-  if(!button) return;
-
-  button.addEventListener("click", function(event){
-
-    if(OPENSEA_URL === "#"){
-
-      event.preventDefault();
-
-      alert(
-        "OpenSea mint link will be connected here."
-      );
-
-    }
-
-  });
-
-});
-
 
 /* =========================================================
    MASTER MOBILE MENU
