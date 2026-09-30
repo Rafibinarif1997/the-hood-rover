@@ -1418,5 +1418,50 @@ document
   </div>
 
 </div>
+  
+/* =========================================================
+   MINT MODAL
+========================================================= */
+
+const mintModal = document.getElementById("mintModal");
+const mintClose = document.getElementById("mintClose");
+const mintOk = document.getElementById("mintOk");
+const mintBackdrop = document.querySelector(".mint-backdrop");
+
+function openMintModal(){
+  mintModal.classList.add("open");
+  document.body.style.overflow = "hidden";
+}
+
+function closeMintModal(){
+  mintModal.classList.remove("open");
+  document.body.style.overflow = "";
+}
+
+["mintTop","mintHero","mintBottom"].forEach(id => {
+
+  const button = document.getElementById(id);
+
+  if(button){
+    button.addEventListener("click", function(event){
+      event.preventDefault();
+      openMintModal();
+    });
+  }
+
+});
+
+mintClose.addEventListener("click", closeMintModal);
+mintOk.addEventListener("click", closeMintModal);
+mintBackdrop.addEventListener("click", closeMintModal);
+
+document.addEventListener("keydown", function(event){
+
+  if(event.key === "Escape"){
+    closeMintModal();
+  }
+
+});
+  
 </body>
 </html>
