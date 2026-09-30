@@ -16,17 +16,17 @@ html{
 
 body{
   margin:0;
-  background:#edf7fb;
-  color:#142b36;
+  background:#f4f9fb;
+  color:#172d38;
   font-family:monospace;
   overflow-x:hidden;
 }
 
 /* =========================
-   CRT / PIXEL EFFECT
+   SCREEN
 ========================= */
 
-body::after{
+body:before{
   content:"";
   position:fixed;
   inset:0;
@@ -34,26 +34,25 @@ body::after{
   z-index:9999;
   opacity:.055;
   background:repeating-linear-gradient(
-    to bottom,
-    transparent 0,
+    0deg,
+    transparent 0px,
     transparent 3px,
-    #164454 4px
+    #173d4c 4px
   );
 }
 
 /* =========================
-   BOOT BAR
+   BOOT
 ========================= */
 
 .boot{
-  height:29px;
+  height:30px;
   padding:0 18px;
   display:flex;
-  align-items:center;
   justify-content:space-between;
-  background:#d5e9f1;
-  border-bottom:2px solid #83aebd;
-  color:#244957;
+  align-items:center;
+  background:#dceef4;
+  border-bottom:3px solid #8eb8c6;
   font-size:10px;
   font-weight:900;
   letter-spacing:1px;
@@ -67,38 +66,41 @@ header{
   position:sticky;
   top:0;
   z-index:500;
-  min-height:76px;
-  padding:12px 22px;
+  min-height:82px;
+  padding:15px 30px;
   display:flex;
   align-items:center;
-  gap:20px;
-  background:#f9fdff;
-  border-bottom:3px solid #173d4c;
-  box-shadow:0 4px 0 #8db8c7;
+  gap:22px;
+  background:#fffefa;
+  border-bottom:4px solid #173d4c;
 }
 
 .brand{
   display:flex;
   align-items:center;
-  gap:10px;
+  gap:15px;
+  color:#172d38;
+  text-decoration:none;
   white-space:nowrap;
-  font-size:14px;
+  font-size:18px;
   font-weight:900;
 }
 
 .mark{
-  width:36px;
-  height:36px;
+  width:70px;
+  height:66px;
   display:grid;
   place-items:center;
-  background:#1688b5;
+  background:#1689c7;
   color:white;
-  border:3px solid #173d4c;
-  box-shadow:4px 4px 0 #173d4c;
+  border:5px solid #173d4c;
+  box-shadow:7px 7px 0 #173d4c;
+  font-size:21px;
+  font-weight:900;
 }
 
 /* =========================
-   DESKTOP MENU
+   DESKTOP NAV
 ========================= */
 
 nav{
@@ -106,28 +108,28 @@ nav{
   display:flex;
   align-items:center;
   justify-content:center;
-  gap:4px;
+  gap:2px;
 }
 
 nav a{
-  position:relative;
-  padding:9px 10px;
-  color:#173d4c;
-  border:2px solid transparent;
+  padding:10px 9px;
+  color:#172d38;
+  text-decoration:none;
   font-size:10px;
   font-weight:900;
-  transition:.15s ease;
+  border:3px solid transparent;
+  transition:.15s;
 }
 
 nav a:hover{
-  background:#d9f1fa;
-  border-color:#68aabd;
+  background:#e2f4fa;
+  border-color:#5b9caf;
 }
 
-nav a[href="../referral/"]{
-  background:#d9f1fa;
-  border-color:#68aabd;
-  box-shadow:2px 2px 0 #91b8c6;
+nav a.active{
+  background:#d4eff8;
+  border-color:#5b9caf;
+  box-shadow:3px 3px 0 #9cc3cf;
 }
 
 /* =========================
@@ -135,15 +137,16 @@ nav a[href="../referral/"]{
 ========================= */
 
 .btn{
-  min-height:40px;
-  padding:10px 15px;
   display:inline-flex;
   align-items:center;
   justify-content:center;
-  background:#ff9f2e;
-  color:#162a33;
-  border:3px solid #173d4c;
-  box-shadow:4px 4px 0 #173d4c;
+  min-height:42px;
+  padding:10px 15px;
+  background:#ff9e2e;
+  color:#172d38;
+  border:4px solid #173d4c;
+  box-shadow:5px 5px 0 #173d4c;
+  text-decoration:none;
   font-size:10px;
   font-weight:900;
   cursor:pointer;
@@ -152,36 +155,25 @@ nav a[href="../referral/"]{
 
 .btn:hover{
   transform:translate(2px,2px);
-  box-shadow:2px 2px 0 #173d4c;
-}
-
-.btn:active{
-  transform:translate(4px,4px);
-  box-shadow:none;
+  box-shadow:3px 3px 0 #173d4c;
 }
 
 /* =========================
-   MOBILE MENU BUTTON
+   MOBILE BUTTON
 ========================= */
 
 .menu{
   display:none;
-  width:42px;
-  height:38px;
   margin-left:auto;
-  padding:0;
-  background:#d9f1fa;
-  color:#173d4c;
-  border:3px solid #173d4c;
-  box-shadow:3px 3px 0 #173d4c;
-  font-size:18px;
-  font-weight:900;
+  width:84px;
+  height:68px;
+  background:#f4fbfd;
+  color:#172d38;
+  border:5px solid #173d4c;
+  box-shadow:6px 6px 0 #173d4c;
+  font-size:30px;
+  line-height:1;
   cursor:pointer;
-}
-
-.menu:active{
-  transform:translate(2px,2px);
-  box-shadow:1px 1px 0 #173d4c;
 }
 
 /* =========================
@@ -191,76 +183,75 @@ nav a[href="../referral/"]{
 main{
   max-width:1180px;
   margin:auto;
-  padding:65px 20px 90px;
+  padding:70px 28px 100px;
 }
 
 .eyebrow{
   display:inline-block;
-  padding:7px 10px;
+  padding:10px 15px;
   background:#173d4c;
   color:#fff;
-  font-size:10px;
+  border-right:8px solid #8ebdca;
+  border-bottom:8px solid #8ebdca;
+  font-size:11px;
   font-weight:900;
   letter-spacing:1px;
-  box-shadow:4px 4px 0 #79aebe;
 }
 
-h2{
-  margin:18px 0 35px;
-  font-size:clamp(45px,7vw,78px);
-  line-height:.9;
-  letter-spacing:-4px;
-  text-shadow:5px 5px 0 #9ed1df;
+h1{
+  margin:25px 0 45px;
+  font-size:clamp(52px,8vw,88px);
+  line-height:.85;
+  letter-spacing:-5px;
+  text-shadow:7px 7px 0 #a3d3df;
 }
 
 /* =========================
-   MAIN WINDOW
+   REFERRAL WINDOW
 ========================= */
 
 .panel{
   position:relative;
-  padding:30px;
   background:#fff;
-  border:3px solid #173d4c;
-  box-shadow:8px 8px 0 #82afbf;
+  border:5px solid #173d4c;
+  box-shadow:9px 9px 0 #8bb5c3;
+  padding:34px;
 }
 
-.panel::before{
-  content:"REFERRAL.EXE";
+.panel-title{
   position:absolute;
   top:0;
   left:0;
   right:0;
-  height:32px;
-  padding-left:13px;
+  height:46px;
   display:flex;
   align-items:center;
-  background:#d8edf5;
-  border-bottom:3px solid #173d4c;
-  font-size:10px;
+  padding-left:18px;
+  background:#d9eef5;
+  border-bottom:5px solid #173d4c;
+  font-size:13px;
   font-weight:900;
 }
 
-.panel-inner{
-  padding-top:25px;
+.panel-content{
+  padding-top:42px;
 }
 
-.system-status{
+.status{
   display:inline-flex;
   align-items:center;
-  gap:8px;
-  padding:8px 11px;
-  margin-bottom:24px;
+  gap:9px;
+  padding:10px 14px;
   background:#eef9fc;
-  border:2px solid #173d4c;
+  border:3px solid #173d4c;
   font-size:10px;
   font-weight:900;
 }
 
-.dot{
-  width:9px;
-  height:9px;
-  background:#27a76b;
+.status-dot{
+  width:10px;
+  height:10px;
+  background:#31a66d;
   border:2px solid #173d4c;
   animation:blink 1s steps(2) infinite;
 }
@@ -269,56 +260,57 @@ h2{
   50%{opacity:.25}
 }
 
-.hero-copy{
-  max-width:720px;
+.intro{
+  max-width:760px;
+  margin:25px 0 0;
   font-size:17px;
   line-height:1.7;
   font-weight:900;
 }
 
 /* =========================
-   REFERRAL LINK
+   REFERRAL BOX
 ========================= */
 
 .ref-box{
-  margin-top:28px;
-  padding:22px;
-  background:#edf8fc;
-  border:3px solid #173d4c;
+  margin-top:32px;
+  padding:24px;
+  background:#eaf7fb;
+  border:4px solid #173d4c;
 }
 
 .ref-label{
   display:block;
-  margin-bottom:10px;
-  font-size:10px;
+  margin-bottom:12px;
+  font-size:11px;
   font-weight:900;
 }
 
 .link-row{
   display:flex;
-  gap:8px;
+  gap:10px;
 }
 
 .link-input{
   flex:1;
   min-width:0;
-  padding:14px;
+  height:50px;
+  padding:12px;
   background:#fff;
-  border:3px solid #173d4c;
+  border:4px solid #173d4c;
   color:#173d4c;
   font-family:monospace;
-  font-size:12px;
+  font-size:11px;
   font-weight:900;
   outline:none;
 }
 
 .copy-btn{
-  min-width:105px;
-  padding:0 14px;
-  background:#1688b5;
+  min-width:125px;
+  background:#1689c7;
   color:white;
-  border:3px solid #173d4c;
-  box-shadow:4px 4px 0 #173d4c;
+  border:4px solid #173d4c;
+  box-shadow:5px 5px 0 #173d4c;
   font-family:monospace;
   font-size:10px;
   font-weight:900;
@@ -326,7 +318,7 @@ h2{
 }
 
 .copy-btn:active{
-  transform:translate(3px,3px);
+  transform:translate(4px,4px);
   box-shadow:1px 1px 0 #173d4c;
 }
 
@@ -337,24 +329,24 @@ h2{
 .stats{
   display:grid;
   grid-template-columns:repeat(3,1fr);
-  gap:14px;
-  margin-top:30px;
+  gap:16px;
+  margin-top:32px;
 }
 
 .stat{
-  min-height:115px;
-  padding:18px;
+  min-height:125px;
+  padding:20px;
   background:#fff;
-  border:3px solid #173d4c;
-  box-shadow:5px 5px 0 #a3cbd8;
+  border:4px solid #173d4c;
+  box-shadow:5px 5px 0 #9bc4d0;
   font-size:10px;
   font-weight:900;
 }
 
 .stat strong{
   display:block;
-  margin-top:13px;
-  font-size:26px;
+  margin-top:14px;
+  font-size:28px;
 }
 
 /* =========================
@@ -362,28 +354,28 @@ h2{
 ========================= */
 
 .progress-wrap{
-  margin-top:30px;
+  margin-top:32px;
 }
 
 .progress-head{
   display:flex;
   justify-content:space-between;
-  margin-bottom:9px;
+  margin-bottom:10px;
   font-size:10px;
   font-weight:900;
 }
 
 .progress{
-  height:24px;
+  height:27px;
   padding:3px;
-  background:white;
-  border:3px solid #173d4c;
+  background:#fff;
+  border:4px solid #173d4c;
 }
 
 .progress-bar{
   height:100%;
   width:0%;
-  background:#1688b5;
+  background:#1689c7;
   transition:width .8s steps(10);
 }
 
@@ -394,26 +386,26 @@ h2{
 .rules{
   display:grid;
   grid-template-columns:repeat(2,1fr);
-  gap:16px;
-  margin-top:30px;
+  gap:18px;
+  margin-top:32px;
 }
 
 .rule{
-  padding:19px;
-  background:#f7fcfe;
-  border:3px solid #173d4c;
+  padding:21px;
+  background:#f8fcfd;
+  border:4px solid #173d4c;
 }
 
 .rule b{
   display:block;
-  margin-bottom:9px;
+  margin-bottom:10px;
   font-size:11px;
 }
 
 .rule p{
   margin:0;
   font-size:10px;
-  line-height:1.7;
+  line-height:1.8;
   font-weight:700;
 }
 
@@ -422,14 +414,14 @@ h2{
 ========================= */
 
 .activity{
-  margin-top:30px;
-  padding:20px;
+  margin-top:32px;
+  padding:22px;
   background:#f5fbfd;
-  border:3px dashed #719eae;
+  border:4px dashed #6d9daa;
 }
 
 .activity-title{
-  margin-bottom:14px;
+  margin-bottom:15px;
   font-size:11px;
   font-weight:900;
 }
@@ -437,9 +429,8 @@ h2{
 .activity-row{
   display:flex;
   justify-content:space-between;
-  gap:20px;
-  padding:10px 0;
-  border-bottom:1px dotted #8aadb9;
+  padding:11px 0;
+  border-bottom:1px dotted #8daeb9;
   font-size:10px;
   font-weight:900;
 }
@@ -448,19 +439,27 @@ h2{
   border-bottom:0;
 }
 
+/* =========================
+   NOTE
+========================= */
+
 .note{
   margin-top:25px;
-  color:#49636d;
+  color:#536b74;
   font-size:10px;
   line-height:1.8;
   font-weight:700;
 }
 
+/* =========================
+   CTA
+========================= */
+
 .cta{
   display:flex;
   flex-wrap:wrap;
-  gap:12px;
-  margin-top:30px;
+  gap:14px;
+  margin-top:32px;
 }
 
 /* =========================
@@ -468,25 +467,25 @@ h2{
 ========================= */
 
 .footer{
-  min-height:90px;
-  padding:25px;
+  min-height:95px;
+  padding:25px 30px;
   display:flex;
-  justify-content:space-between;
   align-items:center;
+  justify-content:space-between;
   background:#173d4c;
-  color:#dff6fc;
+  color:#e1f5fa;
   font-size:10px;
   font-weight:900;
   letter-spacing:1px;
 }
 
 /* =========================
-   SCROLL REVEAL
+   REVEAL
 ========================= */
 
 .reveal{
   opacity:0;
-  transform:translateY(20px);
+  transform:translateY(22px);
   transition:.6s ease;
 }
 
@@ -495,64 +494,99 @@ h2{
   transform:translateY(0);
 }
 
-/* =========================
-   MOBILE
-========================= */
+/* =====================================================
+   MOBILE MENU
+   SAME VISUAL SYSTEM AS ROVER HUB
+===================================================== */
 
 @media(max-width:950px){
 
   header{
-    min-height:70px;
-    padding:11px 15px;
-    flex-wrap:wrap;
+    min-height:88px;
+    padding:14px 30px;
+    gap:0;
   }
 
-  .menu{
-    display:block;
+  .brand{
+    font-size:17px;
+  }
+
+  .mark{
+    width:70px;
+    height:66px;
+  }
+
+  nav{
+    display:none;
   }
 
   header>.btn{
     display:none;
   }
 
-  nav{
-    display:none;
-    width:100%;
-    flex:none;
-    flex-direction:column;
-    align-items:stretch;
-    justify-content:flex-start;
-    gap:0;
-    padding:10px 0 4px;
-    border-top:2px solid #9bc3d0;
+  .menu{
+    display:block;
   }
 
   nav.open{
+    position:absolute;
     display:flex;
+    flex-direction:column;
+    align-items:stretch;
+    justify-content:flex-start;
+    top:100%;
+    left:0;
+    width:100%;
+    padding:0 30px 24px;
+    background:#f8fcfd;
+    border-top:5px solid #173d4c;
+    border-bottom:7px solid #173d4c;
+    box-shadow:7px 8px 0 #173d4c;
     animation:menuOpen .18s ease-out;
   }
 
-  nav a{
+  /*
+     IMPORTANT:
+     No individual row borders.
+     The entire menu is one large retro window.
+  */
+
+  nav.open a{
     width:100%;
-    padding:12px 13px;
-    background:#f4fbfd;
-    border:2px solid #a8c8d4;
-    border-bottom:0;
-    font-size:11px;
-  }
-
-  nav a:last-child{
-    border-bottom:2px solid #a8c8d4;
-  }
-
-  nav a:hover{
-    transform:none;
-  }
-
-  nav a[href="../referral/"]{
-    background:#ccecf7;
-    border-color:#4f98b0;
+    min-height:70px;
+    display:flex;
+    align-items:center;
+    padding:0 28px;
+    background:transparent;
+    border:0;
     box-shadow:none;
+    font-size:14px;
+    font-weight:900;
+  }
+
+  nav.open a:hover{
+    background:transparent;
+    border:0;
+  }
+
+  nav.open a.active{
+    margin:0 20px;
+    width:calc(100% - 40px);
+    min-height:62px;
+    background:#fff;
+    border:4px solid #173d4c;
+    box-shadow:6px 6px 0 #173d4c;
+  }
+
+  @keyframes menuOpen{
+    from{
+      opacity:0;
+      transform:translateY(-8px);
+    }
+    to{
+      opacity:1;
+      transform:translateY(0);
+    }
   }
 
   .stats{
@@ -560,34 +594,57 @@ h2{
   }
 }
 
-@keyframes menuOpen{
-  from{
-    opacity:0;
-    transform:translateY(-5px);
-  }
-  to{
-    opacity:1;
-    transform:translateY(0);
-  }
-}
+/* =========================
+   SMALL MOBILE
+========================= */
 
 @media(max-width:650px){
 
+  header{
+    padding:14px 30px;
+  }
+
+  .brand{
+    font-size:16px;
+    gap:14px;
+  }
+
+  .mark{
+    width:68px;
+    height:64px;
+  }
+
+  .menu{
+    width:84px;
+    height:68px;
+  }
+
+  nav.open{
+    padding-left:30px;
+    padding-right:30px;
+  }
+
+  nav.open a{
+    min-height:70px;
+    padding-left:28px;
+    font-size:14px;
+  }
+
   main{
-    padding:45px 14px 70px;
+    padding:55px 20px 80px;
+  }
+
+  h1{
+    font-size:55px;
+    letter-spacing:-4px;
   }
 
   .panel{
-    padding:18px;
-    box-shadow:5px 5px 0 #82afbf;
+    padding:24px 18px;
+    box-shadow:6px 6px 0 #8bb5c3;
   }
 
-  h2{
-    font-size:48px;
-    letter-spacing:-3px;
-  }
-
-  .hero-copy{
+  .intro{
     font-size:14px;
   }
 
@@ -596,7 +653,7 @@ h2{
   }
 
   .copy-btn{
-    min-height:45px;
+    min-height:50px;
   }
 
   .rules{
@@ -605,12 +662,12 @@ h2{
 
   .activity-row{
     flex-direction:column;
-    gap:4px;
+    gap:5px;
   }
 
   .footer{
     flex-direction:column;
-    gap:10px;
+    gap:12px;
     text-align:center;
   }
 }
@@ -620,7 +677,7 @@ h2{
 <body>
 
 <!-- =========================
-     BOOT
+     BOOT BAR
 ========================= -->
 
 <div class="boot">
@@ -642,17 +699,26 @@ h2{
   <button class="menu" id="menu">☰</button>
 
   <nav id="nav">
+
     <a href="../">HOME</a>
+
     <a href="../collection/">COLLECTION</a>
+
     <a href="../rover/">ROVER HUB</a>
+
     <a href="../my-rover/">MY ROVER</a>
+
     <a href="../leaderboard/">LEADERBOARD</a>
-    <a href="../referral/">REFERRAL</a>
+
+    <a class="active" href="../referral/">REFERRAL</a>
+
     <a href="../roadmap/">ROADMAP</a>
+
     <a href="../faq/">FAQ</a>
+
   </nav>
 
-  <a class="btn" href="#" id="openSeaBtn">
+  <a class="btn" href="#" id="openSea">
     MINT ON OPENSEA
   </a>
 
@@ -670,18 +736,22 @@ h2{
     HOOD ROVER // NETWORK MODULE
   </span>
 
-  <h2>REFERRAL</h2>
+  <h1>REFERRAL</h1>
 
   <div class="panel">
 
-    <div class="panel-inner">
+    <div class="panel-title">
+      REFERRAL.EXE
+    </div>
 
-      <div class="system-status">
-        <span class="dot"></span>
+    <div class="panel-content">
+
+      <div class="status">
+        <span class="status-dot"></span>
         REFERRAL SYSTEM ONLINE
       </div>
 
-      <p class="hero-copy">
+      <p class="intro">
         INVITE REAL ROVERS INTO THE HOOD.
         BUILD YOUR NETWORK AND UNLOCK YOUR REFERRAL PROGRESS.
       </p>
@@ -723,7 +793,7 @@ h2{
 
         <div class="stat">
           REFERRAL STATUS
-          <strong id="status">READY</strong>
+          <strong id="statusText">READY</strong>
         </div>
 
         <div class="stat">
@@ -895,8 +965,25 @@ menu.addEventListener("click", function(){
 
 });
 
+
 /* =========================
-   WALLET / REFERRAL
+   CLOSE MENU AFTER LINK
+========================= */
+
+document.querySelectorAll("#nav a").forEach(function(link){
+
+  link.addEventListener("click", function(){
+
+    nav.classList.remove("open");
+    menu.textContent = "☰";
+
+  });
+
+});
+
+
+/* =========================
+   WALLET
 ========================= */
 
 const walletKey = "hoodRoverWallet";
@@ -941,7 +1028,7 @@ async function connectWallet(){
       document.getElementById("refLink").value =
         createReferralLink(wallet);
 
-      document.getElementById("status").textContent =
+      document.getElementById("statusText").textContent =
         "ACTIVE";
 
       document.getElementById("systemActivity").textContent =
@@ -957,8 +1044,9 @@ async function connectWallet(){
 
 }
 
+
 /* =========================
-   COPY
+   COPY REFERRAL
 ========================= */
 
 document
@@ -1007,11 +1095,12 @@ document
 
 });
 
+
 /* =========================
-   LOAD WALLET
+   LOAD
 ========================= */
 
-window.addEventListener("load", function(){
+window.addEventListener("load",function(){
 
   const savedWallet =
     localStorage.getItem(walletKey);
@@ -1021,7 +1110,7 @@ window.addEventListener("load", function(){
     document.getElementById("refLink").value =
       createReferralLink(savedWallet);
 
-    document.getElementById("status").textContent =
+    document.getElementById("statusText").textContent =
       "ACTIVE";
 
     document.getElementById("systemActivity").textContent =
@@ -1039,13 +1128,14 @@ window.addEventListener("load", function(){
 
 });
 
+
 /* =========================
    OPENSEA
 ========================= */
 
 document
-.getElementById("openSeaBtn")
-.addEventListener("click", function(e){
+.getElementById("openSea")
+.addEventListener("click",function(e){
 
   e.preventDefault();
 
