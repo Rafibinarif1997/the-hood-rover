@@ -1,0 +1,917 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="The Hood Rover">
+<title>The Hood Rover</title>
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Space+Mono:wght@400;700&display=swap');
+
+:root{
+  --bg:#eef7ff;
+  --white:#ffffff;
+  --ink:#142235;
+  --blue:#1677d2;
+  --blue2:#d9edfb;
+  --line:#78a9cf;
+  --muted:#55718b;
+}
+
+*{
+  box-sizing:border-box;
+}
+
+html{
+  scroll-behavior:smooth;
+}
+
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--ink);
+  font-family:"Space Mono",monospace;
+  overflow-x:hidden;
+}
+
+body::before{
+  content:"";
+  position:fixed;
+  inset:0;
+  pointer-events:none;
+  z-index:-1;
+  opacity:.22;
+  background-image:
+    linear-gradient(rgba(20,34,53,.07) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(20,34,53,.05) 1px,transparent 1px);
+  background-size:16px 16px;
+}
+
+/* TOP SYSTEM BAR */
+
+.boot{
+  height:28px;
+  background:var(--ink);
+  color:#fff;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:0 18px;
+  font:9px "Press Start 2P";
+}
+
+/* HEADER */
+
+header{
+  position:sticky;
+  top:0;
+  z-index:100;
+  display:flex;
+  align-items:center;
+  gap:16px;
+  padding:12px 4vw;
+  background:rgba(238,247,255,.96);
+  backdrop-filter:blur(8px);
+  border-bottom:3px solid var(--ink);
+  box-shadow:0 5px 0 #9ab8cf;
+}
+
+.brand{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  color:var(--ink);
+  text-decoration:none;
+  font:11px "Press Start 2P";
+  white-space:nowrap;
+}
+
+.mark{
+  width:42px;
+  height:42px;
+  display:grid;
+  place-items:center;
+  background:var(--blue);
+  color:white;
+  border:3px solid var(--ink);
+  box-shadow:4px 4px 0 var(--ink);
+}
+
+nav{
+  flex:1;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  flex-wrap:wrap;
+  gap:4px;
+}
+
+nav a{
+  color:var(--ink);
+  text-decoration:none;
+  font-weight:bold;
+  font-size:10px;
+  padding:9px 7px;
+  border:2px solid transparent;
+}
+
+nav a:hover{
+  background:#fff;
+  border-color:var(--ink);
+}
+
+.menu{
+  display:none;
+  width:44px;
+  height:44px;
+  background:#fff;
+  border:3px solid var(--ink);
+  font-size:21px;
+}
+
+/* BUTTON */
+
+.btn{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-height:48px;
+  padding:0 17px;
+  background:var(--blue);
+  color:#fff;
+  border:3px solid var(--ink);
+  box-shadow:5px 5px 0 var(--ink);
+  text-decoration:none;
+  font:bold 10px "Press Start 2P";
+  transition:.16s;
+  cursor:pointer;
+}
+
+.btn:hover{
+  transform:translate(3px,3px);
+  box-shadow:2px 2px 0 var(--ink);
+}
+
+.btn.light{
+  background:#fff;
+  color:var(--ink);
+}
+
+/* MAIN */
+
+main{
+  width:min(1200px,92vw);
+  margin:auto;
+}
+
+.hero{
+  min-height:calc(100vh - 106px);
+  display:grid;
+  grid-template-columns:1fr .9fr;
+  gap:55px;
+  align-items:center;
+  padding:80px 0;
+}
+
+.eyebrow{
+  color:var(--blue);
+  font:9px "Press Start 2P";
+}
+
+h1,
+h2{
+  font-family:"Press Start 2P";
+  font-weight:400;
+  line-height:1.5;
+}
+
+h1{
+  font-size:clamp(30px,5vw,66px);
+  margin:20px 0;
+}
+
+h1 span{
+  color:var(--blue);
+  text-shadow:4px 4px #b9d8ed;
+}
+
+h2{
+  font-size:clamp(24px,4vw,46px);
+}
+
+p{
+  line-height:1.9;
+}
+
+.hero p{
+  font-size:15px;
+}
+
+.actions{
+  display:flex;
+  gap:14px;
+  flex-wrap:wrap;
+  margin:30px 0;
+}
+
+/* HERO IMAGE */
+
+.art{
+  position:relative;
+  background:var(--blue2);
+  border:4px solid var(--ink);
+  padding:10px;
+  box-shadow:12px 12px 0 var(--ink);
+  overflow:hidden;
+}
+
+.art img{
+  display:block;
+  width:100%;
+  aspect-ratio:1/1;
+  object-fit:cover;
+}
+
+.art::after{
+  content:"";
+  position:absolute;
+  inset:10px;
+  pointer-events:none;
+  background:repeating-linear-gradient(
+    0deg,
+    transparent 0 5px,
+    rgba(20,34,53,.05) 5px 6px
+  );
+}
+
+.tag{
+  position:absolute;
+  left:20px;
+  bottom:20px;
+  z-index:2;
+  background:var(--bg);
+  border:2px solid var(--ink);
+  padding:8px;
+  font:8px "Press Start 2P";
+}
+
+/* TICKER */
+
+.ticker{
+  background:var(--blue);
+  color:#fff;
+  border-top:3px solid var(--ink);
+  border-bottom:3px solid var(--ink);
+  padding:13px 0;
+  overflow:hidden;
+  white-space:nowrap;
+  font:10px "Press Start 2P";
+}
+
+.ticker span{
+  display:inline-block;
+  animation:marquee 20s linear infinite;
+}
+
+@keyframes marquee{
+  from{transform:translateX(100%)}
+  to{transform:translateX(-100%)}
+}
+
+/* SECTIONS */
+
+.section{
+  padding:100px 0;
+}
+
+.grid{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:15px;
+  margin-top:40px;
+}
+
+.card{
+  display:block;
+  min-height:200px;
+  padding:22px;
+  background:#fff;
+  border:3px solid var(--ink);
+  box-shadow:7px 7px 0 #9ab8cf;
+  color:var(--ink);
+  text-decoration:none;
+  transition:.2s;
+}
+
+.card:hover{
+  transform:translateY(-7px);
+  box-shadow:10px 13px 0 var(--blue);
+}
+
+.icon{
+  display:block;
+  color:var(--blue);
+  font-size:38px;
+}
+
+.card b{
+  display:block;
+  margin:18px 0;
+  font:12px "Press Start 2P";
+  line-height:1.6;
+}
+
+.card small{
+  color:var(--muted);
+  line-height:1.7;
+}
+
+/* ARCHIVE */
+
+.preview{
+  display:grid;
+  grid-template-columns:1fr .7fr;
+  gap:50px;
+  align-items:center;
+}
+
+.window{
+  background:#fff;
+  border:4px solid var(--ink);
+  box-shadow:10px 10px 0 #9ab8cf;
+}
+
+.bar{
+  display:flex;
+  justify-content:space-between;
+  background:var(--blue);
+  color:#fff;
+  padding:13px;
+  font:9px "Press Start 2P";
+}
+
+.window img{
+  display:block;
+  width:100%;
+  aspect-ratio:1/1;
+  object-fit:cover;
+  padding:14px;
+  background:var(--blue2);
+}
+
+/* ROADMAP */
+
+.timeline{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  margin-top:40px;
+}
+
+.step{
+  min-height:150px;
+  padding:23px;
+  background:#fff;
+  border:3px solid var(--ink);
+}
+
+.step strong{
+  color:var(--blue);
+  font:18px "Press Start 2P";
+}
+
+.step b{
+  display:block;
+  margin:17px 0;
+  font:10px "Press Start 2P";
+}
+
+/* CTA */
+
+.cta{
+  margin-bottom:100px;
+  padding:55px;
+  background:#fff;
+  border:4px solid var(--ink);
+  box-shadow:12px 12px 0 var(--blue);
+  text-align:center;
+}
+
+/* FOOTER */
+
+.footer{
+  display:flex;
+  justify-content:space-between;
+  gap:20px;
+  padding:32px 4vw;
+  background:#dcecff;
+  border-top:4px solid var(--ink);
+  font-size:10px;
+}
+
+/* ANIMATION */
+
+.reveal{
+  opacity:0;
+  transform:translateY(25px);
+  transition:opacity .7s ease,transform .7s ease;
+}
+
+.reveal.visible{
+  opacity:1;
+  transform:translateY(0);
+}
+
+/* TABLET */
+
+@media(max-width:1000px){
+
+  .grid{
+    grid-template-columns:repeat(2,1fr);
+  }
+
+  nav a{
+    font-size:8px;
+  }
+
+}
+
+/* MOBILE */
+
+@media(max-width:780px){
+
+  header{
+    flex-wrap:wrap;
+  }
+
+  .menu{
+    display:block;
+    margin-left:auto;
+  }
+
+  header>.btn{
+    display:none;
+  }
+
+  nav{
+    display:none;
+    order:5;
+    flex-basis:100%;
+    flex-direction:column;
+    width:100%;
+  }
+
+  nav.open{
+    display:flex;
+  }
+
+  nav a{
+    width:100%;
+    background:#fff;
+    border:2px solid var(--line);
+    padding:13px;
+  }
+
+  .hero{
+    grid-template-columns:1fr;
+    padding:70px 0;
+  }
+
+  .preview{
+    grid-template-columns:1fr;
+  }
+
+  .grid{
+    grid-template-columns:1fr;
+  }
+
+  .timeline{
+    grid-template-columns:1fr;
+  }
+
+  .section{
+    padding:70px 0;
+  }
+
+  .footer{
+    flex-direction:column;
+  }
+
+  .actions{
+    flex-direction:column;
+  }
+
+  .btn{
+    width:100%;
+  }
+
+}
+
+/* SMALL PHONE */
+
+@media(max-width:480px){
+
+  .brand{
+    font-size:8px;
+  }
+
+  .mark{
+    width:37px;
+    height:37px;
+  }
+
+  h1{
+    font-size:27px;
+  }
+
+  .hero p{
+    font-size:13px;
+  }
+
+  .boot{
+    padding:0 10px;
+    font-size:7px;
+  }
+
+}
+</style>
+</head>
+
+<body>
+
+<div class="boot">
+  <span>HOOD ROVER SYSTEM</span>
+  <span>READY_</span>
+</div>
+
+<header>
+
+  <a class="brand" href="./">
+    <span class="mark">HR</span>
+    THE HOOD ROVER
+  </a>
+
+  <button class="menu" aria-label="Open menu">☰</button>
+
+  <nav>
+    <a href="./">HOME</a>
+    <a href="./collection/">COLLECTION</a>
+    <a href="./rover/">ROVER HUB</a>
+    <a href="./my-rover/">MY ROVER</a>
+    <a href="./leaderboard/">LEADERBOARD</a>
+    <a href="./referral/">REFERRAL</a>
+    <a href="./roadmap/">ROADMAP</a>
+    <a href="./faq/">FAQ</a>
+  </nav>
+
+  <a class="btn" href="#" id="mintTop">
+    MINT ON OPENSEA
+  </a>
+
+</header>
+
+<main>
+
+<!-- HERO -->
+
+<section class="hero">
+
+  <div class="reveal">
+
+    <span class="eyebrow">
+      SYSTEM ONLINE · PRE-REVEAL
+    </span>
+
+    <h1>
+      ENTER THE<br>
+      <span>HOOD ROVER</span><br>
+      WORLD.
+    </h1>
+
+    <p>
+      1,111 unique Hood Rovers.
+      A bright retro-computer world built around
+      missions, rewards, referrals and collectibles.
+    </p>
+
+    <div class="actions">
+
+      <a class="btn" href="#" id="mintHero">
+        MINT ON OPENSEA ↗
+      </a>
+
+      <a class="btn light" href="./collection/">
+        VIEW COLLECTION
+      </a>
+
+    </div>
+
+  </div>
+
+
+  <div class="art reveal">
+
+    <img
+      src="./assets/pre-reveal.png"
+      alt="The Hood Rover pre-reveal artwork"
+    >
+
+    <span class="tag">
+      ARCHIVE // UNKNOWN
+    </span>
+
+  </div>
+
+</section>
+
+
+<!-- TICKER -->
+
+<div class="ticker">
+  <span>
+    ▣ HOOD ROVER // 1,111 ROVERS //
+    MISSIONS // REWARDS // SPIN //
+    REFERRALS // HOOD ROVER //
+  </span>
+</div>
+
+
+<!-- SYSTEM -->
+
+<section class="section">
+
+  <span class="eyebrow">
+    THE SYSTEM
+  </span>
+
+  <h2>
+    A WORLD INSIDE YOUR SCREEN.
+  </h2>
+
+  <div class="grid">
+
+    <a class="card reveal" href="./rover/">
+
+      <span class="icon">▣</span>
+
+      <b>ROVER HUB</b>
+
+      <small>
+        MISSIONS · QUIZ · STREAK ·
+        SPIN REWARDS
+      </small>
+
+    </a>
+
+
+    <a class="card reveal" href="./collection/">
+
+      <span class="icon">◈</span>
+
+      <b>COLLECTION</b>
+
+      <small>
+        1,111 HOOD ROVERS
+      </small>
+
+    </a>
+
+
+    <a class="card reveal" href="./referral/">
+
+      <span class="icon">↗</span>
+
+      <b>REFERRAL</b>
+
+      <small>
+        MAX 10 SUCCESSFUL REFERRALS
+      </small>
+
+    </a>
+
+
+    <a class="card reveal" href="./leaderboard/">
+
+      <span class="icon">♛</span>
+
+      <b>LEADERBOARD</b>
+
+      <small>
+        ROVER · REFERRALS · EVENTS
+      </small>
+
+    </a>
+
+  </div>
+
+</section>
+
+
+<!-- ARCHIVE -->
+
+<section class="section">
+
+  <div class="preview">
+
+    <div class="window reveal">
+
+      <div class="bar">
+        <span>ARCHIVE_VIEWER.exe</span>
+        <span>— □ ×</span>
+      </div>
+
+      <img
+        src="./assets/pre-reveal.png"
+        alt="Hood Rover pre-reveal archive"
+      >
+
+    </div>
+
+
+    <div class="reveal">
+
+      <span class="eyebrow">
+        THE ARCHIVE
+      </span>
+
+      <h2>
+        THE ROVERS ARE WAITING.
+      </h2>
+
+      <p>
+        The collection stays hidden until reveal.
+        The website is prepared for the real collection
+        data later.
+      </p>
+
+      <a class="btn" href="./collection/">
+        OPEN ARCHIVE
+      </a>
+
+    </div>
+
+  </div>
+
+</section>
+
+
+<!-- ROADMAP -->
+
+<section class="section">
+
+  <span class="eyebrow">
+    BOOT SEQUENCE
+  </span>
+
+  <h2>
+    ROADMAP.
+  </h2>
+
+  <div class="timeline">
+
+    <div class="step reveal">
+      <strong>01</strong>
+      <b>PRE-REVEAL</b>
+      <span>Build the world.</span>
+    </div>
+
+    <div class="step reveal">
+      <strong>02</strong>
+      <b>OPEN SEA</b>
+      <span>Collection launch.</span>
+    </div>
+
+    <div class="step reveal">
+      <strong>03</strong>
+      <b>ROVER HUB</b>
+      <span>Missions & rewards.</span>
+    </div>
+
+    <div class="step reveal">
+      <strong>04</strong>
+      <b>EXPANSION</b>
+      <span>New systems & collectibles.</span>
+    </div>
+
+  </div>
+
+</section>
+
+
+<!-- CTA -->
+
+<section class="cta reveal">
+
+  <span class="eyebrow">
+    READY_
+  </span>
+
+  <h2>
+    YOUR ROVER IS OUT THERE.
+  </h2>
+
+  <a class="btn" href="#" id="mintBottom">
+    OPEN OPENSEA ↗
+  </a>
+
+</section>
+
+</main>
+
+
+<footer class="footer">
+
+  <b>
+    THE HOOD ROVER
+  </b>
+
+  <span>
+    RETRO SYSTEM // 2026
+  </span>
+
+</footer>
+
+
+<script>
+
+const OPENSEA_URL = "#";
+
+/* OpenSea buttons */
+
+["mintTop","mintHero","mintBottom"].forEach(id => {
+
+  const button = document.getElementById(id);
+
+  if(!button) return;
+
+  button.addEventListener("click", function(event){
+
+    if(OPENSEA_URL === "#"){
+
+      event.preventDefault();
+
+      alert(
+        "OpenSea mint link will be connected here."
+      );
+
+    }else{
+
+      button.href = OPENSEA_URL;
+
+    }
+
+  });
+
+});
+
+
+/* Mobile menu */
+
+const menu = document.querySelector(".menu");
+const nav = document.querySelector("nav");
+
+if(menu){
+
+  menu.addEventListener("click", function(){
+
+    nav.classList.toggle("open");
+
+  });
+
+}
+
+
+/* Scroll animation */
+
+const observer = new IntersectionObserver(
+
+  entries => {
+
+    entries.forEach(entry => {
+
+      if(entry.isIntersecting){
+
+        entry.target.classList.add("visible");
+
+        observer.unobserve(entry.target);
+
+      }
+
+    });
+
+  },
+
+  {
+    threshold:.12
+  }
+
+);
+
+document
+  .querySelectorAll(".reveal")
+  .forEach(element => observer.observe(element));
+
+</script>
+
+</body>
+</html>
