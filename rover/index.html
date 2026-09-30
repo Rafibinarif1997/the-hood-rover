@@ -1344,8 +1344,7 @@ const streakNumber =
 
 let walletAddress = null;
 
-
-/* =========================
+  /* =========================
    CONNECT WALLET
 ========================= */
 
@@ -1359,29 +1358,31 @@ async function connectWallet(){
     );
 
     return;
-
   }
 
   try{
 
     connectWalletButton.disabled = true;
+    connectWalletButton.textContent = "CONNECTING...";
 
-    connectWalletButton.textContent =
-      "CONNECTING...";
+    /*
+      IMPORTANT:
+      This only requests the wallet accounts.
+      No transaction.
+      No token approval.
+      No signature.
+      No network switch.
+    */
 
-    const accounts =
-      await window.ethereum.request({
-        method:"eth_requestAccounts"
-      });
+    const accounts = await window.ethereum.request({
+      method: "eth_requestAccounts"
+    });
 
-    if(!accounts || !accounts.length){
-
-      throw new Error("No wallet account found");
-
+    if(!accounts || accounts.length === 0){
+      throw new Error("No wallet account returned");
     }
 
-    walletAddress =
-      accounts[0].toLowerCase();
+    walletAddress = accounts[0].toLowerCase();
 
     walletStatus.textContent =
       "WALLET: " +
@@ -1396,17 +1397,30 @@ async function connectWallet(){
 
   }catch(error){
 
-    console.error(
-      "Wallet connection failed:",
-      error
-    );
+    console.error("Wallet connection failed:", error);
+
+    walletAddress = null;
+
+    walletStatus.textContent =
+      "WALLET: NOT CONNECTED";
 
     connectWalletButton.textContent =
       "CONNECT WALLET";
 
-    alert(
-      "WALLET CONNECTION FAILED."
-    );
+    if(error.code === 4001){
+
+      alert(
+        "WALLET CONNECTION CANCELLED."
+      );
+
+    }else{
+
+      alert(
+        "WALLET CONNECTION FAILED.\n\n" +
+        "Please try again."
+      );
+
+    }
 
   }finally{
 
@@ -1417,10 +1431,62 @@ async function connectWallet(){
 }
 
 
+/* =========================
+   ACCOUNT CHANGE
+========================= */
+
+if(window.ethereum){
+
+  window.ethereum.on(
+    "accountsChanged",
+    async (accounts) => {
+
+      if(!accounts || accounts.length === 0){
+
+        walletAddress = null;
+
+        walletStatus.textContent =
+          "WALLET: NOT CONNECTED";
+
+        connectWalletButton.textContent =
+          "CONNECT WALLET";
+
+        streakNumber.textContent = "0";
+
+        checkinButton.disabled = false;
+
+        checkinButton.textContent =
+          "DAILY CHECK-IN";
+
+        return;
+      }
+
+      walletAddress =
+        accounts[0].toLowerCase();
+
+      walletStatus.textContent =
+        "WALLET: " +
+        walletAddress.slice(0,6) +
+        "..." +
+        walletAddress.slice(-4);
+
+      connectWalletButton.textContent =
+        "WALLET CONNECTED";
+
+      await loadStreak();
+
+    }
+  );
+
+}
+
+
 connectWalletButton.addEventListener(
   "click",
   connectWallet
 );
+
+ 
 
 
 /* =========================
