@@ -666,6 +666,233 @@ footer{
   }
 }
 
+  /* =========================================================
+   MINT COMING SOON MODAL
+========================================================= */
+
+.mint-modal{
+  position:fixed;
+  inset:0;
+  z-index:100;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  padding:20px;
+}
+
+.mint-modal.open{
+  display:flex;
+}
+
+.mint-backdrop{
+  position:absolute;
+  inset:0;
+  background:rgba(20,35,46,.68);
+  backdrop-filter:blur(8px);
+  animation:mintFade .25s ease forwards;
+}
+
+.mint-window{
+  position:relative;
+  z-index:2;
+  width:min(500px,100%);
+  background:#fff;
+  border:4px solid var(--line);
+  box-shadow:14px 14px 0 var(--blue);
+  animation:mintOpen .45s cubic-bezier(.2,.8,.2,1) forwards;
+  overflow:hidden;
+}
+
+.mint-window-bar{
+  height:48px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:0 15px;
+  background:var(--blue);
+  color:#fff;
+  border-bottom:3px solid var(--line);
+  font:9px "Press Start 2P";
+}
+
+.mint-close{
+  position:absolute;
+  top:7px;
+  right:9px;
+  z-index:5;
+  width:32px;
+  height:32px;
+  border:3px solid var(--line);
+  background:var(--yellow);
+  color:var(--ink);
+  font-size:22px;
+  line-height:1;
+  cursor:pointer;
+  box-shadow:3px 3px 0 var(--line);
+}
+
+.mint-close:hover{
+  transform:translate(2px,2px);
+  box-shadow:1px 1px 0 var(--line);
+}
+
+.mint-content{
+  position:relative;
+  padding:42px 32px 36px;
+  text-align:center;
+  background:
+    linear-gradient(rgba(47,140,255,.035) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(47,140,255,.035) 1px,transparent 1px),
+    #fff;
+  background-size:20px 20px;
+}
+
+.mint-icon{
+  width:68px;
+  height:68px;
+  margin:0 auto 22px;
+  display:grid;
+  place-items:center;
+  background:var(--blue);
+  color:#fff;
+  border:4px solid var(--line);
+  box-shadow:6px 6px 0 var(--line);
+  font:16px "Press Start 2P";
+  animation:mintFloat 2s ease-in-out infinite;
+}
+
+.mint-status{
+  display:inline-block;
+  padding:7px 10px;
+  border:2px solid var(--line);
+  background:#e9f8ff;
+  color:var(--blue);
+  font:8px "Press Start 2P";
+  animation:statusBlink 1.4s steps(2) infinite;
+}
+
+.mint-content h2{
+  margin:22px 0 15px;
+  font:28px/1.5 "Press Start 2P";
+  color:var(--ink);
+}
+
+.mint-content h2 span{
+  color:var(--blue);
+  text-shadow:3px 3px #b9d8ed;
+}
+
+.mint-content p{
+  max-width:390px;
+  margin:0 auto 25px;
+  color:var(--muted);
+  font-size:15px;
+  line-height:1.8;
+}
+
+.mint-loading{
+  display:flex;
+  justify-content:center;
+  gap:6px;
+  margin:20px 0;
+}
+
+.mint-loading span{
+  width:12px;
+  height:12px;
+  background:var(--blue);
+  border:2px solid var(--line);
+  opacity:.25;
+  animation:pixelLoad 1.2s steps(1) infinite;
+}
+
+.mint-loading span:nth-child(2){animation-delay:.15s}
+.mint-loading span:nth-child(3){animation-delay:.30s}
+.mint-loading span:nth-child(4){animation-delay:.45s}
+.mint-loading span:nth-child(5){animation-delay:.60s}
+.mint-loading span:nth-child(6){animation-delay:.75s}
+.mint-loading span:nth-child(7){animation-delay:.90s}
+.mint-loading span:nth-child(8){animation-delay:1.05s}
+
+.mint-message{
+  margin:8px 0 25px;
+  color:var(--muted);
+  font:8px "Press Start 2P";
+}
+
+.mint-ok{
+  min-width:150px;
+}
+
+@keyframes mintFade{
+  from{opacity:0}
+  to{opacity:1}
+}
+
+@keyframes mintOpen{
+  0%{
+    opacity:0;
+    transform:translateY(25px) scale(.92);
+  }
+
+  70%{
+    transform:translateY(-4px) scale(1.01);
+  }
+
+  100%{
+    opacity:1;
+    transform:translateY(0) scale(1);
+  }
+}
+
+@keyframes mintFloat{
+  0%,100%{
+    transform:translateY(0);
+  }
+
+  50%{
+    transform:translateY(-5px);
+  }
+}
+
+@keyframes statusBlink{
+  50%{
+    opacity:.55;
+  }
+}
+
+@keyframes pixelLoad{
+  0%,100%{
+    opacity:.2;
+    transform:translateY(0);
+  }
+
+  50%{
+    opacity:1;
+    transform:translateY(-5px);
+  }
+}
+
+@media(max-width:620px){
+
+  .mint-window{
+    box-shadow:8px 8px 0 var(--blue);
+  }
+
+  .mint-content{
+    padding:35px 20px 28px;
+  }
+
+  .mint-content h2{
+    font-size:23px;
+  }
+
+  .mint-content p{
+    font-size:14px;
+  }
+
+}
+  
 </style>
 </head>
 
