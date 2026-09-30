@@ -1,1 +1,1616 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>ROADMAP — The Hood Rover</title><link rel="stylesheet" href="/assets/styles.css"></head><body><div class="boot"><span>HOOD ROVER SYSTEM</span><span>READY_</span></div><header><a class="brand" href="/"><span class="mark">HR</span>THE HOOD ROVER</a><button class="menu">☰</button><nav><a href="/">HOME</a><a href="/collection">COLLECTION</a><a href="/rover">ROVER HUB</a><a href="/my-rover">MY ROVER</a><a href="/leaderboard">LEADERBOARD</a><a href="/referral">REFERRAL</a><a href="/roadmap">ROADMAP</a><a href="/faq">FAQ</a></nav><a class="btn" href="#" data-opensea>MINT ON OPENSEA</a></header><main><section class="section reveal visible"><span class="eyebrow">HOOD ROVER // MODULE</span><h2>ROADMAP</h2><div class="panel"><p>Pre-reveal, OpenSea launch, Rover Hub and future expansion.</p><div class="stats"><div class="stat">STATUS<strong>READY</strong></div><div class="stat">SUPPLY<strong>1,111</strong></div><div class="stat">BACKEND<strong>SUPABASE</strong></div></div><p>No token is publicly described on this page. Real user data and reward logic can be connected later through Supabase.</p><a class="btn" href="/">BACK HOME</a></div></section></main><footer class="footer"><b>THE HOOD ROVER</b><span>RETRO SYSTEM // 2026</span></footer><script src="/assets/app.js"></script></body></html>
+<!doctype html>
+<html lang="en">
+<head>
+
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+
+<title>Roadmap — The Hood Rover</title>
+
+<meta
+  name="description"
+  content="The Hood Rover roadmap — from pre-reveal to the Rover Hub and future expansion."
+>
+
+<style>
+
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Space+Grotesk:wght@400;500;600;700&display=swap');
+
+
+:root{
+  --ink:#14232e;
+  --line:#173044;
+  --blue:#2f8cff;
+  --cyan:#16c8e8;
+  --yellow:#ffd84d;
+  --cream:#fffaf0;
+  --paper:#f3f7fa;
+  --white:#fff;
+  --muted:#687985;
+  --green:#42c98b;
+  --orange:#ff9d42;
+}
+
+
+*{
+  box-sizing:border-box;
+}
+
+
+html{
+  scroll-behavior:smooth;
+}
+
+
+body{
+  margin:0;
+  background:var(--paper);
+  color:var(--ink);
+  font-family:"Space Grotesk",sans-serif;
+  overflow-x:hidden;
+}
+
+
+/* PIXEL GRID */
+
+body:before{
+  content:"";
+  position:fixed;
+  inset:0;
+  pointer-events:none;
+  opacity:.12;
+  background-image:
+    linear-gradient(rgba(20,50,70,.15) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(20,50,70,.15) 1px,transparent 1px);
+  background-size:24px 24px;
+  z-index:-2;
+}
+
+
+/* CRT SCANLINES */
+
+body:after{
+  content:"";
+  position:fixed;
+  inset:0;
+  pointer-events:none;
+  background:repeating-linear-gradient(
+    0deg,
+    transparent 0 3px,
+    rgba(25,55,75,.035) 3px 4px
+  );
+  z-index:20;
+}
+
+
+a{
+  color:inherit;
+  text-decoration:none;
+}
+
+
+.wrap{
+  width:min(1160px,calc(100% - 32px));
+  margin:auto;
+}
+
+
+/* =========================================================
+   MASTER HEADER
+========================================================= */
+
+header{
+  position:sticky;
+  top:0;
+  z-index:30;
+  min-height:76px;
+  display:flex;
+  align-items:center;
+  gap:18px;
+  padding:10px max(16px,calc((100% - 1160px)/2));
+  background:rgba(255,250,240,.95);
+  backdrop-filter:blur(12px);
+  border-bottom:3px solid var(--line);
+}
+
+
+.brand{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  font-family:"Press Start 2P";
+  font-size:11px;
+  line-height:1.5;
+  white-space:nowrap;
+}
+
+
+.mark{
+  width:38px;
+  height:38px;
+  display:grid;
+  place-items:center;
+  background:var(--blue);
+  color:#fff;
+  border:3px solid var(--line);
+  box-shadow:3px 3px 0 var(--line);
+  font-family:"Press Start 2P";
+  font-size:10px;
+}
+
+
+nav{
+  margin-left:auto;
+  display:flex;
+  align-items:center;
+  gap:4px;
+}
+
+
+nav a{
+  padding:9px 10px;
+  border:2px solid transparent;
+  font-size:12px;
+  font-weight:800;
+}
+
+
+nav a:hover,
+nav a.active{
+  background:#fff;
+  border-color:var(--line);
+  box-shadow:3px 3px 0 var(--line);
+}
+
+
+.menu{
+  display:none;
+  margin-left:auto;
+  background:#fff;
+  border:3px solid var(--line);
+  padding:9px 12px;
+  cursor:pointer;
+  font-size:18px;
+}
+
+
+/* =========================================================
+   BUTTON
+========================================================= */
+
+.btn{
+  display:inline-flex;
+  justify-content:center;
+  align-items:center;
+  gap:8px;
+  border:3px solid var(--line);
+  background:var(--blue);
+  color:#fff;
+  padding:13px 16px;
+  font-family:"Press Start 2P";
+  font-size:9px;
+  box-shadow:5px 5px 0 var(--line);
+  cursor:pointer;
+  transition:.15s ease;
+}
+
+
+.btn:hover{
+  transform:translate(2px,2px);
+  box-shadow:3px 3px 0 var(--line);
+}
+
+
+.btn.secondary{
+  background:#fff;
+  color:var(--ink);
+}
+
+
+/* =========================================================
+   MAIN
+========================================================= */
+
+main{
+  width:min(1160px,calc(100% - 32px));
+  margin:auto;
+}
+
+
+/* =========================================================
+   HERO
+========================================================= */
+
+.hero{
+  padding:70px 0 45px;
+}
+
+
+.window{
+  background:#fff;
+  border:4px solid var(--line);
+  box-shadow:8px 8px 0 var(--line);
+}
+
+
+.windowbar{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  background:#dceaf2;
+  border-bottom:4px solid var(--line);
+  padding:10px 14px;
+  font-family:"Press Start 2P";
+  font-size:10px;
+}
+
+
+.dots{
+  display:flex;
+  gap:7px;
+}
+
+
+.dot{
+  width:12px;
+  height:12px;
+  border:2px solid var(--line);
+  background:#fff;
+}
+
+
+.dot:nth-child(2){
+  background:var(--yellow);
+}
+
+
+.dot:nth-child(3){
+  background:var(--cyan);
+}
+
+
+.hero-inner{
+  padding:42px 34px;
+  display:grid;
+  grid-template-columns:1.2fr .8fr;
+  gap:35px;
+  align-items:center;
+}
+
+
+.eyebrow{
+  display:inline-block;
+  font-family:"Press Start 2P";
+  font-size:10px;
+  color:var(--blue);
+  line-height:1.7;
+}
+
+
+h1,
+h2,
+h3{
+  font-family:"Press Start 2P";
+  font-weight:400;
+}
+
+
+h1{
+  font-size:clamp(30px,5vw,58px);
+  line-height:1.2;
+  margin:18px 0;
+  letter-spacing:-2px;
+}
+
+
+.hero-copy{
+  font-size:17px;
+  line-height:1.7;
+  color:#536571;
+  max-width:700px;
+}
+
+
+.status-box{
+  background:var(--cream);
+  border:3px solid var(--line);
+  padding:24px;
+}
+
+
+.status-label{
+  font-family:"Press Start 2P";
+  font-size:9px;
+  color:var(--muted);
+}
+
+
+.status{
+  margin:14px 0;
+  font-family:"Press Start 2P";
+  font-size:26px;
+  color:var(--green);
+}
+
+
+.status-box p{
+  margin:0;
+  line-height:1.7;
+  color:var(--muted);
+  font-weight:600;
+}
+
+
+/* =========================================================
+   TICKER
+========================================================= */
+
+.ticker{
+  overflow:hidden;
+  border-top:3px solid var(--line);
+  border-bottom:3px solid var(--line);
+  background:var(--line);
+  color:#fff;
+}
+
+
+.ticker-track{
+  width:max-content;
+  display:flex;
+  gap:45px;
+  padding:12px 0;
+  font-family:"Press Start 2P";
+  font-size:9px;
+  animation:marquee 22s linear infinite;
+}
+
+
+@keyframes marquee{
+  to{
+    transform:translateX(-50%);
+  }
+}
+
+
+/* =========================================================
+   ROADMAP
+========================================================= */
+
+.roadmap{
+  padding:70px 0 90px;
+}
+
+
+.section-head{
+  display:flex;
+  justify-content:space-between;
+  align-items:end;
+  gap:25px;
+  margin-bottom:35px;
+}
+
+
+.section-head h2{
+  font-size:26px;
+  line-height:1.5;
+  margin:10px 0 0;
+}
+
+
+.section-head p{
+  max-width:430px;
+  margin:0;
+  color:var(--muted);
+  font-weight:600;
+  line-height:1.7;
+  text-align:right;
+}
+
+
+/* ROADMAP TRACK */
+
+.roadmap-track{
+  position:relative;
+}
+
+
+.roadmap-track:before{
+  content:"";
+  position:absolute;
+  top:45px;
+  left:7%;
+  right:7%;
+  height:5px;
+  background:var(--line);
+}
+
+
+.roadmap-grid{
+  position:relative;
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:18px;
+}
+
+
+.phase{
+  position:relative;
+  background:#fff;
+  border:4px solid var(--line);
+  box-shadow:6px 6px 0 var(--line);
+  padding:24px 20px 25px;
+  min-height:310px;
+  transition:.2s ease;
+}
+
+
+.phase:hover{
+  transform:translateY(-6px);
+  box-shadow:9px 12px 0 var(--line);
+}
+
+
+.phase-number{
+  width:48px;
+  height:48px;
+  display:grid;
+  place-items:center;
+  margin:-2px 0 20px;
+  background:var(--blue);
+  color:#fff;
+  border:3px solid var(--line);
+  box-shadow:3px 3px 0 var(--line);
+  font-family:"Press Start 2P";
+  font-size:12px;
+}
+
+
+.phase:nth-child(2) .phase-number{
+  background:var(--yellow);
+  color:var(--ink);
+}
+
+
+.phase:nth-child(3) .phase-number{
+  background:var(--cyan);
+  color:var(--ink);
+}
+
+
+.phase:nth-child(4) .phase-number{
+  background:var(--orange);
+  color:var(--ink);
+}
+
+
+.phase-status{
+  display:inline-block;
+  margin-bottom:15px;
+  padding:6px 8px;
+  border:2px solid var(--line);
+  background:#eaf8f1;
+  color:#16774f;
+  font-family:"Press Start 2P";
+  font-size:7px;
+}
+
+
+.phase.future .phase-status{
+  background:#f1f5f7;
+  color:var(--muted);
+}
+
+
+.phase h3{
+  font-size:13px;
+  line-height:1.7;
+  margin:0 0 15px;
+}
+
+
+.phase p{
+  color:var(--muted);
+  line-height:1.7;
+  font-size:14px;
+  margin:0 0 18px;
+}
+
+
+.phase ul{
+  padding:0;
+  margin:0;
+  list-style:none;
+}
+
+
+.phase li{
+  position:relative;
+  padding-left:18px;
+  margin:9px 0;
+  font-size:13px;
+  font-weight:600;
+  line-height:1.5;
+}
+
+
+.phase li:before{
+  content:"▸";
+  position:absolute;
+  left:0;
+  color:var(--blue);
+  font-weight:900;
+}
+
+
+/* =========================================================
+   CURRENT STATE
+========================================================= */
+
+.system{
+  padding:0 0 90px;
+}
+
+
+.system-box{
+  background:#fff;
+  border:4px solid var(--line);
+  box-shadow:8px 8px 0 var(--line);
+}
+
+
+.system-bar{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:12px 15px;
+  background:#dceaf2;
+  border-bottom:4px solid var(--line);
+  font-family:"Press Start 2P";
+  font-size:9px;
+}
+
+
+.system-content{
+  padding:30px;
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:18px;
+}
+
+
+.system-card{
+  border:3px solid var(--line);
+  background:var(--cream);
+  padding:20px;
+}
+
+
+.system-card span{
+  display:block;
+  color:var(--muted);
+  font-family:"Press Start 2P";
+  font-size:7px;
+  margin-bottom:13px;
+}
+
+
+.system-card strong{
+  display:block;
+  font-family:"Press Start 2P";
+  font-size:14px;
+  line-height:1.6;
+}
+
+
+/* =========================================================
+   PRINCIPLES
+========================================================= */
+
+.principles{
+  padding:0 0 90px;
+}
+
+
+.principle-grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:18px;
+}
+
+
+.principle{
+  background:#fff;
+  border:3px solid var(--line);
+  box-shadow:5px 5px 0 #a7bdcb;
+  padding:25px;
+}
+
+
+.principle-icon{
+  font-size:32px;
+  color:var(--blue);
+}
+
+
+.principle h3{
+  font-size:11px;
+  line-height:1.7;
+  margin:18px 0 10px;
+}
+
+
+.principle p{
+  margin:0;
+  color:var(--muted);
+  line-height:1.7;
+}
+
+
+/* =========================================================
+   CTA
+========================================================= */
+
+.cta{
+  padding:0 0 100px;
+}
+
+
+.cta-box{
+  background:#dff7ff;
+  border:4px solid var(--line);
+  box-shadow:8px 8px 0 var(--line);
+  padding:35px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:25px;
+}
+
+
+.cta h2{
+  font-size:20px;
+  line-height:1.6;
+  margin:0 0 10px;
+}
+
+
+.cta p{
+  margin:0;
+  color:var(--muted);
+  font-weight:600;
+}
+
+
+/* =========================================================
+   FOOTER
+========================================================= */
+
+footer{
+  border-top:4px solid var(--line);
+  background:#fff;
+  padding:28px 0 40px;
+}
+
+
+.footer{
+  display:flex;
+  justify-content:space-between;
+  gap:20px;
+  color:var(--muted);
+  font-size:13px;
+  font-weight:700;
+}
+
+
+/* =========================================================
+   REVEAL
+========================================================= */
+
+.reveal{
+  opacity:0;
+  transform:translateY(20px);
+}
+
+
+.reveal.show{
+  opacity:1;
+  transform:none;
+  transition:
+    opacity .65s ease,
+    transform .65s ease;
+}
+
+
+/* =========================================================
+   TABLET
+========================================================= */
+
+@media(max-width:1000px){
+
+  header{
+    padding-left:16px;
+    padding-right:16px;
+  }
+
+
+  nav{
+    display:none;
+    position:absolute;
+    top:76px;
+    left:16px;
+    right:16px;
+    padding:8px;
+    background:#fff;
+    border:3px solid var(--line);
+    box-shadow:5px 5px 0 var(--line);
+    flex-direction:column;
+    align-items:stretch;
+  }
+
+
+  nav.open{
+    display:flex;
+  }
+
+
+  nav a{
+    padding:13px;
+  }
+
+
+  header>.btn{
+    display:none;
+  }
+
+
+  .menu{
+    display:block;
+  }
+
+
+  .hero-inner{
+    grid-template-columns:1fr;
+  }
+
+
+  .roadmap-grid{
+    grid-template-columns:repeat(2,1fr);
+  }
+
+
+  .roadmap-track:before{
+    display:none;
+  }
+
+
+  .system-content{
+    grid-template-columns:1fr;
+  }
+
+
+  .principle-grid{
+    grid-template-columns:1fr;
+  }
+
+
+  .cta-box{
+    align-items:flex-start;
+    flex-direction:column;
+  }
+
+}
+
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media(max-width:620px){
+
+  .wrap{
+    width:calc(100% - 20px);
+  }
+
+
+  .brand{
+    font-size:9px;
+  }
+
+
+  .mark{
+    width:34px;
+    height:34px;
+  }
+
+
+  .hero{
+    padding:40px 0 30px;
+  }
+
+
+  .hero-inner{
+    padding:28px 20px;
+  }
+
+
+  h1{
+    font-size:29px;
+  }
+
+
+  .hero-copy{
+    font-size:15px;
+  }
+
+
+  .roadmap{
+    padding:55px 0 70px;
+  }
+
+
+  .section-head{
+    display:block;
+  }
+
+
+  .section-head h2{
+    font-size:21px;
+  }
+
+
+  .section-head p{
+    text-align:left;
+    margin-top:12px;
+  }
+
+
+  .roadmap-grid{
+    grid-template-columns:1fr;
+  }
+
+
+  .phase{
+    min-height:auto;
+  }
+
+
+  .system-content{
+    padding:20px;
+    grid-template-columns:1fr;
+  }
+
+
+  .system-card strong{
+    font-size:11px;
+  }
+
+
+  .principles{
+    padding-bottom:70px;
+  }
+
+
+  .cta{
+    padding-bottom:70px;
+  }
+
+
+  .cta-box{
+    padding:25px 20px;
+  }
+
+
+  .cta h2{
+    font-size:16px;
+  }
+
+
+  .footer{
+    display:block;
+  }
+
+
+  .footer div+div{
+    margin-top:10px;
+  }
+
+}
+
+</style>
+</head>
+
+
+<body>
+
+
+<!-- =========================================================
+     MASTER HEADER
+========================================================= -->
+
+<header>
+
+  <a class="brand" href="../">
+    <span class="mark">HR</span>
+    THE HOOD ROVER
+  </a>
+
+
+  <button class="menu" id="menu">
+    ☰
+  </button>
+
+
+  <nav id="nav">
+
+    <a href="../">
+      HOME
+    </a>
+
+    <a href="../collection/">
+      COLLECTION
+    </a>
+
+    <a href="../rover/">
+      ROVER HUB
+    </a>
+
+    <a href="../my-rover/">
+      MY ROVER
+    </a>
+
+    <a href="../leaderboard/">
+      LEADERBOARD
+    </a>
+
+    <a href="../referral/">
+      REFERRAL
+    </a>
+
+    <a class="active" href="../roadmap/">
+      ROADMAP
+    </a>
+
+    <a href="../faq/">
+      FAQ
+    </a>
+
+  </nav>
+
+
+  <a class="btn" href="#" id="mintButton">
+    MINT ON OPENSEA
+  </a>
+
+</header>
+
+
+<main>
+
+
+<!-- =========================================================
+     HERO
+========================================================= -->
+
+<section class="hero">
+
+  <div class="wrap">
+
+    <div class="window">
+
+      <div class="windowbar">
+
+        <span>
+          ROADMAP.EXE
+        </span>
+
+        <span class="dots">
+
+          <i class="dot"></i>
+          <i class="dot"></i>
+          <i class="dot"></i>
+
+        </span>
+
+      </div>
+
+
+      <div class="hero-inner">
+
+
+        <div class="reveal">
+
+          <span class="eyebrow">
+            HOOD ROVER // BOOT SEQUENCE
+          </span>
+
+
+          <h1>
+            THE ROAD<br>
+            AHEAD.
+          </h1>
+
+
+          <p class="hero-copy">
+            The Hood Rover is being built in stages.
+            Each phase unlocks another part of the world,
+            from the initial collection release to the
+            Rover Hub and future systems.
+          </p>
+
+        </div>
+
+
+        <div class="status-box reveal">
+
+          <span class="status-label">
+            CURRENT SYSTEM STATUS
+          </span>
+
+          <div class="status">
+            ONLINE_
+          </div>
+
+          <p>
+            The foundation is being prepared.
+            More systems will become available as
+            each stage goes live.
+          </p>
+
+        </div>
+
+
+      </div>
+
+    </div>
+
+  </div>
+
+</section>
+
+
+<!-- =========================================================
+     TICKER
+========================================================= -->
+
+<div class="ticker">
+
+  <div class="ticker-track">
+
+    <span>
+      /// ROADMAP ///
+      PRE-REVEAL ///
+      OPEN SEA ///
+      ROVER HUB ///
+      EXPANSION ///
+    </span>
+
+    <span>
+      /// ROADMAP ///
+      PRE-REVEAL ///
+      OPEN SEA ///
+      ROVER HUB ///
+      EXPANSION ///
+    </span>
+
+  </div>
+
+</div>
+
+
+<!-- =========================================================
+     ROADMAP PHASES
+========================================================= -->
+
+<section class="roadmap">
+
+  <div class="wrap">
+
+
+    <div class="section-head reveal">
+
+      <div>
+
+        <span class="eyebrow">
+          BOOT SEQUENCE
+        </span>
+
+        <h2>
+          ROADMAP
+        </h2>
+
+      </div>
+
+
+      <p>
+        Four stages form the initial Hood Rover
+        journey. Timelines may evolve as development
+        progresses.
+      </p>
+
+    </div>
+
+
+    <div class="roadmap-track">
+
+      <div class="roadmap-grid">
+
+
+        <!-- PHASE 01 -->
+
+        <article class="phase reveal">
+
+          <div class="phase-number">
+            01
+          </div>
+
+          <span class="phase-status">
+            CURRENT
+          </span>
+
+          <h3>
+            PRE-REVEAL
+          </h3>
+
+          <p>
+            Establish the Hood Rover world and prepare
+            the foundation for the collection launch.
+          </p>
+
+          <ul>
+
+            <li>
+              Website launch
+            </li>
+
+            <li>
+              Collection showcase
+            </li>
+
+            <li>
+              Community building
+            </li>
+
+            <li>
+              System preparation
+            </li>
+
+          </ul>
+
+        </article>
+
+
+        <!-- PHASE 02 -->
+
+        <article class="phase reveal">
+
+          <div class="phase-number">
+            02
+          </div>
+
+          <span class="phase-status">
+            NEXT
+          </span>
+
+          <h3>
+            OPEN SEA
+          </h3>
+
+          <p>
+            The Hood Rover collection enters its
+            official launch phase.
+          </p>
+
+          <ul>
+
+            <li>
+              1,111 NFT collection
+            </li>
+
+            <li>
+              OpenSea launch
+            </li>
+
+            <li>
+              Collection reveal
+            </li>
+
+            <li>
+              Holder access preparation
+            </li>
+
+          </ul>
+
+        </article>
+
+
+        <!-- PHASE 03 -->
+
+        <article class="phase future reveal">
+
+          <div class="phase-number">
+            03
+          </div>
+
+          <span class="phase-status">
+            PLANNED
+          </span>
+
+          <h3>
+            ROVER HUB
+          </h3>
+
+          <p>
+            The interactive layer of the Hood Rover
+            world begins to open.
+          </p>
+
+          <ul>
+
+            <li>
+              Daily missions
+            </li>
+
+            <li>
+              Quiz system
+            </li>
+
+            <li>
+              Streaks & spins
+            </li>
+
+            <li>
+              Rewards & achievements
+            </li>
+
+          </ul>
+
+        </article>
+
+
+        <!-- PHASE 04 -->
+
+        <article class="phase future reveal">
+
+          <div class="phase-number">
+            04
+          </div>
+
+          <span class="phase-status">
+            PLANNED
+          </span>
+
+          <h3>
+            EXPANSION
+          </h3>
+
+          <p>
+            New systems, collectibles and experiences
+            can be added to the Hood Rover ecosystem.
+          </p>
+
+          <ul>
+
+            <li>
+              New missions
+            </li>
+
+            <li>
+              Events
+            </li>
+
+            <li>
+              Collectibles
+            </li>
+
+            <li>
+              Future utilities
+            </li>
+
+          </ul>
+
+        </article>
+
+
+      </div>
+
+    </div>
+
+  </div>
+
+</section>
+
+
+<!-- =========================================================
+     SYSTEM STATUS
+========================================================= -->
+
+<section class="system">
+
+  <div class="wrap">
+
+    <div class="system-box reveal">
+
+
+      <div class="system-bar">
+
+        <span>
+          SYSTEM_STATUS.exe
+        </span>
+
+        <span>
+          LIVE
+        </span>
+
+      </div>
+
+
+      <div class="system-content">
+
+
+        <div class="system-card">
+
+          <span>
+            COLLECTION
+          </span>
+
+          <strong>
+            1,111
+          </strong>
+
+        </div>
+
+
+        <div class="system-card">
+
+          <span>
+            WEBSITE
+          </span>
+
+          <strong>
+            ONLINE
+          </strong>
+
+        </div>
+
+
+        <div class="system-card">
+
+          <span>
+            NEXT SYSTEM
+          </span>
+
+          <strong>
+            ROVER HUB
+          </strong>
+
+        </div>
+
+
+      </div>
+
+    </div>
+
+  </div>
+
+</section>
+
+
+<!-- =========================================================
+     BUILDING PRINCIPLES
+========================================================= -->
+
+<section class="principles">
+
+  <div class="wrap">
+
+
+    <div class="section-head reveal">
+
+      <div>
+
+        <span class="eyebrow">
+          DEVELOPMENT
+        </span>
+
+        <h2>
+          BUILT IN LAYERS.
+        </h2>
+
+      </div>
+
+    </div>
+
+
+    <div class="principle-grid">
+
+
+      <article class="principle reveal">
+
+        <div class="principle-icon">
+          ▣
+        </div>
+
+        <h3>
+          UTILITY FIRST
+        </h3>
+
+        <p>
+          Features are designed around things users can
+          actually interact with rather than empty
+          promises.
+        </p>
+
+      </article>
+
+
+      <article class="principle reveal">
+
+        <div class="principle-icon">
+          ◈
+        </div>
+
+        <h3>
+          BUILD AS WE GO
+        </h3>
+
+        <p>
+          New systems can be introduced gradually instead
+          of pretending every future feature already exists.
+        </p>
+
+      </article>
+
+
+      <article class="principle reveal">
+
+        <div class="principle-icon">
+          ⚡
+        </div>
+
+        <h3>
+          EVOLVE THE WORLD
+        </h3>
+
+        <p>
+          The roadmap leaves room for new missions,
+          events and collectibles as the ecosystem grows.
+        </p>
+
+      </article>
+
+
+    </div>
+
+  </div>
+
+</section>
+
+
+<!-- =========================================================
+     CTA
+========================================================= -->
+
+<section class="cta">
+
+  <div class="wrap">
+
+    <div class="cta-box reveal">
+
+      <div>
+
+        <h2>
+          READY TO ENTER?
+        </h2>
+
+        <p>
+          Explore the Hood Rover world and see
+          what is already online.
+        </p>
+
+      </div>
+
+
+      <a class="btn" href="../rover/">
+        ENTER ROVER HUB
+      </a>
+
+    </div>
+
+  </div>
+
+</section>
+
+
+</main>
+
+
+<!-- =========================================================
+     MASTER FOOTER
+========================================================= -->
+
+<footer>
+
+  <div class="wrap footer">
+
+    <div>
+      <b>THE HOOD ROVER</b>
+    </div>
+
+    <div>
+      RETRO SYSTEM // 2026
+    </div>
+
+  </div>
+
+</footer>
+
+
+<script>
+
+/* MOBILE MENU */
+
+const menu = document.getElementById("menu");
+const nav = document.getElementById("nav");
+
+menu.addEventListener("click", () => {
+
+  nav.classList.toggle("open");
+
+});
+
+
+/* OPENSEA */
+
+const mintButton = document.getElementById("mintButton");
+
+mintButton.addEventListener("click", (event) => {
+
+  event.preventDefault();
+
+  alert(
+    "OpenSea mint link will be connected here."
+  );
+
+});
+
+
+/* SCROLL REVEAL */
+
+const observer = new IntersectionObserver(
+
+  entries => {
+
+    entries.forEach((entry,index) => {
+
+      if(entry.isIntersecting){
+
+        setTimeout(() => {
+
+          entry.target.classList.add("show");
+
+        }, index * 55);
+
+        observer.unobserve(entry.target);
+
+      }
+
+    });
+
+  },
+
+  {
+    threshold:.08
+  }
+
+);
+
+
+document
+  .querySelectorAll(".reveal")
+  .forEach(element => observer.observe(element));
+
+</script>
+
+
+</body>
+</html>
