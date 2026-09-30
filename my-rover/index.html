@@ -1,1 +1,1647 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>MY ROVER — The Hood Rover</title><link rel="stylesheet" href="/assets/styles.css"></head><body><div class="boot"><span>HOOD ROVER SYSTEM</span><span>READY_</span></div><header><a class="brand" href="/"><span class="mark">HR</span>THE HOOD ROVER</a><button class="menu">☰</button><nav><a href="/">HOME</a><a href="/collection">COLLECTION</a><a href="/rover">ROVER HUB</a><a href="/my-rover">MY ROVER</a><a href="/leaderboard">LEADERBOARD</a><a href="/referral">REFERRAL</a><a href="/roadmap">ROADMAP</a><a href="/faq">FAQ</a></nav><a class="btn" href="#" data-opensea>MINT ON OPENSEA</a></header><main><section class="section reveal visible"><span class="eyebrow">HOOD ROVER // MODULE</span><h2>MY ROVER</h2><div class="panel"><p>Wallet profile, owned Hood Rovers, Rover balance, streak, referrals and achievements. XP is not used.</p><div class="stats"><div class="stat">STATUS<strong>READY</strong></div><div class="stat">SUPPLY<strong>1,111</strong></div><div class="stat">BACKEND<strong>SUPABASE</strong></div></div><p>No token is publicly described on this page. Real user data and reward logic can be connected later through Supabase.</p><a class="btn" href="/">BACK HOME</a></div></section></main><footer class="footer"><b>THE HOOD ROVER</b><span>RETRO SYSTEM // 2026</span></footer><script src="/assets/app.js"></script></body></html>
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+
+<title>MY ROVER — The Hood Rover</title>
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Space+Grotesk:wght@400;500;600;700&display=swap');
+
+:root{
+  --ink:#14232e;
+  --line:#173044;
+  --blue:#2f8cff;
+  --cyan:#16c8e8;
+  --yellow:#ffd84d;
+  --cream:#fffaf0;
+  --paper:#f3f7fa;
+  --white:#fff;
+  --muted:#687985;
+  --green:#42c98b;
+  --orange:#ff9d42;
+}
+
+*{box-sizing:border-box}
+
+html{scroll-behavior:smooth}
+
+body{
+  margin:0;
+  color:var(--ink);
+  background:var(--paper);
+  font-family:"Space Grotesk",sans-serif;
+  overflow-x:hidden;
+}
+
+body::before{
+  content:"";
+  position:fixed;
+  inset:0;
+  pointer-events:none;
+  z-index:-2;
+  opacity:.13;
+  background-image:
+    linear-gradient(rgba(20,50,70,.16) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(20,50,70,.16) 1px,transparent 1px);
+  background-size:24px 24px;
+}
+
+body::after{
+  content:"";
+  position:fixed;
+  inset:0;
+  pointer-events:none;
+  z-index:50;
+  background:repeating-linear-gradient(
+    0deg,
+    transparent 0 3px,
+    rgba(20,40,55,.035) 3px 4px
+  );
+}
+
+a{
+  color:inherit;
+  text-decoration:none;
+}
+
+button{
+  font-family:inherit;
+}
+
+.wrap{
+  width:min(1160px,calc(100% - 32px));
+  margin:auto;
+}
+
+/* =========================
+   NAV
+========================= */
+
+header{
+  position:sticky;
+  top:0;
+  z-index:30;
+  min-height:76px;
+  display:flex;
+  align-items:center;
+  gap:18px;
+  padding:10px max(16px,calc((100% - 1160px)/2));
+  background:rgba(255,250,240,.95);
+  backdrop-filter:blur(12px);
+  border-bottom:3px solid var(--line);
+}
+
+.brand{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  font-family:"Press Start 2P";
+  font-size:11px;
+  line-height:1.5;
+  white-space:nowrap;
+}
+
+.mark{
+  width:38px;
+  height:38px;
+  display:grid;
+  place-items:center;
+  background:var(--blue);
+  color:#fff;
+  border:3px solid var(--line);
+  box-shadow:3px 3px 0 var(--line);
+  font-family:"Press Start 2P";
+  font-size:10px;
+}
+
+nav{
+  margin-left:auto;
+  display:flex;
+  align-items:center;
+  gap:4px;
+}
+
+nav a{
+  padding:9px 10px;
+  border:2px solid transparent;
+  font-size:12px;
+  font-weight:800;
+}
+
+nav a:hover,
+nav a.active{
+  background:#fff;
+  border-color:var(--line);
+  box-shadow:3px 3px 0 var(--line);
+}
+
+.menu{
+  display:none;
+  margin-left:auto;
+  background:#fff;
+  border:3px solid var(--line);
+  padding:9px 12px;
+  cursor:pointer;
+  font-size:18px;
+}
+
+/* =========================
+   BUTTON
+========================= */
+
+.btn{
+  display:inline-flex;
+  justify-content:center;
+  align-items:center;
+  gap:8px;
+  border:3px solid var(--line);
+  background:var(--blue);
+  color:#fff;
+  padding:13px 16px;
+  font-family:"Press Start 2P";
+  font-size:9px;
+  box-shadow:5px 5px 0 var(--line);
+  cursor:pointer;
+  transition:.15s ease;
+}
+
+.btn:hover{
+  transform:translate(2px,2px);
+  box-shadow:3px 3px 0 var(--line);
+}
+
+.btn.secondary{
+  background:#fff;
+  color:var(--ink);
+}
+
+.btn.yellow{
+  background:var(--yellow);
+  color:var(--ink);
+}
+
+/* =========================
+   MAIN
+========================= */
+
+main{
+  padding:55px 0 90px;
+}
+
+/* =========================
+   HERO WINDOW
+========================= */
+
+.window{
+  background:#fff;
+  border:4px solid var(--line);
+  box-shadow:8px 8px 0 var(--line);
+}
+
+.window-bar{
+  min-height:42px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:9px 13px;
+  background:#dceaf2;
+  border-bottom:4px solid var(--line);
+  font-family:"Press Start 2P";
+  font-size:9px;
+}
+
+.window-lights{
+  display:flex;
+  gap:6px;
+}
+
+.light{
+  width:12px;
+  height:12px;
+  border:2px solid var(--line);
+  background:#fff;
+}
+
+.light:nth-child(2){
+  background:var(--yellow);
+}
+
+.light:nth-child(3){
+  background:var(--cyan);
+}
+
+.profile-head{
+  padding:32px;
+  display:grid;
+  grid-template-columns:auto 1fr auto;
+  align-items:center;
+  gap:25px;
+}
+
+.avatar{
+  width:125px;
+  height:125px;
+  display:grid;
+  place-items:center;
+  background:
+    linear-gradient(135deg,#dff8ff,#8edfff);
+  border:5px solid var(--line);
+  box-shadow:6px 6px 0 var(--line);
+  font-size:58px;
+}
+
+.eyebrow{
+  display:inline-block;
+  margin-bottom:12px;
+  color:var(--blue);
+  font-family:"Press Start 2P";
+  font-size:9px;
+}
+
+h1{
+  margin:0 0 12px;
+  font-family:"Press Start 2P";
+  font-size:clamp(24px,4vw,42px);
+  line-height:1.35;
+}
+
+.profile-text{
+  margin:0;
+  color:var(--muted);
+  line-height:1.6;
+  font-size:15px;
+}
+
+.connect{
+  min-width:190px;
+  text-align:center;
+}
+
+.wallet-status{
+  margin-bottom:10px;
+  color:var(--muted);
+  font-size:11px;
+  font-weight:800;
+}
+
+/* =========================
+   DASHBOARD GRID
+========================= */
+
+.dashboard{
+  margin-top:24px;
+  display:grid;
+  grid-template-columns:1.4fr .8fr;
+  gap:20px;
+}
+
+.card{
+  background:#fff;
+  border:4px solid var(--line);
+  box-shadow:6px 6px 0 var(--line);
+  padding:22px;
+}
+
+.card-title{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:15px;
+  margin-bottom:20px;
+}
+
+.card-title h2{
+  margin:0;
+  font-family:"Press Start 2P";
+  font-size:14px;
+  line-height:1.6;
+}
+
+.tag{
+  border:2px solid var(--line);
+  padding:7px 9px;
+  background:var(--cream);
+  font-family:"Press Start 2P";
+  font-size:7px;
+}
+
+/* =========================
+   BALANCE
+========================= */
+
+.balance{
+  background:
+    linear-gradient(135deg,#e5f9ff,#fff);
+}
+
+.balance-label{
+  color:var(--muted);
+  font-size:12px;
+  font-weight:800;
+  margin-bottom:8px;
+}
+
+.balance-value{
+  font-family:"Press Start 2P";
+  color:var(--blue);
+  font-size:30px;
+  margin-bottom:20px;
+}
+
+.balance-note{
+  margin:0;
+  color:var(--muted);
+  font-size:12px;
+  line-height:1.6;
+}
+
+/* =========================
+   STATS
+========================= */
+
+.stats{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:12px;
+}
+
+.stat{
+  padding:16px;
+  background:#f6f9fa;
+  border:3px solid var(--line);
+}
+
+.stat-label{
+  color:var(--muted);
+  font-size:10px;
+  font-weight:800;
+  margin-bottom:8px;
+}
+
+.stat strong{
+  display:block;
+  font-family:"Press Start 2P";
+  font-size:15px;
+}
+
+/* =========================
+   ROVER OWNED
+========================= */
+
+.owned-list{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:12px;
+}
+
+.rover{
+  border:3px solid var(--line);
+  background:#eefaff;
+  overflow:hidden;
+}
+
+.rover-art{
+  aspect-ratio:1;
+  display:grid;
+  place-items:center;
+  background:linear-gradient(135deg,#dff7ff,#b7eaff);
+  font-size:35px;
+  border-bottom:3px solid var(--line);
+}
+
+.rover-info{
+  padding:10px;
+}
+
+.rover-info strong{
+  display:block;
+  font-family:"Press Start 2P";
+  font-size:8px;
+  margin-bottom:5px;
+}
+
+.rover-info span{
+  color:var(--muted);
+  font-size:10px;
+}
+
+/* =========================
+   ACTIVITY
+========================= */
+
+.activity{
+  display:grid;
+  gap:10px;
+}
+
+.activity-row{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:15px;
+  padding:13px;
+  background:#f6f9fa;
+  border:2px solid #c4d0d7;
+}
+
+.activity-left{
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+
+.activity-icon{
+  width:34px;
+  height:34px;
+  display:grid;
+  place-items:center;
+  border:2px solid var(--line);
+  background:#fff;
+}
+
+.activity-name{
+  font-size:12px;
+  font-weight:800;
+}
+
+.activity-date{
+  display:block;
+  color:var(--muted);
+  font-size:9px;
+  margin-top:3px;
+}
+
+.activity-value{
+  font-family:"Press Start 2P";
+  font-size:8px;
+  color:var(--blue);
+}
+
+/* =========================
+   STREAK
+========================= */
+
+.streak{
+  display:flex;
+  align-items:center;
+  gap:18px;
+  padding:20px;
+  background:#fff7d9;
+  border:3px solid var(--line);
+}
+
+.fire{
+  font-size:40px;
+}
+
+.streak-number{
+  font-family:"Press Start 2P";
+  font-size:24px;
+}
+
+.streak-label{
+  color:var(--muted);
+  font-size:11px;
+  font-weight:800;
+  margin-top:6px;
+}
+
+/* =========================
+   ACHIEVEMENTS
+========================= */
+
+.achievements{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:10px;
+}
+
+.achievement{
+  text-align:center;
+  padding:15px 8px;
+  background:#f5f8fa;
+  border:2px solid #c4d0d7;
+}
+
+.achievement-icon{
+  font-size:25px;
+  margin-bottom:8px;
+}
+
+.achievement strong{
+  display:block;
+  font-family:"Press Start 2P";
+  font-size:7px;
+  line-height:1.6;
+}
+
+.achievement small{
+  display:block;
+  color:var(--muted);
+  margin-top:5px;
+  font-size:9px;
+}
+
+.achievement.locked{
+  opacity:.4;
+  filter:grayscale(1);
+}
+
+/* =========================
+   PROGRESS
+========================= */
+
+.progress-row{
+  margin-bottom:16px;
+}
+
+.progress-top{
+  display:flex;
+  justify-content:space-between;
+  gap:10px;
+  font-size:11px;
+  font-weight:800;
+  margin-bottom:7px;
+}
+
+.progress-bar{
+  height:13px;
+  border:3px solid var(--line);
+  background:#e7edf0;
+}
+
+.progress-fill{
+  height:100%;
+  width:30%;
+  background:var(--blue);
+}
+
+/* =========================
+   QUICK LINKS
+========================= */
+
+.quick{
+  margin-top:22px;
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:16px;
+}
+
+.quick a{
+  background:#fff;
+  border:3px solid var(--line);
+  box-shadow:4px 4px 0 var(--line);
+  padding:17px;
+  font-weight:900;
+  transition:.15s;
+}
+
+.quick a:hover{
+  transform:translate(2px,2px);
+  box-shadow:2px 2px 0 var(--line);
+}
+
+.quick span{
+  display:block;
+  color:var(--muted);
+  font-size:11px;
+  margin-top:5px;
+}
+
+/* =========================
+   FOOTER
+========================= */
+
+footer{
+  border-top:4px solid var(--line);
+  background:#fff;
+  padding:28px 0 40px;
+}
+
+.footer{
+  display:flex;
+  justify-content:space-between;
+  gap:20px;
+  color:var(--muted);
+  font-size:13px;
+  font-weight:700;
+}
+
+/* =========================
+   REVEAL
+========================= */
+
+.reveal{
+  opacity:0;
+  transform:translateY(20px);
+}
+
+.reveal.visible{
+  opacity:1;
+  transform:none;
+  transition:
+    opacity .65s ease,
+    transform .65s ease;
+}
+
+/* =========================
+   TABLET
+========================= */
+
+@media(max-width:1000px){
+
+  nav{
+    display:none;
+    position:absolute;
+    top:76px;
+    left:16px;
+    right:16px;
+    padding:8px;
+    background:#fff;
+    border:3px solid var(--line);
+    box-shadow:5px 5px 0 var(--line);
+    flex-direction:column;
+    align-items:stretch;
+  }
+
+  nav.open{
+    display:flex;
+  }
+
+  nav a{
+    padding:13px;
+  }
+
+  header>.btn{
+    display:none;
+  }
+
+  .menu{
+    display:block;
+  }
+
+  .dashboard{
+    grid-template-columns:1fr;
+  }
+
+  .profile-head{
+    grid-template-columns:auto 1fr;
+  }
+
+  .connect{
+    grid-column:1/-1;
+    text-align:left;
+  }
+}
+
+/* =========================
+   MOBILE
+========================= */
+
+@media(max-width:650px){
+
+  .wrap{
+    width:calc(100% - 20px);
+  }
+
+  main{
+    padding-top:30px;
+  }
+
+  .brand{
+    font-size:9px;
+  }
+
+  .mark{
+    width:34px;
+    height:34px;
+  }
+
+  .profile-head{
+    padding:22px 18px;
+    grid-template-columns:1fr;
+  }
+
+  .avatar{
+    width:100px;
+    height:100px;
+  }
+
+  h1{
+    font-size:25px;
+  }
+
+  .stats{
+    grid-template-columns:1fr;
+  }
+
+  .owned-list{
+    grid-template-columns:1fr;
+  }
+
+  .quick{
+    grid-template-columns:1fr;
+  }
+
+  .footer{
+    display:block;
+  }
+
+  .footer div+div{
+    margin-top:10px;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+
+  <a class="brand" href="../">
+    <span class="mark">HR</span>
+    THE HOOD ROVER
+  </a>
+
+  <button class="menu" id="menu">
+    ☰
+  </button>
+
+  <nav id="nav">
+
+    <a href="../">HOME</a>
+
+    <a href="../collection/">COLLECTION</a>
+
+    <a href="../rover/">ROVER HUB</a>
+
+    <a class="active" href="../my-rover/">MY ROVER</a>
+
+    <a href="../leaderboard/">LEADERBOARD</a>
+
+    <a href="../referral/">REFERRAL</a>
+
+    <a href="../roadmap/">ROADMAP</a>
+
+    <a href="../faq/">FAQ</a>
+
+  </nav>
+
+  <a class="btn" href="#" id="mintButton">
+    MINT ON OPENSEA
+  </a>
+
+</header>
+
+
+<main>
+
+<div class="wrap">
+
+<!-- =========================
+     PROFILE HEADER
+========================= -->
+
+<section class="window reveal visible">
+
+  <div class="window-bar">
+
+    <span>
+      MY_ROVER.EXE
+    </span>
+
+    <span class="window-lights">
+      <i class="light"></i>
+      <i class="light"></i>
+      <i class="light"></i>
+    </span>
+
+  </div>
+
+
+  <div class="profile-head">
+
+    <div class="avatar">
+      🧑‍🚀
+    </div>
+
+
+    <div>
+
+      <span class="eyebrow">
+        HOOD ROVER // PERSONAL TERMINAL
+      </span>
+
+      <h1>
+        MY ROVER
+      </h1>
+
+      <p class="profile-text">
+        Your personal Rover dashboard.
+        Connect your wallet to access your collection,
+        rewards, activity, achievements and account progress.
+      </p>
+
+    </div>
+
+
+    <div class="connect">
+
+      <div class="wallet-status" id="walletStatus">
+        WALLET NOT CONNECTED
+      </div>
+
+      <button class="btn" id="connectButton">
+        CONNECT WALLET
+      </button>
+
+    </div>
+
+  </div>
+
+</section>
+
+
+<!-- =========================
+     DASHBOARD
+========================= -->
+
+<section class="dashboard">
+
+
+<!-- LEFT COLUMN -->
+
+<div>
+
+
+  <!-- BALANCE -->
+
+  <article class="card balance reveal">
+
+    <div class="card-title">
+
+      <h2>
+        ROVER BALANCE
+      </h2>
+
+      <span class="tag">
+        PRIVATE
+      </span>
+
+    </div>
+
+    <div class="balance-label">
+      AVAILABLE ROVER
+    </div>
+
+    <div class="balance-value" id="balance">
+      0
+    </div>
+
+    <p class="balance-note">
+      Your personal reward balance will appear here
+      when your account is connected to the live Rover system.
+    </p>
+
+  </article>
+
+
+  <!-- ACCOUNT STATS -->
+
+  <article class="card reveal" style="margin-top:20px">
+
+    <div class="card-title">
+
+      <h2>
+        ACCOUNT STATS
+      </h2>
+
+      <span class="tag">
+        LIVE
+      </span>
+
+    </div>
+
+    <div class="stats">
+
+      <div class="stat">
+
+        <div class="stat-label">
+          OWNED
+        </div>
+
+        <strong id="ownedCount">
+          0
+        </strong>
+
+      </div>
+
+
+      <div class="stat">
+
+        <div class="stat-label">
+          REFERRALS
+        </div>
+
+        <strong id="referralCount">
+          0
+        </strong>
+
+      </div>
+
+
+      <div class="stat">
+
+        <div class="stat-label">
+          STREAK
+        </div>
+
+        <strong id="streak">
+          0
+        </strong>
+
+      </div>
+
+    </div>
+
+  </article>
+
+
+  <!-- OWNED ROVERS -->
+
+  <article class="card reveal" style="margin-top:20px">
+
+    <div class="card-title">
+
+      <h2>
+        MY HOOD ROVERS
+      </h2>
+
+      <span class="tag">
+        COLLECTION
+      </span>
+
+    </div>
+
+
+    <div class="owned-list">
+
+      <div class="rover">
+
+        <div class="rover-art">
+          ?
+        </div>
+
+        <div class="rover-info">
+
+          <strong>
+            NOT CONNECTED
+          </strong>
+
+          <span>
+            Wallet required
+          </span>
+
+        </div>
+
+      </div>
+
+
+      <div class="rover">
+
+        <div class="rover-art">
+          ?
+        </div>
+
+        <div class="rover-info">
+
+          <strong>
+            NOT CONNECTED
+          </strong>
+
+          <span>
+            Wallet required
+          </span>
+
+        </div>
+
+      </div>
+
+
+      <div class="rover">
+
+        <div class="rover-art">
+          ?
+        </div>
+
+        <div class="rover-info">
+
+          <strong>
+            NOT CONNECTED
+          </strong>
+
+          <span>
+            Wallet required
+          </span>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </article>
+
+
+  <!-- ACTIVITY -->
+
+  <article class="card reveal" style="margin-top:20px">
+
+    <div class="card-title">
+
+      <h2>
+        RECENT ACTIVITY
+      </h2>
+
+      <span class="tag">
+        HISTORY
+      </span>
+
+    </div>
+
+
+    <div class="activity">
+
+
+      <div class="activity-row">
+
+        <div class="activity-left">
+
+          <div class="activity-icon">
+            🎯
+          </div>
+
+          <div>
+
+            <div class="activity-name">
+              Daily Mission
+            </div>
+
+            <span class="activity-date">
+              No activity yet
+            </span>
+
+          </div>
+
+        </div>
+
+        <div class="activity-value">
+          —
+        </div>
+
+      </div>
+
+
+      <div class="activity-row">
+
+        <div class="activity-left">
+
+          <div class="activity-icon">
+            🎡
+          </div>
+
+          <div>
+
+            <div class="activity-name">
+              Spin Reward
+            </div>
+
+            <span class="activity-date">
+              No activity yet
+            </span>
+
+          </div>
+
+        </div>
+
+        <div class="activity-value">
+          —
+        </div>
+
+      </div>
+
+
+      <div class="activity-row">
+
+        <div class="activity-left">
+
+          <div class="activity-icon">
+            🎁
+          </div>
+
+          <div>
+
+            <div class="activity-name">
+              Mystery Reward
+            </div>
+
+            <span class="activity-date">
+              No activity yet
+            </span>
+
+          </div>
+
+        </div>
+
+        <div class="activity-value">
+          —
+        </div>
+
+      </div>
+
+
+    </div>
+
+  </article>
+
+</div>
+
+
+<!-- RIGHT COLUMN -->
+
+<div>
+
+
+  <!-- STREAK -->
+
+  <article class="card reveal">
+
+    <div class="card-title">
+
+      <h2>
+        STREAK
+      </h2>
+
+      <span class="tag">
+        DAILY
+      </span>
+
+    </div>
+
+
+    <div class="streak">
+
+      <div class="fire">
+        🔥
+      </div>
+
+      <div>
+
+        <div class="streak-number" id="sideStreak">
+          0
+        </div>
+
+        <div class="streak-label">
+          CURRENT DAY STREAK
+        </div>
+
+      </div>
+
+    </div>
+
+  </article>
+
+
+  <!-- PROGRESS -->
+
+  <article class="card reveal" style="margin-top:20px">
+
+    <div class="card-title">
+
+      <h2>
+        PROGRESS
+      </h2>
+
+      <span class="tag">
+        PROFILE
+      </span>
+
+    </div>
+
+
+    <div class="progress-row">
+
+      <div class="progress-top">
+
+        <span>
+          MISSIONS
+        </span>
+
+        <span>
+          0%
+        </span>
+
+      </div>
+
+      <div class="progress-bar">
+        <div class="progress-fill" style="width:0%"></div>
+      </div>
+
+    </div>
+
+
+    <div class="progress-row">
+
+      <div class="progress-top">
+
+        <span>
+          REFERRALS
+        </span>
+
+        <span>
+          0 / 10
+        </span>
+
+      </div>
+
+      <div class="progress-bar">
+
+        <div
+          class="progress-fill"
+          style="width:0%">
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <div class="progress-row">
+
+      <div class="progress-top">
+
+        <span>
+          ACHIEVEMENTS
+        </span>
+
+        <span>
+          1 / 8
+        </span>
+
+      </div>
+
+      <div class="progress-bar">
+
+        <div
+          class="progress-fill"
+          style="width:12.5%">
+        </div>
+
+      </div>
+
+    </div>
+
+  </article>
+
+
+  <!-- ACHIEVEMENTS -->
+
+  <article class="card reveal" style="margin-top:20px">
+
+    <div class="card-title">
+
+      <h2>
+        ACHIEVEMENTS
+      </h2>
+
+      <span class="tag">
+        BADGES
+      </span>
+
+    </div>
+
+
+    <div class="achievements">
+
+
+      <div class="achievement">
+
+        <div class="achievement-icon">
+          🚀
+        </div>
+
+        <strong>
+          FIRST STEP
+        </strong>
+
+        <small>
+          Unlocked
+        </small>
+
+      </div>
+
+
+      <div class="achievement locked">
+
+        <div class="achievement-icon">
+          🔥
+        </div>
+
+        <strong>
+          STREAK
+        </strong>
+
+        <small>
+          Locked
+        </small>
+
+      </div>
+
+
+      <div class="achievement locked">
+
+        <div class="achievement-icon">
+          🏆
+        </div>
+
+        <strong>
+          CHAMPION
+        </strong>
+
+        <small>
+          Locked
+        </small>
+
+      </div>
+
+
+      <div class="achievement locked">
+
+        <div class="achievement-icon">
+          👑
+        </div>
+
+        <strong>
+          ELITE
+        </strong>
+
+        <small>
+          Locked
+        </small>
+
+      </div>
+
+
+    </div>
+
+  </article>
+
+
+  <!-- REFERRAL -->
+
+  <article class="card reveal" style="margin-top:20px">
+
+    <div class="card-title">
+
+      <h2>
+        REFERRAL
+      </h2>
+
+      <span class="tag">
+        MAX 10
+      </span>
+
+    </div>
+
+    <p style="color:var(--muted);font-size:13px;line-height:1.6">
+      Invite genuine users and build your Rover network.
+      Referral progress will update automatically when the live system is connected.
+    </p>
+
+    <a class="btn secondary" href="../referral/">
+      OPEN REFERRAL
+    </a>
+
+  </article>
+
+</div>
+
+</section>
+
+
+<!-- =========================
+     QUICK LINKS
+========================= -->
+
+<div class="quick reveal">
+
+  <a href="../rover/">
+
+    ROVER HUB
+
+    <span>
+      Missions, quiz, spin & rewards
+    </span>
+
+  </a>
+
+
+  <a href="../leaderboard/">
+
+    LEADERBOARD
+
+    <span>
+      View community rankings
+    </span>
+
+  </a>
+
+
+  <a href="../collection/">
+
+    COLLECTION
+
+    <span>
+      Explore the Hood Rovers
+    </span>
+
+  </a>
+
+</div>
+
+</div>
+
+</main>
+
+
+<footer>
+
+  <div class="wrap footer">
+
+    <div>
+      <b>THE HOOD ROVER</b>
+    </div>
+
+    <div>
+      RETRO SYSTEM // 2026
+    </div>
+
+  </div>
+
+</footer>
+
+
+<script>
+
+/* =========================
+   MOBILE MENU
+========================= */
+
+const menu =
+  document.getElementById("menu");
+
+const nav =
+  document.getElementById("nav");
+
+menu.addEventListener("click", () => {
+
+  nav.classList.toggle("open");
+
+});
+
+
+/* =========================
+   STREAK
+========================= */
+
+const savedStreak =
+  Number(
+    localStorage.getItem("hoodRoverStreak") || 0
+  );
+
+document.getElementById("streak").textContent =
+  savedStreak;
+
+document.getElementById("sideStreak").textContent =
+  savedStreak;
+
+
+/* =========================
+   CONNECT WALLET DEMO
+========================= */
+
+const connectButton =
+  document.getElementById("connectButton");
+
+const walletStatus =
+  document.getElementById("walletStatus");
+
+connectButton.addEventListener("click", async () => {
+
+  if(!window.ethereum){
+
+    walletStatus.textContent =
+      "NO WEB3 WALLET DETECTED";
+
+    connectButton.textContent =
+      "WALLET NOT FOUND";
+
+    return;
+
+  }
+
+  try{
+
+    const accounts =
+      await window.ethereum.request({
+        method:"eth_requestAccounts"
+      });
+
+    if(accounts && accounts[0]){
+
+      const address =
+        accounts[0];
+
+      const shortAddress =
+        address.slice(0,6) +
+        "..." +
+        address.slice(-4);
+
+      walletStatus.textContent =
+        shortAddress;
+
+      connectButton.textContent =
+        "CONNECTED ✓";
+
+      connectButton.classList.add("yellow");
+
+    }
+
+  }catch(error){
+
+    walletStatus.textContent =
+      "CONNECTION CANCELLED";
+
+  }
+
+});
+
+
+/* =========================
+   OPENSEA BUTTON
+========================= */
+
+document
+  .getElementById("mintButton")
+  .addEventListener("click", event => {
+
+    event.preventDefault();
+
+    alert(
+      "OpenSea mint link will be connected here."
+    );
+
+  });
+
+
+/* =========================
+   SCROLL REVEAL
+========================= */
+
+const observer =
+  new IntersectionObserver(
+    entries => {
+
+      entries.forEach((entry,index) => {
+
+        if(entry.isIntersecting){
+
+          setTimeout(() => {
+
+            entry.target.classList.add("visible");
+
+          },index * 60);
+
+          observer.unobserve(entry.target);
+
+        }
+
+      });
+
+    },
+    {
+      threshold:.08
+    }
+  );
+
+
+document
+  .querySelectorAll(".reveal")
+  .forEach(el => observer.observe(el));
+
+</script>
+
+</body>
+</html>
