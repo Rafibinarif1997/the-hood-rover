@@ -3,20 +3,27 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="description" content="The Hood Rover">
+
+<meta name="description" content="The Hood Rover — 1,111 pixel Rovers, missions, rewards, referrals and collectibles.">
+
 <title>The Hood Rover</title>
 
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Space+Mono:wght@400;700&display=swap');
+
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Space+Grotesk:wght@400;500;600;700&display=swap');
 
 :root{
-  --bg:#eef7ff;
-  --white:#ffffff;
-  --ink:#142235;
-  --blue:#1677d2;
-  --blue2:#d9edfb;
-  --line:#78a9cf;
-  --muted:#55718b;
+  --ink:#14232e;
+  --line:#173044;
+  --blue:#2f8cff;
+  --cyan:#16c8e8;
+  --yellow:#ffd84d;
+  --cream:#fffaf0;
+  --paper:#f3f7fa;
+  --white:#fff;
+  --muted:#687985;
+  --green:#42c98b;
+  --orange:#ff9d42;
 }
 
 *{
@@ -29,144 +36,201 @@ html{
 
 body{
   margin:0;
-  background:var(--bg);
+  background:var(--paper);
   color:var(--ink);
-  font-family:"Space Mono",monospace;
+  font-family:"Space Grotesk",sans-serif;
   overflow-x:hidden;
 }
 
-body::before{
+
+/* =========================================================
+   PIXEL GRID
+========================================================= */
+
+body:before{
   content:"";
   position:fixed;
   inset:0;
   pointer-events:none;
-  z-index:-1;
-  opacity:.22;
+  opacity:.12;
   background-image:
-    linear-gradient(rgba(20,34,53,.07) 1px,transparent 1px),
-    linear-gradient(90deg,rgba(20,34,53,.05) 1px,transparent 1px);
-  background-size:16px 16px;
+    linear-gradient(rgba(20,50,70,.15) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(20,50,70,.15) 1px,transparent 1px);
+  background-size:24px 24px;
+  z-index:-2;
 }
 
-/* TOP SYSTEM BAR */
+
+/* =========================================================
+   CRT SCANLINES
+========================================================= */
+
+body:after{
+  content:"";
+  position:fixed;
+  inset:0;
+  pointer-events:none;
+  background:repeating-linear-gradient(
+    0deg,
+    transparent 0 3px,
+    rgba(25,55,75,.035) 3px 4px
+  );
+  z-index:20;
+}
+
+a{
+  color:inherit;
+  text-decoration:none;
+}
+
+.wrap{
+  width:min(1160px,calc(100% - 32px));
+  margin:auto;
+}
+
+
+/* =========================================================
+   BOOT BAR
+========================================================= */
 
 .boot{
-  height:28px;
-  background:var(--ink);
+  min-height:28px;
+  background:var(--line);
   color:#fff;
   display:flex;
   justify-content:space-between;
   align-items:center;
-  padding:0 18px;
-  font:9px "Press Start 2P";
+  padding:7px 18px;
+  font:8px "Press Start 2P";
+  letter-spacing:.3px;
 }
 
-/* HEADER */
+
+/* =========================================================
+   ROVER HUB MASTER HEADER
+========================================================= */
 
 header{
   position:sticky;
   top:0;
-  z-index:100;
+  z-index:30;
+  min-height:76px;
   display:flex;
   align-items:center;
-  gap:16px;
-  padding:12px 4vw;
-  background:rgba(238,247,255,.96);
-  backdrop-filter:blur(8px);
-  border-bottom:3px solid var(--ink);
-  box-shadow:0 5px 0 #9ab8cf;
+  gap:18px;
+  padding:10px max(16px,calc((100% - 1160px)/2));
+  background:rgba(255,250,240,.95);
+  backdrop-filter:blur(12px);
+  border-bottom:3px solid var(--line);
 }
 
 .brand{
   display:flex;
   align-items:center;
   gap:10px;
-  color:var(--ink);
-  text-decoration:none;
-  font:11px "Press Start 2P";
+  font-family:"Press Start 2P";
+  font-size:11px;
+  line-height:1.5;
   white-space:nowrap;
 }
 
 .mark{
-  width:42px;
-  height:42px;
+  width:38px;
+  height:38px;
   display:grid;
   place-items:center;
   background:var(--blue);
-  color:white;
-  border:3px solid var(--ink);
-  box-shadow:4px 4px 0 var(--ink);
+  color:#fff;
+  border:3px solid var(--line);
+  box-shadow:3px 3px 0 var(--line);
+  font-family:"Press Start 2P";
+  font-size:10px;
 }
 
 nav{
-  flex:1;
+  margin-left:auto;
   display:flex;
-  justify-content:center;
   align-items:center;
-  flex-wrap:wrap;
   gap:4px;
 }
 
 nav a{
-  color:var(--ink);
-  text-decoration:none;
-  font-weight:bold;
-  font-size:10px;
-  padding:9px 7px;
+  padding:9px 10px;
   border:2px solid transparent;
+  font-size:12px;
+  font-weight:800;
 }
 
-nav a:hover{
+nav a:hover,
+nav a.active{
   background:#fff;
-  border-color:var(--ink);
+  border-color:var(--line);
+  box-shadow:3px 3px 0 var(--line);
 }
 
 .menu{
   display:none;
-  width:44px;
-  height:44px;
+  margin-left:auto;
   background:#fff;
-  border:3px solid var(--ink);
-  font-size:21px;
+  border:3px solid var(--line);
+  padding:9px 12px;
+  cursor:pointer;
+  font-size:18px;
 }
 
-/* BUTTON */
+
+/* =========================================================
+   MASTER BUTTON
+========================================================= */
 
 .btn{
   display:inline-flex;
-  align-items:center;
   justify-content:center;
-  min-height:48px;
-  padding:0 17px;
+  align-items:center;
+  gap:8px;
+  border:3px solid var(--line);
   background:var(--blue);
   color:#fff;
-  border:3px solid var(--ink);
-  box-shadow:5px 5px 0 var(--ink);
-  text-decoration:none;
-  font:bold 10px "Press Start 2P";
-  transition:.16s;
+  padding:13px 16px;
+  font-family:"Press Start 2P";
+  font-size:9px;
+  box-shadow:5px 5px 0 var(--line);
   cursor:pointer;
+  transition:.15s ease;
 }
 
 .btn:hover{
-  transform:translate(3px,3px);
-  box-shadow:2px 2px 0 var(--ink);
+  transform:translate(2px,2px);
+  box-shadow:3px 3px 0 var(--line);
 }
 
-.btn.light{
+.btn.secondary{
   background:#fff;
   color:var(--ink);
 }
 
-/* MAIN */
+.btn.yellow{
+  background:var(--yellow);
+  color:var(--ink);
+}
+
+
+/* =========================================================
+   MAIN
+========================================================= */
 
 main{
-  width:min(1200px,92vw);
+  width:min(1160px,calc(100% - 32px));
   margin:auto;
 }
 
+
+/* =========================================================
+   HERO
+========================================================= */
+
 .hero{
-  min-height:calc(100vh - 106px);
+  min-height:calc(100vh - 104px);
   display:grid;
   grid-template-columns:1fr .9fr;
   gap:55px;
@@ -175,8 +239,10 @@ main{
 }
 
 .eyebrow{
+  display:inline-block;
   color:var(--blue);
   font:9px "Press Start 2P";
+  line-height:1.7;
 }
 
 h1,
@@ -189,6 +255,7 @@ h2{
 h1{
   font-size:clamp(30px,5vw,66px);
   margin:20px 0;
+  letter-spacing:-2px;
 }
 
 h1 span{
@@ -205,7 +272,9 @@ p{
 }
 
 .hero p{
-  font-size:15px;
+  font-size:16px;
+  max-width:680px;
+  color:#536571;
 }
 
 .actions{
@@ -215,15 +284,19 @@ p{
   margin:30px 0;
 }
 
-/* HERO IMAGE */
+
+/* =========================================================
+   HERO IMAGE
+========================================================= */
 
 .art{
   position:relative;
-  background:var(--blue2);
-  border:4px solid var(--ink);
+  background:#dff2ff;
+  border:4px solid var(--line);
   padding:10px;
-  box-shadow:12px 12px 0 var(--ink);
+  box-shadow:12px 12px 0 var(--line);
   overflow:hidden;
+  animation:floatRover 4s ease-in-out infinite;
 }
 
 .art img{
@@ -233,7 +306,7 @@ p{
   object-fit:cover;
 }
 
-.art::after{
+.art:after{
   content:"";
   position:absolute;
   inset:10px;
@@ -250,19 +323,34 @@ p{
   left:20px;
   bottom:20px;
   z-index:2;
-  background:var(--bg);
-  border:2px solid var(--ink);
+  background:var(--cream);
+  border:2px solid var(--line);
   padding:8px;
   font:8px "Press Start 2P";
+  box-shadow:3px 3px 0 var(--line);
 }
 
-/* TICKER */
+@keyframes floatRover{
+  0%,100%{
+    transform:translateY(0);
+  }
+
+  50%{
+    transform:translateY(-7px);
+  }
+}
+
+
+/* =========================================================
+   TICKER
+========================================================= */
 
 .ticker{
-  background:var(--blue);
+  width:100%;
+  background:var(--line);
   color:#fff;
-  border-top:3px solid var(--ink);
-  border-bottom:3px solid var(--ink);
+  border-top:3px solid var(--line);
+  border-bottom:3px solid var(--line);
   padding:13px 0;
   overflow:hidden;
   white-space:nowrap;
@@ -275,11 +363,19 @@ p{
 }
 
 @keyframes marquee{
-  from{transform:translateX(100%)}
-  to{transform:translateX(-100%)}
+  from{
+    transform:translateX(100%);
+  }
+
+  to{
+    transform:translateX(-100%);
+  }
 }
 
-/* SECTIONS */
+
+/* =========================================================
+   SECTIONS
+========================================================= */
 
 .section{
   padding:100px 0;
@@ -297,7 +393,7 @@ p{
   min-height:200px;
   padding:22px;
   background:#fff;
-  border:3px solid var(--ink);
+  border:3px solid var(--line);
   box-shadow:7px 7px 0 #9ab8cf;
   color:var(--ink);
   text-decoration:none;
@@ -318,16 +414,20 @@ p{
 .card b{
   display:block;
   margin:18px 0;
-  font:12px "Press Start 2P";
+  font:11px "Press Start 2P";
   line-height:1.6;
 }
 
 .card small{
   color:var(--muted);
   line-height:1.7;
+  font-weight:600;
 }
 
-/* ARCHIVE */
+
+/* =========================================================
+   ARCHIVE
+========================================================= */
 
 .preview{
   display:grid;
@@ -338,7 +438,7 @@ p{
 
 .window{
   background:#fff;
-  border:4px solid var(--ink);
+  border:4px solid var(--line);
   box-shadow:10px 10px 0 #9ab8cf;
 }
 
@@ -357,10 +457,13 @@ p{
   aspect-ratio:1/1;
   object-fit:cover;
   padding:14px;
-  background:var(--blue2);
+  background:#dff2ff;
 }
 
-/* ROADMAP */
+
+/* =========================================================
+   ROADMAP
+========================================================= */
 
 .timeline{
   display:grid;
@@ -372,7 +475,7 @@ p{
   min-height:150px;
   padding:23px;
   background:#fff;
-  border:3px solid var(--ink);
+  border:3px solid var(--line);
 }
 
 .step strong{
@@ -384,81 +487,89 @@ p{
   display:block;
   margin:17px 0;
   font:10px "Press Start 2P";
+  line-height:1.6;
 }
 
-/* CTA */
+
+/* =========================================================
+   CTA
+========================================================= */
 
 .cta{
   margin-bottom:100px;
   padding:55px;
   background:#fff;
-  border:4px solid var(--ink);
+  border:4px solid var(--line);
   box-shadow:12px 12px 0 var(--blue);
   text-align:center;
 }
 
-/* FOOTER */
+.cta h2{
+  margin:18px 0 28px;
+}
+
+
+/* =========================================================
+   MASTER FOOTER
+========================================================= */
+
+footer{
+  border-top:4px solid var(--line);
+  background:#fff;
+  padding:28px 0 40px;
+}
 
 .footer{
   display:flex;
   justify-content:space-between;
   gap:20px;
-  padding:32px 4vw;
-  background:#dcecff;
-  border-top:4px solid var(--ink);
-  font-size:10px;
+  color:var(--muted);
+  font-size:13px;
+  font-weight:700;
 }
 
-/* ANIMATION */
+
+/* =========================================================
+   REVEAL ANIMATION
+========================================================= */
 
 .reveal{
   opacity:0;
   transform:translateY(25px);
-  transition:opacity .7s ease,transform .7s ease;
 }
 
 .reveal.visible{
   opacity:1;
   transform:translateY(0);
+  transition:
+    opacity .7s ease,
+    transform .7s ease;
 }
 
-/* TABLET */
+
+/* =========================================================
+   TABLET
+========================================================= */
 
 @media(max-width:1000px){
 
-  .grid{
-    grid-template-columns:repeat(2,1fr);
-  }
-
-  nav a{
-    font-size:8px;
-  }
-
-}
-
-/* MOBILE */
-
-@media(max-width:780px){
-
   header{
-    flex-wrap:wrap;
-  }
-
-  .menu{
-    display:block;
-    margin-left:auto;
-  }
-
-  header>.btn{
-    display:none;
+    padding-left:16px;
+    padding-right:16px;
   }
 
   nav{
     display:none;
-    order:5;
-    flex-basis:100%;
+    position:absolute;
+    top:76px;
+    left:16px;
+    right:16px;
+    padding:8px;
+    background:#fff;
+    border:3px solid var(--line);
+    box-shadow:5px 5px 0 var(--line);
     flex-direction:column;
-    width:100%;
+    align-items:stretch;
   }
 
   nav.open{
@@ -466,19 +577,86 @@ p{
   }
 
   nav a{
-    width:100%;
-    background:#fff;
-    border:2px solid var(--line);
     padding:13px;
+  }
+
+  header>.btn{
+    display:none;
+  }
+
+  .menu{
+    display:block;
+  }
+
+  .grid{
+    grid-template-columns:repeat(2,1fr);
   }
 
   .hero{
     grid-template-columns:1fr;
-    padding:70px 0;
   }
 
   .preview{
     grid-template-columns:1fr;
+  }
+
+  .timeline{
+    grid-template-columns:repeat(2,1fr);
+  }
+}
+
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media(max-width:620px){
+
+  .wrap{
+    width:calc(100% - 20px);
+  }
+
+  main{
+    width:calc(100% - 20px);
+  }
+
+  .brand{
+    font-size:9px;
+  }
+
+  .mark{
+    width:34px;
+    height:34px;
+  }
+
+  .boot{
+    padding:7px 10px;
+    font-size:7px;
+  }
+
+  .hero{
+    min-height:auto;
+    padding:55px 0 65px;
+  }
+
+  h1{
+    font-size:29px;
+  }
+
+  .hero p{
+    font-size:15px;
+  }
+
+  .actions{
+    flex-direction:column;
+  }
+
+  .actions .btn{
+    width:100%;
+  }
+
+  .section{
+    padding:70px 0;
   }
 
   .grid{
@@ -489,60 +667,48 @@ p{
     grid-template-columns:1fr;
   }
 
-  .section{
-    padding:70px 0;
+  .preview{
+    gap:35px;
   }
 
-  .footer{
-    flex-direction:column;
+  .cta{
+    margin-bottom:70px;
+    padding:35px 20px;
   }
 
-  .actions{
-    flex-direction:column;
-  }
-
-  .btn{
+  .cta .btn{
     width:100%;
   }
 
+  .footer{
+    display:block;
+  }
+
+  .footer div+div{
+    margin-top:10px;
+  }
 }
 
-/* SMALL PHONE */
-
-@media(max-width:480px){
-
-  .brand{
-    font-size:8px;
-  }
-
-  .mark{
-    width:37px;
-    height:37px;
-  }
-
-  h1{
-    font-size:27px;
-  }
-
-  .hero p{
-    font-size:13px;
-  }
-
-  .boot{
-    padding:0 10px;
-    font-size:7px;
-  }
-
-}
 </style>
 </head>
 
+
 <body>
+
+
+<!-- =========================================================
+     BOOT BAR
+========================================================= -->
 
 <div class="boot">
   <span>HOOD ROVER SYSTEM</span>
   <span>READY_</span>
 </div>
+
+
+<!-- =========================================================
+     ROVER HUB MASTER HEADER
+========================================================= -->
 
 <header>
 
@@ -551,17 +717,44 @@ p{
     THE HOOD ROVER
   </a>
 
-  <button class="menu" aria-label="Open menu">☰</button>
+  <button class="menu" id="menu">
+    ☰
+  </button>
 
-  <nav>
-    <a href="./">HOME</a>
-    <a href="./collection/">COLLECTION</a>
-    <a href="./rover/">ROVER HUB</a>
-    <a href="./my-rover/">MY ROVER</a>
-    <a href="./leaderboard/">LEADERBOARD</a>
-    <a href="./referral/">REFERRAL</a>
-    <a href="./roadmap/">ROADMAP</a>
-    <a href="./faq/">FAQ</a>
+  <nav id="nav">
+
+    <a class="active" href="./">
+      HOME
+    </a>
+
+    <a href="./collection/">
+      COLLECTION
+    </a>
+
+    <a href="./rover/">
+      ROVER HUB
+    </a>
+
+    <a href="./my-rover/">
+      MY ROVER
+    </a>
+
+    <a href="./leaderboard/">
+      LEADERBOARD
+    </a>
+
+    <a href="./referral/">
+      REFERRAL
+    </a>
+
+    <a href="./roadmap/">
+      ROADMAP
+    </a>
+
+    <a href="./faq/">
+      FAQ
+    </a>
+
   </nav>
 
   <a class="btn" href="#" id="mintTop">
@@ -570,9 +763,13 @@ p{
 
 </header>
 
+
 <main>
 
-<!-- HERO -->
+
+<!-- =========================================================
+     HERO
+========================================================= -->
 
 <section class="hero">
 
@@ -600,7 +797,7 @@ p{
         MINT ON OPENSEA ↗
       </a>
 
-      <a class="btn light" href="./collection/">
+      <a class="btn secondary" href="./collection/">
         VIEW COLLECTION
       </a>
 
@@ -625,18 +822,24 @@ p{
 </section>
 
 
-<!-- TICKER -->
+<!-- =========================================================
+     TICKER
+========================================================= -->
 
 <div class="ticker">
+
   <span>
     ▣ HOOD ROVER // 1,111 ROVERS //
     MISSIONS // REWARDS // SPIN //
     REFERRALS // HOOD ROVER //
   </span>
+
 </div>
 
 
-<!-- SYSTEM -->
+<!-- =========================================================
+     SYSTEM
+========================================================= -->
 
 <section class="section">
 
@@ -648,13 +851,17 @@ p{
     A WORLD INSIDE YOUR SCREEN.
   </h2>
 
+
   <div class="grid">
+
 
     <a class="card reveal" href="./rover/">
 
       <span class="icon">▣</span>
 
-      <b>ROVER HUB</b>
+      <b>
+        ROVER HUB
+      </b>
 
       <small>
         MISSIONS · QUIZ · STREAK ·
@@ -668,7 +875,9 @@ p{
 
       <span class="icon">◈</span>
 
-      <b>COLLECTION</b>
+      <b>
+        COLLECTION
+      </b>
 
       <small>
         1,111 HOOD ROVERS
@@ -681,7 +890,9 @@ p{
 
       <span class="icon">↗</span>
 
-      <b>REFERRAL</b>
+      <b>
+        REFERRAL
+      </b>
 
       <small>
         MAX 10 SUCCESSFUL REFERRALS
@@ -694,7 +905,9 @@ p{
 
       <span class="icon">♛</span>
 
-      <b>LEADERBOARD</b>
+      <b>
+        LEADERBOARD
+      </b>
 
       <small>
         ROVER · REFERRALS · EVENTS
@@ -702,22 +915,33 @@ p{
 
     </a>
 
+
   </div>
 
 </section>
 
 
-<!-- ARCHIVE -->
+<!-- =========================================================
+     ARCHIVE
+========================================================= -->
 
 <section class="section">
 
   <div class="preview">
 
+
     <div class="window reveal">
 
       <div class="bar">
-        <span>ARCHIVE_VIEWER.exe</span>
-        <span>— □ ×</span>
+
+        <span>
+          ARCHIVE_VIEWER.exe
+        </span>
+
+        <span>
+          — □ ×
+        </span>
+
       </div>
 
       <img
@@ -750,12 +974,15 @@ p{
 
     </div>
 
+
   </div>
 
 </section>
 
 
-<!-- ROADMAP -->
+<!-- =========================================================
+     ROADMAP
+========================================================= -->
 
 <section class="section">
 
@@ -767,38 +994,86 @@ p{
     ROADMAP.
   </h2>
 
+
   <div class="timeline">
 
-    <div class="step reveal">
-      <strong>01</strong>
-      <b>PRE-REVEAL</b>
-      <span>Build the world.</span>
-    </div>
 
     <div class="step reveal">
-      <strong>02</strong>
-      <b>OPEN SEA</b>
-      <span>Collection launch.</span>
+
+      <strong>
+        01
+      </strong>
+
+      <b>
+        PRE-REVEAL
+      </b>
+
+      <span>
+        Build the world.
+      </span>
+
     </div>
 
-    <div class="step reveal">
-      <strong>03</strong>
-      <b>ROVER HUB</b>
-      <span>Missions & rewards.</span>
-    </div>
 
     <div class="step reveal">
-      <strong>04</strong>
-      <b>EXPANSION</b>
-      <span>New systems & collectibles.</span>
+
+      <strong>
+        02
+      </strong>
+
+      <b>
+        OPEN SEA
+      </b>
+
+      <span>
+        Collection launch.
+      </span>
+
     </div>
+
+
+    <div class="step reveal">
+
+      <strong>
+        03
+      </strong>
+
+      <b>
+        ROVER HUB
+      </b>
+
+      <span>
+        Missions & rewards.
+      </span>
+
+    </div>
+
+
+    <div class="step reveal">
+
+      <strong>
+        04
+      </strong>
+
+      <b>
+        EXPANSION
+      </b>
+
+      <span>
+        New systems & collectibles.
+      </span>
+
+    </div>
+
 
   </div>
 
 </section>
 
 
-<!-- CTA -->
+<!-- =========================================================
+     CTA
+========================================================= -->
 
 <section class="cta reveal">
 
@@ -816,27 +1091,38 @@ p{
 
 </section>
 
+
 </main>
 
 
-<footer class="footer">
+<!-- =========================================================
+     ROVER HUB MASTER FOOTER
+========================================================= -->
 
-  <b>
-    THE HOOD ROVER
-  </b>
+<footer>
 
-  <span>
-    RETRO SYSTEM // 2026
-  </span>
+  <div class="wrap footer">
+
+    <div>
+      <b>THE HOOD ROVER</b>
+    </div>
+
+    <div>
+      RETRO SYSTEM // 2026
+    </div>
+
+  </div>
 
 </footer>
 
 
 <script>
 
-const OPENSEA_URL = "#";
+/* =========================================================
+   OPENSEA
+========================================================= */
 
-/* OpenSea buttons */
+const OPENSEA_URL = "#";
 
 ["mintTop","mintHero","mintBottom"].forEach(id => {
 
@@ -854,10 +1140,6 @@ const OPENSEA_URL = "#";
         "OpenSea mint link will be connected here."
       );
 
-    }else{
-
-      button.href = OPENSEA_URL;
-
     }
 
   });
@@ -865,23 +1147,23 @@ const OPENSEA_URL = "#";
 });
 
 
-/* Mobile menu */
+/* =========================================================
+   MASTER MOBILE MENU
+========================================================= */
 
-const menu = document.querySelector(".menu");
-const nav = document.querySelector("nav");
+const menu = document.getElementById("menu");
+const nav = document.getElementById("nav");
 
-if(menu){
+menu.addEventListener("click", () => {
 
-  menu.addEventListener("click", function(){
+  nav.classList.toggle("open");
 
-    nav.classList.toggle("open");
-
-  });
-
-}
+});
 
 
-/* Scroll animation */
+/* =========================================================
+   SCROLL REVEAL
+========================================================= */
 
 const observer = new IntersectionObserver(
 
@@ -906,6 +1188,7 @@ const observer = new IntersectionObserver(
   }
 
 );
+
 
 document
   .querySelectorAll(".reveal")
