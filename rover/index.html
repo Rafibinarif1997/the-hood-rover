@@ -509,15 +509,15 @@ h1{
 
 
 /* =========================================================
-   SPIN WHEEL
+   PREMIUM SPIN WHEEL
 ========================================================= */
 
 .spin-area{
   display:flex;
   flex-direction:column;
   align-items:center;
-  gap:14px;
-  padding:5px 0 10px;
+  gap:16px;
+  padding:8px 0 12px;
 }
 
 .spin-counter{
@@ -525,46 +525,91 @@ h1{
   display:flex;
   justify-content:space-between;
   align-items:center;
-  padding:9px 11px;
-  border:2px solid var(--line);
-  background:#f3f7fa;
+  padding:10px 13px;
+  border:3px solid var(--line);
+  background:#f7fafb;
   font-size:11px;
   font-weight:900;
+  box-shadow:3px 3px 0 #c4d0d7;
 }
 
 .spin-counter strong{
   font-family:"Press Start 2P";
   font-size:8px;
+  color:var(--blue);
 }
+
+
+/* =========================================================
+   PREMIUM WHEEL FRAME
+========================================================= */
 
 .wheel-wrap{
   position:relative;
-  width:230px;
-  height:230px;
-  padding:0;
-  margin:5px auto;
+  width:250px;
+  height:250px;
+  margin:12px auto 8px;
+  display:grid;
+  place-items:center;
 }
+
+.wheel-wrap::before{
+  content:"";
+  position:absolute;
+  inset:-11px;
+  border-radius:50%;
+
+  background:
+    linear-gradient(
+      145deg,
+      #ffffff 0%,
+      #d7e5ec 28%,
+      #879daa 50%,
+      #f9ffff 72%,
+      #9aafb9 100%
+    );
+
+  border:3px solid var(--line);
+
+  box-shadow:
+    8px 8px 0 var(--line),
+    inset 0 0 0 3px rgba(255,255,255,.85);
+
+  z-index:0;
+}
+
+.wheel-wrap::after{
+  content:"";
+  position:absolute;
+  inset:-3px;
+  border-radius:50%;
+  border:3px solid rgba(255,255,255,.9);
+
+  box-shadow:
+    inset 0 0 0 2px rgba(23,48,68,.25);
+
+  z-index:1;
+  pointer-events:none;
+}
+
+
+/* =========================================================
+   WHEEL
+========================================================= */
 
 .wheel{
   position:absolute;
   inset:0;
 
-  width:230px;
-  height:230px;
+  width:250px;
+  height:250px;
 
   border-radius:50%;
-
-  /*
-    Six clearly visible reward positions.
-    The actual reward probability is controlled
-    separately in JavaScript.
-  */
 
   background:
     conic-gradient(
       from -30deg,
-
-      #ef5350 0deg 60deg,
+      #e95757 0deg 60deg,
       #2f8cff 60deg 120deg,
       #ffd84d 120deg 180deg,
       #16c8e8 180deg 240deg,
@@ -572,38 +617,50 @@ h1{
       #ff9d42 300deg 360deg
     );
 
-  border:7px solid var(--line);
+  border:6px solid var(--line);
 
   box-shadow:
-    7px 7px 0 var(--line),
-    inset 0 0 0 3px rgba(255,255,255,.45);
+    inset 0 0 0 4px rgba(255,255,255,.5),
+    inset 0 0 24px rgba(20,35,46,.18),
+    0 0 0 3px rgba(255,255,255,.7);
 
   transition:
     transform 4.5s cubic-bezier(.12,.78,.15,1);
 
   overflow:hidden;
+  z-index:2;
 }
 
-/* inner ring */
+
+/* inner premium ring */
 
 .wheel::before{
   content:"";
   position:absolute;
-  inset:18px;
+  inset:13px;
+
   border-radius:50%;
-  border:3px dashed rgba(23,48,68,.42);
+
+  border:3px solid rgba(255,255,255,.7);
+
+  box-shadow:
+    inset 0 0 0 2px rgba(23,48,68,.28),
+    inset 0 0 20px rgba(255,255,255,.2);
+
   pointer-events:none;
+  z-index:2;
 }
 
-/* center */
+
+/* center hub */
 
 .wheel::after{
   content:"SPIN";
 
   position:absolute;
 
-  width:64px;
-  height:64px;
+  width:68px;
+  height:68px;
 
   left:50%;
   top:50%;
@@ -613,11 +670,18 @@ h1{
   display:grid;
   place-items:center;
 
-  background:#fff;
+  background:
+    linear-gradient(
+      145deg,
+      #ffffff,
+      #e6f0f4
+    );
 
   border:5px solid var(--line);
 
   border-radius:50%;
+
+  color:var(--ink);
 
   font-family:"Press Start 2P";
   font-size:9px;
@@ -625,20 +689,22 @@ h1{
   z-index:8;
 
   box-shadow:
-    3px 3px 0 rgba(20,35,46,.35);
+    0 0 0 4px rgba(255,255,255,.65),
+    4px 4px 0 rgba(20,35,46,.4),
+    inset 0 0 12px rgba(20,35,46,.08);
 }
 
 
 /* =========================================================
-   WHEEL REWARD LABELS
+   WHEEL LABELS
 ========================================================= */
 
 .wheel-label{
   position:absolute;
 
-  z-index:5;
+  z-index:6;
 
-  width:66px;
+  width:70px;
 
   text-align:center;
 
@@ -651,142 +717,116 @@ h1{
   color:#fff;
 
   text-shadow:
-    2px 2px 0 rgba(20,35,46,.55);
+    2px 2px 0 rgba(20,35,46,.65);
 
   pointer-events:none;
+
+  filter:
+    drop-shadow(0 2px 1px rgba(0,0,0,.18));
 }
 
 .wheel-label span{
   display:block;
-  font-size:16px;
-  margin-bottom:2px;
+  font-size:17px;
+  margin-bottom:3px;
 }
 
 .wheel-label small{
   display:block;
-  margin-top:2px;
+  margin-top:3px;
+
   font-family:"Space Grotesk",sans-serif;
+
   font-size:9px;
+
   font-weight:900;
-  letter-spacing:.4px;
+
+  letter-spacing:.6px;
 }
 
-
-/*
-   Six positions
-*/
-
 .wheel-label.bad{
-  left:17px;
-  top:75px;
-  color:#fff;
+  left:13px;
+  top:83px;
 }
 
 .wheel-label.plus2{
-  left:82px;
-  top:20px;
-  color:#fff;
+  left:90px;
+  top:22px;
 }
 
 .wheel-label.plus4{
-  right:17px;
-  top:75px;
+  right:13px;
+  top:83px;
+
   color:#14232e;
+
   text-shadow:
-    1px 1px 0 rgba(255,255,255,.65);
+    1px 1px 0 rgba(255,255,255,.85);
 }
 
 .wheel-label.plus5{
-  right:20px;
-  bottom:26px;
-  color:#fff;
+  right:19px;
+  bottom:30px;
 }
 
 .wheel-label.plus6{
-  left:82px;
-  bottom:17px;
-  color:#fff;
+  left:90px;
+  bottom:18px;
 }
 
 .wheel-label.mystery{
-  left:17px;
-  bottom:27px;
-  color:#fff;
+  left:13px;
+  bottom:31px;
 }
 
 
 /* =========================================================
-   POINTER
+   PREMIUM POINTER
 ========================================================= */
 
 .pointer{
   position:absolute;
 
-  top:-10px;
+  top:-18px;
   left:50%;
 
   transform:translateX(-50%);
 
-  width:0;
-  height:0;
+  width:30px;
+  height:40px;
 
-  border-left:14px solid transparent;
-  border-right:14px solid transparent;
-  border-top:28px solid var(--line);
+  background:var(--line);
+
+  clip-path:polygon(
+    50% 100%,
+    0 0,
+    100% 0
+  );
 
   z-index:20;
 
   filter:
-    drop-shadow(3px 3px 0 #6c7880);
+    drop-shadow(3px 4px 0 #687985);
 }
 
+.pointer::after{
+  content:"";
 
-/* =========================================================
-   ODDS LEGEND
-========================================================= */
+  position:absolute;
 
-.spin-odds{
-  width:100%;
+  top:4px;
+  left:8px;
 
-  display:grid;
+  width:14px;
+  height:19px;
 
-  grid-template-columns:repeat(3,1fr);
+  background:var(--yellow);
 
-  gap:6px;
-
-  margin-top:3px;
-}
-
-.spin-odd{
-  padding:7px 4px;
-
-  text-align:center;
-
-  border:2px solid #c1ccd3;
-
-  background:#f7fafb;
-
-  font-size:9px;
-
-  font-weight:900;
-}
-
-.spin-odd strong{
-  display:block;
-
-  font-family:"Press Start 2P";
-
-  font-size:7px;
-
-  margin-bottom:4px;
-}
-
-.spin-odd.bad{
-  border-color:#ef5350;
-}
-
-.spin-odd.mystery{
-  border-color:#9b6cff;
+  clip-path:polygon(
+    50% 100%,
+    0 0,
+    100% 0
+  );
 }
 
 
@@ -796,14 +836,27 @@ h1{
 
 .reward-display{
   width:100%;
-  min-height:65px;
+  min-height:70px;
+
   display:flex;
   flex-direction:column;
   justify-content:center;
   align-items:center;
-  padding:9px;
+
+  padding:10px;
+
   border:3px solid var(--line);
-  background:#fffaf0;
+
+  background:
+    linear-gradient(
+      135deg,
+      #ffffff,
+      #f3f8fb
+    );
+
+  box-shadow:
+    3px 3px 0 #c4d0d7;
+
   text-align:center;
 }
 
@@ -822,6 +875,7 @@ h1{
 
 .reward-display.bad{
   background:#fff0f0;
+  border-color:#d94c4c;
 }
 
 .reward-display.bad .reward-display-sub{
@@ -830,6 +884,7 @@ h1{
 
 .reward-display.mystery{
   background:#f4efff;
+  border-color:#8053d9;
 }
 
 .reward-display.mystery .reward-display-sub{
@@ -1404,19 +1459,27 @@ footer{
     padding:15px;
   }
 
+
+  /* PREMIUM MOBILE WHEEL */
+
   .wheel-wrap{
-    width:210px;
-    height:210px;
+    width:220px;
+    height:220px;
+    margin-top:10px;
   }
 
   .wheel{
-    width:210px;
-    height:210px;
+    width:220px;
+    height:220px;
   }
 
   .wheel-label{
-    width:59px;
+    width:60px;
     font-size:7px;
+  }
+
+  .wheel-label span{
+    font-size:15px;
   }
 
   .wheel-label small{
@@ -1424,52 +1487,44 @@ footer{
   }
 
   .wheel-label.bad{
-    left:13px;
-    top:69px;
+    left:11px;
+    top:73px;
   }
 
   .wheel-label.plus2{
-    left:75px;
-    top:17px;
+    left:79px;
+    top:18px;
   }
 
   .wheel-label.plus4{
-    right:12px;
-    top:69px;
+    right:10px;
+    top:73px;
   }
 
   .wheel-label.plus5{
-    right:16px;
-    bottom:22px;
+    right:15px;
+    bottom:26px;
   }
 
   .wheel-label.plus6{
-    left:75px;
-    bottom:14px;
+    left:79px;
+    bottom:15px;
   }
 
   .wheel-label.mystery{
-    left:13px;
-    bottom:23px;
+    left:11px;
+    bottom:27px;
   }
 
   .wheel::after{
-    width:58px;
-    height:58px;
+    width:60px;
+    height:60px;
     font-size:8px;
   }
 
-  .spin-odds{
-    gap:4px;
-  }
-
-  .spin-odd{
-    padding:6px 2px;
-    font-size:8px;
-  }
-
-  .spin-odd strong{
-    font-size:6px;
+  .pointer{
+    top:-15px;
+    transform:translateX(-50%) scale(.9);
   }
 
 }
@@ -1884,9 +1939,6 @@ class="wheel"
 id="wheel">
 
 
-<!--
-  BAD LUCK
--->
 <div class="wheel-label bad">
 <span>✕</span>
 BAD<br>
@@ -1894,88 +1946,36 @@ LUCK
 </div>
 
 
-<!--
-  +2
--->
 <div class="wheel-label plus2">
 +2
 <small>ROVER</small>
 </div>
 
 
-<!--
-  +4
--->
 <div class="wheel-label plus4">
 +4
 <small>ROVER</small>
 </div>
 
 
-<!--
-  +5
--->
 <div class="wheel-label plus5">
 +5
 <small>ROVER</small>
 </div>
 
 
-<!--
-  +6
--->
 <div class="wheel-label plus6">
 +6
 <small>ROVER</small>
 </div>
 
 
-<!--
-  MYSTERY
--->
 <div class="wheel-label mystery">
 🎁
 <small>MYSTERY</small>
 </div>
 
 
-</div>
-
-</div>
-
-
-<!-- ODDS -->
-
-<div class="spin-odds">
-
-<div class="spin-odd bad">
-<strong>BAD</strong>
-65%
-</div>
-
-<div class="spin-odd">
-<strong>+2</strong>
-12%
-</div>
-
-<div class="spin-odd">
-<strong>+4</strong>
-8%
-</div>
-
-<div class="spin-odd">
-<strong>+5</strong>
-6%
-</div>
-
-<div class="spin-odd">
-<strong>+6</strong>
-5%
-</div>
-
-<div class="spin-odd mystery">
-<strong>🎁</strong>
-4%
 </div>
 
 </div>
@@ -3684,19 +3684,6 @@ let spinning = false;
 let rotation = 0;
 
 
-/*
-   REWARD PROBABILITIES
-
-   BAD LUCK       65%
-   +2 ROVER       12%
-   +4 ROVER        8%
-   +5 ROVER        6%
-   +6 ROVER        5%
-   MYSTERY         4%
-
-   TOTAL          100%
-*/
-
 const spinRewards = [
 
 {
@@ -3744,16 +3731,6 @@ weight:4
 ];
 
 
-/*
-   FIXED VISUAL POSITIONS
-
-   These are the six positions shown
-   on the wheel.
-
-   The selected reward is always animated
-   to the top pointer.
-*/
-
 const wheelPositions = {
 
 "BAD LUCK":0,
@@ -3770,20 +3747,6 @@ const wheelPositions = {
 
 };
 
-
-/*
-   Each visual sector is 60 degrees.
-
-   Wheel CSS begins from -30deg,
-   therefore sector centers are:
-
-   BAD      = 0deg
-   +2       = 60deg
-   +4       = 120deg
-   +5       = 180deg
-   +6       = 240deg
-   MYSTERY  = 300deg
-*/
 
 const wheelSectorCenters = {
 
@@ -4078,21 +4041,6 @@ spinButton.textContent =
 "SPINNING...";
 
 
-/*
-   Determine the reward BEFORE
-   starting the animation.
-
-   This is important.
-
-   The old version selected the reward
-   AFTER the wheel stopped, so the visual
-   wheel position did not correspond to
-   the actual reward.
-
-   Now the reward determines the
-   destination sector.
-*/
-
 const reward =
 randomSpinReward();
 
@@ -4103,28 +4051,15 @@ reward.name
 ];
 
 
-/*
-   Current wheel angle
-*/
-
 const current =
 normalizeDegrees(rotation);
 
-
-/*
-   We want the selected sector center
-   to arrive at the pointer at 0deg.
-*/
 
 let delta =
 normalizeDegrees(
 -targetAngle - current
 );
 
-
-/*
-   Add 5-7 complete rotations.
-*/
 
 const fullSpins =
 5 +
@@ -4145,10 +4080,6 @@ wheel.style.transform =
 `rotate(${rotation}deg)`;
 
 
-/*
-   Count the spin immediately.
-*/
-
 const nextCount =
 used + 1;
 
@@ -4156,10 +4087,6 @@ setSpinCount(
 nextCount
 );
 
-
-/*
-   Wait for the wheel animation.
-*/
 
 setTimeout(
 () => {
@@ -4169,10 +4096,6 @@ reward
 );
 
 
-/*
-   ROVER REWARD
-*/
-
 if(reward.type === "rover"){
 
 addRover(
@@ -4181,10 +4104,6 @@ reward.value
 
 }
 
-
-/*
-   MYSTERY KEY
-*/
 
 if(reward.type === "mystery"){
 
@@ -4206,11 +4125,6 @@ updateMysteryUI();
 
 }
 
-
-/*
-   TOTAL SPINS
-   Used for 30-spin achievement.
-*/
 
 let totalSpins =
 Number(
@@ -4518,10 +4432,6 @@ text.textContent =
 }
 
 
-/*
-   Spinner achievement is now 30.
-*/
-
 function updateAchievements(){
 
 const checkin =
@@ -4618,6 +4528,59 @@ gameStorageKey("streak")
 ) || 0
 );
 
+
+/*
+   FIX:
+   Connected wallet হলে আর
+   CONNECT WALLET FIRST দেখাবে না.
+*/
+
+const used =
+getSpinCount();
+
+const left =
+Math.max(
+0,
+3 - used
+);
+
+
+if(used >= 3){
+
+spinRewardDisplay.className =
+"reward-display";
+
+spinRewardDisplay.innerHTML = `
+
+<div class="reward-display-title">
+DAILY SPINS COMPLETE
+</div>
+
+<div class="reward-display-sub">
+COME BACK TOMORROW
+</div>
+
+`;
+
+}else{
+
+spinRewardDisplay.className =
+"reward-display";
+
+spinRewardDisplay.innerHTML = `
+
+<div class="reward-display-title">
+READY TO SPIN
+</div>
+
+<div class="reward-display-sub">
+${left} CHANCES TODAY
+</div>
+
+`;
+
+}
+
 }
 
 
@@ -4683,6 +4646,10 @@ spinButton.textContent =
 "SPIN NOW";
 
 
+/*
+   No CONNECT WALLET FIRST message here.
+*/
+
 spinRewardDisplay.className =
 "reward-display";
 
@@ -4693,7 +4660,7 @@ READY TO SPIN
 </div>
 
 <div class="reward-display-sub">
-CONNECT WALLET FIRST
+3 CHANCES TODAY
 </div>
 
 `;
