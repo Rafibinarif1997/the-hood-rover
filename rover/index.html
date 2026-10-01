@@ -2622,87 +2622,284 @@ loadWalletGame();
 }  
   
   
-/* =========================================================  
-   GAME STORAGE  
-========================================================= */  
-  
-function getWalletKey(){  
-  
-if(!walletAddress){  
-  
-return "guest";  
-  
-}  
-  
-return walletAddress.toLowerCase();  
-  
-}  
-  
-  
-function todayKey(){  
-  
-return new Date()  
-.toLocaleDateString(  
-"en-CA"  
-);  
-  
-}  
-  
-  
-function gameStorageKey(name){  
-  
-return (  
-"hoodRover_" +  
-name +  
-"_" +  
-getWalletKey()  
-);  
-  
-}  
-  
-  
-/* =========================================================  
-   ROVER BALANCE  
-========================================================= */  
-  
-let roverAmount = 0;  
-  
-let roverTodayAmount = 0;  
-  
-  
+/* =========================================================
+   GAME STORAGE — SUPABASE BACKEND
+========================================================= */
+
+/*
+  Wallet identity stays in the existing wallet/localStorage system.
+  Game/reward state is loaded from Supabase.
+*/
+
+let roverAmount = 0;
+let roverTodayAmount = 0;
+let backendHistory = [];
+let backendStatus = {
+  checkin_claimed:false,
+  quiz_claimed:false
+};
+
+
+function firstRow(data){
+  return Array.isArray(data) ? (data[0] || {}) : (data || {});
+}
+
+
+async function roverRPC(functionName,args={}){
+
+  const { data, error } = await supabaseClient.rpc(
+    functionName,
+    args
+  );
+
+  if(error) throw error;
+
+  return data;
+}
+
+
+function rewardDate(item){
+
+  if(!item) return "";
+
+  return String(
+    item.reward_date ||
+    item.created_at ||
+    ""
+  ).slice(0,10);
+}
+
+
+function rewardCount(type,todayOnly=false){
+
+  return backendHistory.filter(item => {
+
+    if(item.reward_type !== type)
+      return false;
+
+    if(todayOnly && rewardDate(item) !== todayKey())
+      return false;
+
+    return true;
+
+  }).length;
+}
+
+
+function rewardAmount(type,todayOnly=false){
+
+  return backendHistory
+    .filter(item => {
+
+      if(item.reward_type !== type)
+        return false;
+
+      if(todayOnly && rewardDate(item) !== todayKey())
+        return false;
+
+      return true;
+
+    })
+    .reduce(
+      (sum,item) =>
+        sum + Number(item.amount || 0),
+      0
+    );
+}
+
+
+function calculateCurrentStreak(){
+
+  const dates = [
+    ...new Set(
+      backendHistory
+        .filter(item =>
+          item.reward_type === "daily_checkin"
+        )
+        .map(item => rewardDate(item))
+        .filter(Boolean)
+    )
+  ].sort().reverse();
+
+
+  if(!dates.length)
+    return 0;
+
+
+  const today =
+    new Date(todayKey() + "T00:00:00");
+
+  const latest =
+    new Date(dates[0] + "T00:00:00");
+
+  const latestDiff = Math.round(
+    (today - latest) / 86400000
+  );
+
+
+  if(latestDiff > 1)
+    return 0;
+
+
+  let streak = 1;
+
+
+  for(let i=1;i<dates.length;i++){
+
+    const previous =
+      new Date(dates[i-1] + "T00:00:00");
+
+    const current =
+      new Date(dates[i] + "T00:00:00");
+
+    const diff = Math.round(
+      (previous - current) / 86400000
+    );
+
+    if(diff !== 1)
+      break;
+
+    streak++;
+  }
+
+
+  return streak;
+}
+
+
+/* =========================================================
+   LOAD ALL BACKEND GAME STATE
+========================================================= */
+
+async function loadBackendState(){
+
+  if(!walletAddress){
+
+    roverAmount = 0;
+    roverTodayAmount = 0;
+    backendHistory = [];
+    backendStatus = {
+      checkin_claimed:false,
+      quiz_claimed:false
+    };
+
+    updateRoverUI();
+    updateBackendUI();
+
+    return false;
+  }
+
+
+  try{
+
+    const [
+      balanceData,
+      statusData,
+      historyData
+    ] = await Promise.all([
+
+      roverRPC(
+        "get_rover_balance",
+        {p_wallet:walletAddress}
+      ),
+
+      roverRPC(
+        "rover_reward_status",
+        {p_wallet:walletAddress}
+      ),
+
+      roverRPC(
+        "get_rover_history",
+        {p_wallet:walletAddress}
+      )
+
+    ]);
+
+
+    const balance = firstRow(balanceData);
+    const status = firstRow(statusData);
+
+
+    roverAmount = Number(
+      balance.balance || 0
+    );
+
+    roverTodayAmount = Number(
+      balance.today_earned || 0
+    );
+
+    backendStatus = {
+      checkin_claimed:
+        Boolean(status.checkin_claimed),
+      quiz_claimed:
+        Boolean(status.quiz_claimed)
+    };
+
+    backendHistory = Array.isArray(historyData)
+      ? historyData
+      : [];
+
+
+    updateRoverUI();
+    updateBackendUI();
+
+    return true;
+
+  }catch(error){
+
+    console.error(
+      "Supabase game state error:",
+      error
+    );
+
+    roverAmount = 0;
+    roverTodayAmount = 0;
+    backendHistory = [];
+    backendStatus = {
+      checkin_claimed:false,
+      quiz_claimed:false
+    };
+
+    updateRoverUI();
+
+    return false;
+  }
+}
+
+
+/* =========================================================
+   ROVER BALANCE
+========================================================= */
+
 async function loadRoverBalance(){
 
   if(!walletAddress){
+
     roverAmount = 0;
     roverTodayAmount = 0;
     updateRoverUI();
     return;
   }
 
+
   try{
 
-    const { data, error } = await supabaseClient.rpc(
+    const data = await roverRPC(
       "get_rover_balance",
-      {
-        p_wallet: walletAddress
-      }
+      {p_wallet:walletAddress}
     );
 
-    if(error) throw error;
+    const row = firstRow(data);
 
-    const row = Array.isArray(data) ? data[0] : data;
+    roverAmount = Number(
+      row.balance || 0
+    );
 
-    roverAmount = Number(row?.balance || 0);
-    roverTodayAmount = Number(row?.today_earned || 0);
+    roverTodayAmount = Number(
+      row.today_earned || 0
+    );
 
     updateRoverUI();
-
-    console.log(
-      "ROVER BACKEND:",
-      roverAmount,
-      "TODAY:",
-      roverTodayAmount
-    );
 
   }catch(error){
 
@@ -2711,231 +2908,108 @@ async function loadRoverBalance(){
       error
     );
 
-    /*
-      Backend error হলে পুরোনো localStorage
-      balance দিয়ে নতুন balance দেখাব না।
-    */
-
     roverAmount = 0;
     roverTodayAmount = 0;
 
     updateRoverUI();
   }
 }
-  
-  
-function updateRoverUI(){  
-  
-roverBalance.textContent =  
-roverAmount +  
-" ROVER";  
-  
-roverToday.textContent =  
-"TODAY: +" +  
-roverTodayAmount +  
-" ROVER";  
-  
-}  
-  
-  
-function addRover(amount){  
-  
-if(amount <= 0)  
-return;  
-  
-  
-roverAmount += amount;  
-  
-roverTodayAmount += amount;  
-  
-  
-localStorage.setItem(  
-gameStorageKey("balance"),  
-String(roverAmount)  
-);  
-  
-localStorage.setItem(  
-gameStorageKey("today"),  
-String(roverTodayAmount)  
-);  
-  
-localStorage.setItem(  
-gameStorageKey("todayDate"),  
-todayKey()  
-);  
-  
-  
-updateRoverUI();  
-  
-updateAchievements();  
-  
-}  
-  
-  
-/* =========================================================  
-   DAILY CHECK-IN  
-========================================================= */  
-  
-async function loadCheckin(){
-
-  /* ================================
-     NO WALLET
-  ================================= */
-
-  if(!walletAddress){
-
-    checkinButton.disabled = false;
-    checkinButton.textContent = "DAILY CHECK-IN";
-
-    missionCheckin.textContent = "READY";
-    missionCheckin.classList.remove("done");
-
-    return;
-  }
 
 
-  /* ================================
-     CHECK BACKEND STATUS
-  ================================= */
+function updateRoverUI(){
 
-  try{
+  roverBalance.textContent =
+    roverAmount + " ROVER";
 
-    const { data, error } = await supabaseClient.rpc(
-      "rover_reward_status",
-      {
-        p_wallet: walletAddress
-      }
-    );
-
-    if(error) throw error;
-
-    const status = Array.isArray(data)
-      ? (data[0] || {})
-      : (data || {});
-
-
-    /* ================================
-       ALREADY CHECKED TODAY
-    ================================= */
-
-    if(status.checkin_claimed){
-
-      checkinButton.disabled = true;
-      checkinButton.textContent = "ALREADY CHECKED IN";
-
-      missionCheckin.textContent = "DONE";
-      missionCheckin.classList.add("done");
-
-      return;
-    }
-
-
-    /* ================================
-       READY
-    ================================= */
-
-    checkinButton.disabled = false;
-    checkinButton.textContent = "DAILY CHECK-IN";
-
-    missionCheckin.textContent = "READY";
-    missionCheckin.classList.remove("done");
-
-  }catch(error){
-
-    console.error(
-      "Check-in status error:",
-      error
-    );
-
-    checkinButton.disabled = false;
-    checkinButton.textContent = "DAILY CHECK-IN";
-
-    missionCheckin.textContent = "READY";
-    missionCheckin.classList.remove("done");
-  }
+  roverToday.textContent =
+    "TODAY: +" +
+    roverTodayAmount +
+    " ROVER";
 }
 
 
-/* =====================================
-   DAILY CHECK-IN CLICK
-===================================== */
+/* =========================================================
+   DAILY CHECK-IN
+========================================================= */
 
-checkinButton.addEventListener("click", async () => {
+function loadCheckin(){
 
   if(!walletAddress){
 
-    alert("CONNECT YOUR WALLET FIRST.");
-
+    checkinButton.disabled = false;
+    checkinButton.textContent = "DAILY CHECK-IN";
+    missionCheckin.textContent = "READY";
+    missionCheckin.classList.remove("done");
     return;
   }
 
 
-  /* ================================
-     PREVENT DOUBLE CLICK
-  ================================= */
+  if(backendStatus.checkin_claimed){
 
-  if(checkinButton.disabled) return;
-
-
-  checkinButton.disabled = true;
-  checkinButton.textContent = "CHECKING...";
-
-
-  try{
-
-    const { data, error } = await supabaseClient.rpc(
-      "daily_checkin",
-      {
-        p_wallet: walletAddress
-      }
-    );
-
-    if(error) throw error;
+    checkinButton.disabled = true;
+    checkinButton.textContent = "ALREADY CHECKED IN";
+    missionCheckin.textContent = "DONE";
+    missionCheckin.classList.add("done");
+    return;
+  }
 
 
-    const result = Array.isArray(data)
-      ? (data[0] || {})
-      : (data || {});
+  checkinButton.disabled = false;
+  checkinButton.textContent = "DAILY CHECK-IN";
+  missionCheckin.textContent = "READY";
+  missionCheckin.classList.remove("done");
+}
 
 
-    /* ================================
-       ALREADY CLAIMED
-    ================================= */
+checkinButton.addEventListener(
+  "click",
+  async () => {
 
-    if(result.already_checked_in){
-
-      checkinButton.disabled = true;
-      checkinButton.textContent = "ALREADY CHECKED IN";
-
-      missionCheckin.textContent = "DONE";
-      missionCheckin.classList.add("done");
-
+    if(!walletAddress){
+      alert("CONNECT YOUR WALLET FIRST.");
       return;
     }
 
 
-    /* ================================
-       SUCCESS
-    ================================= */
+    if(checkinButton.disabled)
+      return;
 
-    if(result.success){
 
-      const streak = Number(result.streak || 0);
-      const reward = Number(result.reward || 0);
-      const bonus = Number(result.bonus || 0);
-      const totalReward = Number(
-        result.total_reward || reward + bonus
+    checkinButton.disabled = true;
+    checkinButton.textContent = "CHECKING...";
+
+
+    try{
+
+      const data = await roverRPC(
+        "daily_checkin",
+        {p_wallet:walletAddress}
       );
 
+      const result = firstRow(data);
 
-      /* Update streak UI */
 
-      if(streakNumber){
-        streakNumber.textContent = streak;
+      if(result.already_checked_in){
+
+        await loadBackendState();
+        loadCheckin();
+        return;
       }
 
 
-      /* Update check-in UI */
+      if(!result.success){
+        throw new Error("Check-in was not completed.");
+      }
+
+
+      await loadBackendState();
+
+      const streak = Number(
+        result.streak ||
+        calculateCurrentStreak()
+      );
+
+      streakNumber.textContent = streak;
 
       checkinButton.textContent = "CHECKED IN ✓";
       checkinButton.disabled = true;
@@ -2943,1683 +3017,1141 @@ checkinButton.addEventListener("click", async () => {
       missionCheckin.textContent = "DONE";
       missionCheckin.classList.add("done");
 
-
-      /* ================================
-         RELOAD SUPABASE BALANCE
-      ================================= */
-
-      await loadRoverBalance();
-
-
-      /* Update achievements */
-
       updateAchievements();
 
+    }catch(error){
 
-      /* ================================
-         RESULT MESSAGE
-      ================================= */
+      console.error(
+        "Daily check-in error:",
+        error
+      );
 
-      if(bonus > 0){
+      checkinButton.disabled = false;
+      checkinButton.textContent = "DAILY CHECK-IN";
 
-        alert(
-          "CHECK-IN SUCCESS!\n\n" +
-          "+" + reward + " ROVER\n" +
-          "+" + bonus + " STREAK BONUS\n\n" +
-          "TOTAL: +" + totalReward + " ROVER\n" +
-          "STREAK: " + streak + " DAYS"
-        );
-
-      }else{
-
-        alert(
-          "CHECK-IN SUCCESS!\n\n" +
-          "+" + reward + " ROVER\n" +
-          "STREAK: " + streak + " DAYS"
-        );
-      }
-
-
-      return;
+      alert(
+        "CHECK-IN FAILED.\n\n" +
+        (error.message || "Please try again.")
+      );
     }
+  }
+);
 
 
-    /* ================================
-       UNKNOWN RESPONSE
-    ================================= */
+/* =========================================================
+   QUIZ
+========================================================= */
 
-    throw new Error(
-      "Check-in was not completed."
-    );
+const quizQuestions = [
+
+{
+question:
+"What is The Hood Rover?",
+options:[
+"A Rover NFT ecosystem",
+"A music platform",
+"A payment app",
+"A news website"
+],
+answer:0
+},
+
+{
+question:
+"What is the main purpose of Rover Hub?",
+options:[
+"Watch movies",
+"Complete activities and earn Rover",
+"Buy groceries",
+"Create emails"
+],
+answer:1
+},
+
+{
+question:
+"How many NFTs are planned in The Hood Rover collection?",
+options:[
+"404",
+"555",
+"1,111",
+"10,000"
+],
+answer:2
+},
+
+{
+question:
+"How many times can a user attempt the daily quiz?",
+options:[
+"Unlimited",
+"Three times",
+"Two times",
+"One time"
+],
+answer:3
+},
+
+{
+question:
+"What happens if a quiz answer is wrong?",
+options:[
+"The user gets bonus Rover",
+"The quiz is failed",
+"The user gets another attempt",
+"Nothing happens"
+],
+answer:1
+}
+
+];
 
 
-  }catch(error){
+function quizTodayResult(){
 
-    console.error(
-      "Daily check-in error:",
-      error
-    );
+  const quizItems = backendHistory.filter(
+    item =>
+      item.reward_type === "quiz" &&
+      rewardDate(item) === todayKey()
+  );
 
-    checkinButton.disabled = false;
-    checkinButton.textContent = "DAILY CHECK-IN";
+  if(!quizItems.length)
+    return null;
 
-    alert(
-      "CHECK-IN FAILED.\n\n" +
-      (error.message || "Please try again.")
-    );
+  const latest = quizItems[0];
+
+  return Number(latest.amount || 0) > 0
+    ? "passed"
+    : "failed";
+}
+
+
+function quizStatusLoad(){
+
+  const result = quizTodayResult();
+
+  if(result === "passed"){
+
+    quizStatus.textContent = "COMPLETED";
+    quizButton.textContent = "QUIZ COMPLETED";
+    quizButton.disabled = true;
+    missionQuiz.textContent = "DONE";
+    missionQuiz.classList.add("done");
+    return;
   }
 
-});
-  
 
-  
-/* =========================================================  
-   QUIZ  
-========================================================= */  
-  
-const quizQuestions = [  
-  
-{  
-question:  
-"What is The Hood Rover?",  
-  
-options:[  
-"A Rover NFT ecosystem",  
-"A music platform",  
-"A payment app",  
-"A news website"  
-],  
-  
-answer:0  
-},  
-  
-{  
-question:  
-"What is the main purpose of Rover Hub?",  
-  
-options:[  
-"Watch movies",  
-"Complete activities and earn Rover",  
-"Buy groceries",  
-"Create emails"  
-],  
-  
-answer:1  
-},  
-  
-{  
-question:  
-"How many NFTs are planned in The Hood Rover collection?",  
-  
-options:[  
-"404",  
-"555",  
-"1,111",  
-"10,000"  
-],  
-  
-answer:2  
-},  
-  
-{  
-question:  
-"How many times can a user attempt the daily quiz?",  
-  
-options:[  
-"Unlimited",  
-"Three times",  
-"Two times",  
-"One time"  
-],  
-  
-answer:3  
-},  
-  
-{  
-question:  
-"What happens if a quiz answer is wrong?",  
-  
-options:[  
-"The user gets bonus Rover",  
-"The quiz is failed",  
-"The user gets another attempt",  
-"Nothing happens"  
-],  
-  
-answer:1  
-}  
-  
-];  
-  
-  
-function quizStatusLoad(){  
-  
-const date =  
-localStorage.getItem(  
-gameStorageKey("quizDate")  
-);  
-  
-const result =  
-localStorage.getItem(  
-gameStorageKey("quizResult")  
-);  
-  
-  
-if(date !== todayKey()){  
-  
-quizStatus.textContent =  
-"READY";  
-  
-quizButton.textContent =  
-"START QUIZ";  
-  
-quizButton.disabled =  
-false;  
-  
-missionQuiz.textContent =  
-"0/1";  
-  
-missionQuiz.classList.remove(  
-"done"  
-);  
-  
-return;  
-  
-}  
-  
-  
-if(result === "passed"){  
-  
-quizStatus.textContent =  
-"COMPLETED";  
-  
-quizButton.textContent =  
-"QUIZ COMPLETED";  
-  
-quizButton.disabled =  
-true;  
-  
-missionQuiz.textContent =  
-"DONE";  
-  
-missionQuiz.classList.add(  
-"done"  
-);  
-  
-return;  
-  
-}  
-  
-  
-if(result === "failed"){  
-  
-quizStatus.textContent =  
-"FAILED";  
-  
-quizButton.textContent =  
-"TRY AGAIN TOMORROW";  
-  
-quizButton.disabled =  
-true;  
-  
-missionQuiz.textContent =  
-"FAILED";  
-  
-return;  
-  
-}  
-  
-}  
-  
-  
-function openQuiz(){  
-  
-if(!walletAddress){  
-  
-alert(  
-"CONNECT YOUR WALLET FIRST."  
-);  
-  
-return;  
-  
-}  
-  
-  
-const date =  
-localStorage.getItem(  
-gameStorageKey("quizDate")  
-);  
-  
-  
-const result =  
-localStorage.getItem(  
-gameStorageKey("quizResult")  
-);  
-  
-  
-if(  
-date === todayKey() &&  
-result  
-){  
-  
-alert(  
-result === "passed"  
-?  
-"TODAY'S QUIZ IS ALREADY COMPLETED."  
-:  
-"TODAY'S QUIZ IS ALREADY FAILED.\n\nTRY AGAIN TOMORROW."  
-);  
-  
-return;  
-  
-}  
-  
-  
-let questionIndex = 0;  
-  
-let score = 0;  
-  
-let finished = false;  
-  
-  
-const overlay =  
-document.createElement(  
-"div"  
-);  
-  
-overlay.className =  
-"quiz-overlay";  
-  
-document.body.appendChild(  
-overlay  
-);  
-  
-  
-function renderQuestion(){  
-  
-const q =  
-quizQuestions[  
-questionIndex  
-];  
-  
-  
-overlay.innerHTML = `  
-  
-<div class="quiz-modal">  
-  
-<div class="quiz-top">  
-  
-<div class="quiz-title">  
-ROVER QUIZ  
-</div>  
-  
-<div class="quiz-progress">  
-${questionIndex + 1}  
-/  
-${quizQuestions.length}  
-</div>  
-  
-</div>  
-  
-<div class="quiz-question">  
-${q.question}  
-</div>  
-  
-<div class="quiz-options">  
-  
-${q.options.map(  
-(option,index) => `  
-  
-<button  
-class="quiz-option"  
-data-answer="${index}"  
-type="button">  
-  
-${String.fromCharCode(65 + index)}.  
-${option}  
-  
-</button>  
-  
-`  
-).join("")}  
-  
-</div>  
-  
-<div class="quiz-warning">  
-  
-ONE WRONG ANSWER =  
-TODAY'S QUIZ FAILED.  
-  
-</div>  
-  
-</div>  
-  
-`;  
-  
-  
-overlay  
-.querySelectorAll(  
-".quiz-option"  
-)  
-.forEach(button => {  
-  
-button.addEventListener(  
-"click",  
-() => {  
-  
-const answer =  
-Number(  
-button.dataset.answer  
-);  
-  
-  
-if(answer !== q.answer){  
-  
-finishQuiz(false);  
-  
-return;  
-  
-}  
-  
-  
-score++;  
-  
-questionIndex++;  
-  
-  
-if(  
-questionIndex >=  
-quizQuestions.length  
-){  
-  
-finishQuiz(true);  
-  
-return;  
-  
-}  
-  
-  
-renderQuestion();  
-  
-}  
-);  
-  
-});  
-  
-}  
-  
+  if(result === "failed"){
 
-async function finishQuiz(passed){
-
-  if(finished)
+    quizStatus.textContent = "FAILED";
+    quizButton.textContent = "TRY AGAIN TOMORROW";
+    quizButton.disabled = true;
+    missionQuiz.textContent = "FAILED";
+    missionQuiz.classList.remove("done");
     return;
+  }
 
-  /* =====================================
-     QUIZ FAILED
-  ===================================== */
 
-  if(!passed){
+  quizStatus.textContent = "READY";
+  quizButton.textContent = "START QUIZ";
+  quizButton.disabled = false;
+  missionQuiz.textContent = "0/1";
+  missionQuiz.classList.remove("done");
+}
 
-    finished = true;
 
-    localStorage.setItem(
-      gameStorageKey("quizDate"),
-      todayKey()
-    );
+function openQuiz(){
 
-    localStorage.setItem(
-      gameStorageKey("quizResult"),
-      "failed"
-    );
+  if(!walletAddress){
+    alert("CONNECT YOUR WALLET FIRST.");
+    return;
+  }
+
+
+  const result = quizTodayResult();
+
+  if(result === "passed"){
+    alert("TODAY'S QUIZ IS ALREADY COMPLETED.");
+    return;
+  }
+
+  if(result === "failed"){
+    alert("TODAY'S QUIZ IS ALREADY FAILED.\n\nTRY AGAIN TOMORROW.");
+    return;
+  }
+
+
+  let questionIndex = 0;
+  let score = 0;
+  let finished = false;
+
+
+  const overlay = document.createElement("div");
+  overlay.className = "quiz-overlay";
+  document.body.appendChild(overlay);
+
+
+  function renderQuestion(){
+
+    const q = quizQuestions[questionIndex];
 
     overlay.innerHTML = `
 
-      <div class="quiz-modal">
+<div class="quiz-modal">
 
-        <div class="quiz-result">
+<div class="quiz-top">
 
-          <div class="quiz-result-icon">
-            ❌
-          </div>
+<div class="quiz-title">
+ROVER QUIZ
+</div>
 
-          <div class="quiz-result-title">
-            QUIZ FAILED
-          </div>
+<div class="quiz-progress">
+${questionIndex + 1}
+/
+${quizQuestions.length}
+</div>
 
-          <div class="quiz-result-score">
-            ${score} / 5 CORRECT
-          </div>
+</div>
 
-          <div class="quiz-result-reward">
-            0 ROVER
-          </div>
+<div class="quiz-question">
+${q.question}
+</div>
 
-          <p>
-            One wrong answer ends today's quiz.<br>
-            Try again tomorrow.
-          </p>
+<div class="quiz-options">
 
-          <button
-            class="btn secondary quiz-close"
-            id="closeQuiz">
+${q.options.map(
+(option,index) => `
 
-            CLOSE
+<button
+class="quiz-option"
+data-answer="${index}"
+type="button">
 
-          </button>
+${String.fromCharCode(65 + index)}.
+${option}
 
-        </div>
+</button>
 
-      </div>
+`
+).join("")}
 
-    `;
+</div>
 
-    return;
+<div class="quiz-warning">
+
+ONE WRONG ANSWER =
+TODAY'S QUIZ FAILED.
+
+</div>
+
+</div>
+
+`;
+
+
+    overlay
+      .querySelectorAll(".quiz-option")
+      .forEach(button => {
+
+        button.addEventListener(
+          "click",
+          () => {
+
+            const answer = Number(
+              button.dataset.answer
+            );
+
+            if(answer !== q.answer){
+              finishQuiz(false);
+              return;
+            }
+
+            score++;
+            questionIndex++;
+
+            if(questionIndex >= quizQuestions.length){
+              finishQuiz(true);
+              return;
+            }
+
+            renderQuestion();
+          }
+        );
+      });
   }
 
 
-  /* =====================================
-     WALLET CHECK
-  ===================================== */
+  async function finishQuiz(passed){
 
-  if(!walletAddress){
-
-    alert("CONNECT YOUR WALLET FIRST.");
-
-    return;
-  }
+    if(finished)
+      return;
 
 
-  /* =====================================
-     CLAIM QUIZ REWARD FROM SUPABASE
-     +2 ROVER
-  ===================================== */
+    try{
 
-  try{
+      /*
+        Both success and failure are recorded in Supabase.
+        A failed quiz uses amount 0, so the existing RPC
+        still blocks another quiz claim on the same day.
+      */
 
-    const { data, error } = await supabaseClient.rpc(
-      "claim_rover_reward",
-      {
-        p_wallet: walletAddress,
-        p_reward_type: "quiz",
-        p_amount: 2
+      const data = await roverRPC(
+        "claim_rover_reward",
+        {
+          p_wallet:walletAddress,
+          p_reward_type:"quiz",
+          p_amount:passed ? 2 : 0
+        }
+      );
+
+      const result = firstRow(data);
+
+
+      if(result.reason === "quiz_already_claimed"){
+
+        finished = true;
+        await loadBackendState();
+        quizStatusLoad();
+
+        overlay.innerHTML = `
+
+<div class="quiz-modal">
+
+<div class="quiz-result">
+
+<div class="quiz-result-icon">
+✓
+</div>
+
+<div class="quiz-result-title">
+QUIZ ALREADY CLAIMED
+</div>
+
+<div class="quiz-result-score">
+${score} / 5 CORRECT
+</div>
+
+<div class="quiz-result-reward">
+ALREADY CLAIMED
+</div>
+
+<button
+class="btn quiz-close"
+id="closeQuiz">
+
+DONE
+
+</button>
+
+</div>
+
+</div>
+
+`;
+
+        document
+          .getElementById("closeQuiz")
+          .addEventListener("click",() => overlay.remove());
+
+        return;
       }
-    );
-
-    if(error) throw error;
-
-    const result = Array.isArray(data)
-      ? (data[0] || {})
-      : (data || {});
 
 
-    /* =================================
-       ALREADY CLAIMED TODAY
-    ================================= */
+      if(!result.success){
+        throw new Error("Quiz reward was not confirmed by Supabase.");
+      }
 
-    if(result.reason === "quiz_already_claimed"){
 
       finished = true;
 
-      localStorage.setItem(
-        gameStorageKey("quizDate"),
-        todayKey()
+      await loadBackendState();
+
+
+      if(passed){
+
+        overlay.innerHTML = `
+
+<div class="quiz-modal">
+
+<div class="quiz-result">
+
+<div class="quiz-result-icon">
+🎉
+</div>
+
+<div class="quiz-result-title">
+QUIZ COMPLETE
+</div>
+
+<div class="quiz-result-score">
+5 / 5 CORRECT
+</div>
+
+<div class="quiz-result-reward">
++2 ROVER
+</div>
+
+<button
+class="btn quiz-close"
+id="closeQuiz">
+
+DONE
+
+</button>
+
+</div>
+
+</div>
+
+`;
+
+      }else{
+
+        overlay.innerHTML = `
+
+<div class="quiz-modal">
+
+<div class="quiz-result">
+
+<div class="quiz-result-icon">
+❌
+</div>
+
+<div class="quiz-result-title">
+QUIZ FAILED
+</div>
+
+<div class="quiz-result-score">
+${score} / 5 CORRECT
+</div>
+
+<div class="quiz-result-reward">
+0 ROVER
+</div>
+
+<p>
+One wrong answer ends today's quiz.
+Try again tomorrow.
+</p>
+
+<button
+class="btn secondary quiz-close"
+id="closeQuiz">
+
+CLOSE
+
+</button>
+
+</div>
+
+</div>
+
+`;
+      }
+
+
+      quizStatusLoad();
+
+      document
+        .getElementById("closeQuiz")
+        .addEventListener("click",() => overlay.remove());
+
+    }catch(error){
+
+      console.error(
+        "Quiz backend error:",
+        error
       );
 
-      localStorage.setItem(
-        gameStorageKey("quizResult"),
-        "passed"
+      alert(
+        "QUIZ REWARD SYNC FAILED.\n\n" +
+        (error.message || "Please try again.")
       );
-
-      overlay.innerHTML = `
-
-        <div class="quiz-modal">
-
-          <div class="quiz-result">
-
-            <div class="quiz-result-icon">
-              ✓
-            </div>
-
-            <div class="quiz-result-title">
-              QUIZ ALREADY CLAIMED
-            </div>
-
-            <div class="quiz-result-score">
-              ${score} / 5 CORRECT
-            </div>
-
-            <div class="quiz-result-reward">
-              ALREADY CLAIMED
-            </div>
-
-            <button
-              class="btn quiz-close"
-              id="closeQuiz">
-
-              DONE
-
-            </button>
-
-          </div>
-
-        </div>
-
-      `;
-
-      return;
     }
+  }
 
 
-    /* =================================
-       SUCCESS
-    ================================= */
-
-    if(result.success){
-
-      finished = true;
-
-      /* Save only after backend success */
-
-      localStorage.setItem(
-        gameStorageKey("quizDate"),
-        todayKey()
-      );
-
-      localStorage.setItem(
-        gameStorageKey("quizResult"),
-        "passed"
-      );
+  renderQuestion();
+}
 
 
-      /* Reload real Supabase balance */
-
-      await loadRoverBalance();
-
-      updateAchievements();
-
-
-      /* =================================
-         ORIGINAL QUIZ RESULT UI
-      ================================= */
-
-      overlay.innerHTML = `
-
-        <div class="quiz-modal">
-
-          <div class="quiz-result">
-
-            <div class="quiz-result-icon">
-              🎉
-            </div>
-
-            <div class="quiz-result-title">
-              QUIZ COMPLETE
-            </div>
-
-            <div class="quiz-result-score">
-              5 / 5 CORRECT
-            </div>
-
-            <div class="quiz-result-reward">
-              +2 ROVER
-            </div>
-
-            <button
-              class="btn quiz-close"
-              id="closeQuiz">
-
-              DONE
-
-            </button>
-
-          </div>
-
-        </div>
-
-      `;
-
-      return;
-    }
+quizButton.addEventListener(
+  "click",
+  openQuiz
+);
 
 
-    /* =================================
-       UNKNOWN BACKEND RESPONSE
-    ================================= */
+/* =========================================================
+   SPIN SYSTEM
+========================================================= */
 
-    throw new Error(
-      "Quiz reward was not confirmed by Supabase."
-    );
+let spinning = false;
+let rotation = 0;
+
+const spinRewards = [
+
+{
+name:"BAD LUCK",
+type:"bad",
+value:0,
+weight:65
+},
+
+{
+name:"+2 ROVER",
+type:"rover",
+value:2,
+weight:12
+},
+
+{
+name:"+4 ROVER",
+type:"rover",
+value:4,
+weight:8
+},
+
+{
+name:"+5 ROVER",
+type:"rover",
+value:5,
+weight:6
+},
+
+{
+name:"+6 ROVER",
+type:"rover",
+value:6,
+weight:5
+},
+
+{
+name:"MYSTERY REWARD",
+type:"mystery",
+value:1,
+weight:4
+}
+
+];
 
 
-  }catch(error){
+const wheelPositions = {
+"BAD LUCK":0,
+"+2 ROVER":1,
+"+4 ROVER":2,
+"+5 ROVER":3,
+"+6 ROVER":4,
+"MYSTERY REWARD":5
+};
 
-    console.error(
-      "Quiz reward error:",
-      error
-    );
 
-    /*
-      Backend reward না হলে finished=false
-      রাখছি, যাতে আবার চেষ্টা করা যায়।
-    */
+const wheelSectorCenters = {
+"BAD LUCK":0,
+"+2 ROVER":60,
+"+4 ROVER":120,
+"+5 ROVER":180,
+"+6 ROVER":240,
+"MYSTERY REWARD":300
+};
 
-    finished = false;
 
-    alert(
-      "QUIZ REWARD SYNC FAILED.\n\n" +
-      "Your Rover was not added.\n" +
-      "Please try again."
-    );
+function getSpinCount(){
+  return rewardCount("spin",true);
+}
+
+
+function updateSpinUI(){
+
+  const used = getSpinCount();
+  const left = Math.max(0,3-used);
+
+  spinCount.textContent = left + " / 3";
+  missionSpin.textContent = used + "/3";
+
+  if(used >= 3){
+    spinButton.disabled = true;
+    spinButton.textContent = "COME BACK TOMORROW";
+    missionSpin.textContent = "DONE";
+    missionSpin.classList.add("done");
+  }else{
+    spinButton.disabled = false;
+    spinButton.textContent = "SPIN NOW";
+    missionSpin.classList.remove("done");
   }
 }
-  
-  
-/* =========================================================  
-   SPIN SYSTEM  
-========================================================= */  
-  
-let spinning = false;  
-  
-let rotation = 0;  
-  
-  
-const spinRewards = [  
-  
-{  
-name:"BAD LUCK",  
-type:"bad",  
-value:0,  
-weight:65  
-},  
-  
-{  
-name:"+2 ROVER",  
-type:"rover",  
-value:2,  
-weight:12  
-},  
-  
-{  
-name:"+4 ROVER",  
-type:"rover",  
-value:4,  
-weight:8  
-},  
-  
-{  
-name:"+5 ROVER",  
-type:"rover",  
-value:5,  
-weight:6  
-},  
-  
-{  
-name:"+6 ROVER",  
-type:"rover",  
-value:6,  
-weight:5  
-},  
-  
-{  
-name:"MYSTERY REWARD",  
-type:"mystery",  
-value:1,  
-weight:4  
-}  
-  
-];  
-  
-  
-const wheelPositions = {  
-  
-"BAD LUCK":0,  
-  
-"+2 ROVER":1,  
-  
-"+4 ROVER":2,  
-  
-"+5 ROVER":3,  
-  
-"+6 ROVER":4,  
-  
-"MYSTERY REWARD":5  
-  
-};  
-  
-  
-const wheelSectorCenters = {  
-  
-"BAD LUCK":0,  
-  
-"+2 ROVER":60,  
-  
-"+4 ROVER":120,  
-  
-"+5 ROVER":180,  
-  
-"+6 ROVER":240,  
-  
-"MYSTERY REWARD":300  
-  
-};  
-  
-  
-function getSpinCount(){  
-  
-const date =  
-localStorage.getItem(  
-gameStorageKey("spinDate")  
-);  
-  
-  
-if(date !== todayKey()){  
-  
-return 0;  
-  
-}  
-  
-  
-return Number(  
-localStorage.getItem(  
-gameStorageKey("spinCount")  
-) || 0  
-);  
-  
-}  
-  
-  
-function setSpinCount(count){  
-  
-localStorage.setItem(  
-gameStorageKey("spinDate"),  
-todayKey()  
-);  
-  
-localStorage.setItem(  
-gameStorageKey("spinCount"),  
-String(count)  
-);  
-  
-}  
-  
-  
-/* =========================================================  
-   WEIGHTED RANDOM REWARD  
-========================================================= */  
-  
-function randomSpinReward(){  
-  
-const total =  
-spinRewards.reduce(  
-(sum,item) =>  
-sum + item.weight,  
-0  
-);  
-  
-  
-let random =  
-Math.random() * total;  
-  
-  
-for(  
-const reward of spinRewards  
-){  
-  
-random -=  
-reward.weight;  
-  
-  
-if(random <= 0){  
-  
-return reward;  
-  
-}  
-  
-}  
-  
-  
-return spinRewards[0];  
-  
-}  
-  
-  
-/* =========================================================  
-   UPDATE SPIN UI  
-========================================================= */  
-  
-function updateSpinUI(){  
-  
-const used =  
-getSpinCount();  
-  
-const left =  
-Math.max(  
-0,  
-3 - used  
-);  
-  
-  
-spinCount.textContent =  
-left +  
-" / 3";  
-  
-  
-missionSpin.textContent =  
-used +  
-"/3";  
-  
-  
-if(used >= 3){  
-  
-spinButton.disabled =  
-true;  
-  
-spinButton.textContent =  
-"COME BACK TOMORROW";  
-  
-missionSpin.textContent =  
-"DONE";  
-  
-missionSpin.classList.add(  
-"done"  
-);  
-  
-}else{  
-  
-spinButton.disabled =  
-false;  
-  
-spinButton.textContent =  
-"SPIN NOW";  
-  
-missionSpin.classList.remove(  
-"done"  
-);  
-  
-}  
-  
-}  
-  
-  
-/* =========================================================  
-   SHOW RESULT  
-========================================================= */  
-  
-function showSpinReward(reward){  
-  
-spinRewardDisplay.className =  
-"reward-display";  
-  
-  
-if(reward.type === "bad"){  
-  
-spinRewardDisplay.classList.add(  
-"bad"  
-);  
-  
-spinRewardDisplay.innerHTML = `  
-  
-<div class="reward-display-title">  
-❌ BAD LUCK  
-</div>  
-  
-<div class="reward-display-sub">  
-NO REWARD THIS TIME  
-</div>  
-  
-`;  
-  
-return;  
-  
-}  
-  
-  
-if(reward.type === "rover"){  
-  
-spinRewardDisplay.innerHTML = `  
-  
-<div class="reward-display-title">  
-🎉 ROVER REWARD  
-</div>  
-  
-<div class="reward-display-sub">  
-${reward.name}  
-</div>  
-  
-`;  
-  
-return;  
-  
-}  
-  
-  
-if(reward.type === "mystery"){  
-  
-spinRewardDisplay.classList.add(  
-"mystery"  
-);  
-  
-spinRewardDisplay.innerHTML = `  
-  
-<div class="reward-display-title">  
-🎁 MYSTERY REWARD  
-</div>  
-  
-<div class="reward-display-sub">  
-+1 MYSTERY KEY  
-</div>  
-  
-`;  
-  
-}  
-  
-}  
-  
-  
-/* =========================================================  
-   GET CURRENT ROTATION  
-========================================================= */  
-  
-function normalizeDegrees(value){  
-  
-return (  
-(  
-value % 360  
-) + 360  
-) % 360;  
-  
-}  
-  
-  
-/* =========================================================  
-   SPIN BUTTON  
-========================================================= */  
-  
-spinButton.addEventListener(  
-"click",  
-() => {  
-  
-if(spinning)  
-return;  
-  
-  
-if(!walletAddress){  
-  
-alert(  
-"CONNECT YOUR WALLET FIRST."  
-);  
-  
-return;  
-  
-}  
-  
-  
-const used =  
-getSpinCount();  
-  
-  
-if(used >= 3){  
-  
-alert(  
-"YOU HAVE USED ALL 3 SPINS TODAY.\n\nCOME BACK TOMORROW."  
-);  
-  
-updateSpinUI();  
-  
-return;  
-  
-}  
-  
-  
-spinning = true;  
-  
-spinButton.disabled =  
-true;  
-  
-spinButton.textContent =  
-"SPINNING...";  
-  
-  
-const reward =  
-randomSpinReward();  
-  
-  
-const targetAngle =  
-wheelSectorCenters[  
-reward.name  
-];  
-  
-  
-const current =  
-normalizeDegrees(rotation);  
-  
-  
-let delta =  
-normalizeDegrees(  
--targetAngle - current  
-);  
-  
-  
-const fullSpins =  
-5 +  
-Math.floor(  
-Math.random() * 3  
-);  
-  
-  
-delta +=  
-fullSpins * 360;  
-  
-  
-rotation +=  
-delta;  
-  
-  
-wheel.style.transform =  
-`rotate(${rotation}deg)`;  
-  
-  
-const nextCount =  
-used + 1;  
-  
-setSpinCount(  
-nextCount  
-);  
-  
-  
-setTimeout(  
-() => {  
-  
-showSpinReward(  
-reward  
-);  
-  
-  
-if(reward.type === "rover"){  
-  
-addRover(  
-reward.value  
-);  
-  
-}  
-  
-  
-if(reward.type === "mystery"){  
-  
-let keys =  
-Number(  
-localStorage.getItem(  
-gameStorageKey("mysteryKeys")  
-) || 0  
-);  
-  
-keys++;  
-  
-localStorage.setItem(  
-gameStorageKey("mysteryKeys"),  
-String(keys)  
-);  
-  
-updateMysteryUI();  
-  
-}  
-  
-  
-let totalSpins =  
-Number(  
-localStorage.getItem(  
-gameStorageKey("totalSpins")  
-) || 0  
-);  
-  
-totalSpins++;  
-  
-localStorage.setItem(  
-gameStorageKey("totalSpins"),  
-String(totalSpins)  
-);  
-  
-  
-updateSpinUI();  
-  
-updateAchievements();  
-  
-spinning = false;  
-  
-},  
-4700  
-);  
-  
-}  
-);  
-  
-  
-/* =========================================================  
-   MYSTERY BOX  
-========================================================= */  
-  
-function getMysteryKeys(){  
-  
-return Number(  
-localStorage.getItem(  
-gameStorageKey("mysteryKeys")  
-) || 0  
-);  
-  
-}  
-  
-  
-function setMysteryKeys(keys){  
-  
-localStorage.setItem(  
-gameStorageKey("mysteryKeys"),  
-String(  
-Math.max(0,keys)  
-)  
-);  
-  
-}  
-  
-  
-function updateMysteryUI(){  
-  
-const keys =  
-getMysteryKeys();  
-  
-  
-mysteryKeys.textContent =  
-keys;  
-  
-  
-if(keys > 0){  
-  
-mysteryBox.classList.remove(  
-"locked"  
-);  
-  
-mysteryBox.textContent =  
-"🎁";  
-  
-mysteryButton.disabled =  
-false;  
-  
-mysteryButton.textContent =  
-"OPEN MYSTERY BOX";  
-  
-mysteryResult.textContent =  
-"KEY READY";  
-  
-mysteryHelp.textContent =  
-"Use 1 Mystery Key to reveal your hidden reward.";  
-  
-}else{  
-  
-mysteryBox.classList.add(  
-"locked"  
-);  
-  
-mysteryBox.textContent =  
-"🔒";  
-  
-mysteryButton.disabled =  
-true;  
-  
-mysteryButton.textContent =  
-"NO KEY";  
-  
-mysteryResult.textContent =  
-"BOX LOCKED";  
-  
-mysteryHelp.textContent =  
-"Spin the wheel and find a Mystery Reward first.";  
-  
-}  
-  
-}  
-  
-  
-const mysteryRewards = [  
-  
-{  
-name:"+2 ROVER",  
-type:"rover",  
-value:2  
-},  
-  
-{  
-name:"+5 ROVER",  
-type:"rover",  
-value:5  
-},  
-  
-{  
-name:"+10 ROVER",  
-type:"rover",  
-value:10  
-},  
-  
-{  
-name:"BONUS ROVER",  
-type:"rover",  
-value:4  
-},  
-  
-{  
-name:"SPECIAL DROP",  
-type:"special",  
-value:0  
-}  
-  
-];  
-  
-  
-mysteryButton.addEventListener(  
-"click",  
-() => {  
-  
-if(!walletAddress){  
-  
-alert(  
-"CONNECT YOUR WALLET FIRST."  
-);  
-  
-return;  
-  
-}  
-  
-  
-const keys =  
-getMysteryKeys();  
-  
-  
-if(keys <= 0){  
-  
-updateMysteryUI();  
-  
-return;  
-  
-}  
-  
-  
-mysteryButton.disabled =  
-true;  
-  
-mysteryBox.style.transform =  
-"scale(.82) rotate(8deg)";  
-  
-mysteryResult.textContent =  
-"OPENING...";  
-  
-mysteryHelp.textContent =  
-"Unlocking your hidden reward...";  
-  
-  
-setTimeout(  
-() => {  
-  
-setMysteryKeys(  
-keys - 1  
-);  
-  
-  
-const reward =  
-mysteryRewards[  
-Math.floor(  
-Math.random() *  
-mysteryRewards.length  
-)  
-];  
-  
-  
-if(reward.type === "rover"){  
-  
-addRover(  
-reward.value  
-);  
-  
-mysteryResult.textContent =  
-"🎉 " +  
-reward.name;  
-  
-}else{  
-  
-mysteryResult.textContent =  
-"⭐ SPECIAL DROP";  
-  
-}  
-  
-  
-mysteryBox.textContent =  
-"★";  
-  
-mysteryBox.style.transform =  
-"scale(1) rotate(0deg)";  
-  
-mysteryHelp.textContent =  
-"Your Mystery Key was consumed.";  
-  
-let opened =  
-Number(  
-localStorage.getItem(  
-gameStorageKey("mysteryOpened")  
-) || 0  
-);  
-  
-opened++;  
-  
-localStorage.setItem(  
-gameStorageKey("mysteryOpened"),  
-String(opened)  
-);  
-  
-  
-updateMysteryUI();  
-  
-updateAchievements();  
-  
-},  
-1000  
-);  
-  
-}  
-);  
-  
-  
-/* =========================================================  
-   ACHIEVEMENTS  
-========================================================= */  
-  
-function unlockAchievement(  
-element,  
-textElement,  
-current,  
-target  
-){  
-  
-const text =  
-document.getElementById(  
-textElement  
-);  
-  
-const elementBox =  
-document.getElementById(  
-element  
-);  
-  
-  
-text.textContent =  
-current +  
-" / " +  
-target;  
-  
-  
-if(current >= target){  
-  
-elementBox.classList.remove(  
-"locked"  
-);  
-  
-elementBox.classList.add(  
-"unlocked"  
-);  
-  
-text.textContent =  
-"✓ UNLOCKED";  
-  
-}  
-  
-}  
-  
-  
-function updateAchievements(){  
-  
-const checkin =  
-localStorage.getItem(  
-gameStorageKey("checkinDate")  
-) === todayKey();  
-  
-  
-const streak =  
-Number(  
-localStorage.getItem(  
-gameStorageKey("streak")  
-) || 0  
-);  
-  
-  
-const spins =  
-Number(  
-localStorage.getItem(  
-gameStorageKey("totalSpins")  
-) || 0  
-);  
-  
-  
-const mystery =  
-Number(  
-localStorage.getItem(  
-gameStorageKey("mysteryOpened")  
-) || 0  
-);  
-  
-  
-unlockAchievement(  
-"achievementFirst",  
-"achievementFirstText",  
-checkin ? 1 : 0,  
-1  
-);  
-  
-  
-unlockAchievement(  
-"achievementStreak",  
-"achievementStreakText",  
-Math.min(streak,7),  
-7  
-);  
-  
-  
-unlockAchievement(  
-"achievementSpinner",  
-"achievementSpinnerText",  
-Math.min(spins,30),  
-30  
-);  
-  
-  
-unlockAchievement(  
-"achievementMystery",  
-"achievementMysteryText",  
-Math.min(mystery,5),  
-5  
-);  
-  
-}  
-  
-  
-/* =========================================================  
-   LOAD GAME  
-========================================================= */  
-  
-function loadWalletGame(){  
-  
-if(!walletAddress)  
-return;  
-  
-  
-loadRoverBalance();  
-  
-loadCheckin();  
-  
-quizStatusLoad();  
-  
-updateSpinUI();  
-  
-updateMysteryUI();  
-  
-updateAchievements();  
-  
-  
-streakNumber.textContent =  
-Number(  
-localStorage.getItem(  
-gameStorageKey("streak")  
-) || 0  
-);  
-  
-  
-const used =  
-getSpinCount();  
-  
-const left =  
-Math.max(  
-0,  
-3 - used  
-);  
-  
-  
-if(used >= 3){  
-  
-spinRewardDisplay.className =  
-"reward-display";  
-  
-spinRewardDisplay.innerHTML = `  
-  
-<div class="reward-display-title">  
-DAILY SPINS COMPLETE  
-</div>  
-  
-<div class="reward-display-sub">  
-COME BACK TOMORROW  
-</div>  
-  
-`;  
-  
-}else{  
-  
-spinRewardDisplay.className =  
-"reward-display";  
-  
-spinRewardDisplay.innerHTML = `  
-  
-<div class="reward-display-title">  
-READY TO SPIN  
-</div>  
-  
-<div class="reward-display-sub">  
-${left} CHANCES TODAY  
-</div>  
-  
-`;  
-  
-}  
-  
-}  
-  
-  
-/* =========================================================  
-   RESET UI WHEN WALLET DISCONNECTED  
-========================================================= */  
-  
-function resetWalletUI(){  
-  
-roverAmount = 0;  
-  
-roverTodayAmount = 0;  
-  
-updateRoverUI();  
-  
-  
-streakNumber.textContent =  
-"0";  
-  
-  
-checkinButton.disabled =  
-false;  
-  
-checkinButton.textContent =  
-"DAILY CHECK-IN";  
-  
-  
-missionCheckin.textContent =  
-"READY";  
-  
-missionCheckin.classList.remove(  
-"done"  
-);  
-  
-  
-quizStatus.textContent =  
-"CONNECT WALLET";  
-  
-quizButton.textContent =  
-"CONNECT WALLET";  
-  
-quizButton.disabled =  
-false;  
-  
-missionQuiz.textContent =  
-"0/1";  
-  
-  
-spinCount.textContent =  
-"3 / 3";  
-  
-missionSpin.textContent =  
-"0/3";  
-  
-missionSpin.classList.remove(  
-"done"  
-);  
-  
-spinButton.disabled =  
-false;  
-  
-spinButton.textContent =  
-"SPIN NOW";  
-  
-  
-spinRewardDisplay.className =  
-"reward-display";  
-  
-spinRewardDisplay.innerHTML = `  
-  
-<div class="reward-display-title">  
-READY TO SPIN  
-</div>  
-  
-<div class="reward-display-sub">  
-3 CHANCES TODAY  
-</div>  
-  
-`;  
-  
-  
-mysteryKeys.textContent =  
-"0";  
-  
-mysteryBox.textContent =  
-"🔒";  
-  
-mysteryBox.classList.add(  
-"locked"  
-);  
-  
-mysteryButton.disabled =  
-true;  
-  
-mysteryButton.textContent =  
-"NO KEY";  
-  
-mysteryResult.textContent =  
-"BOX LOCKED";  
-  
-mysteryHelp.textContent =  
-"Connect your wallet to start earning.";  
-  
-}  
-  
-  
+
+
+function randomSpinReward(){
+
+  const total = spinRewards.reduce(
+    (sum,item) => sum + item.weight,
+    0
+  );
+
+  let random = Math.random() * total;
+
+  for(const reward of spinRewards){
+    random -= reward.weight;
+    if(random <= 0)
+      return reward;
+  }
+
+  return spinRewards[0];
+}
+
+
+function showSpinReward(reward){
+
+  spinRewardDisplay.className = "reward-display";
+
+  if(reward.type === "bad"){
+    spinRewardDisplay.classList.add("bad");
+    spinRewardDisplay.innerHTML = `
+<div class="reward-display-title">
+❌ BAD LUCK
+</div>
+<div class="reward-display-sub">
+NO REWARD THIS TIME
+</div>
+`;
+    return;
+  }
+
+  if(reward.type === "rover"){
+    spinRewardDisplay.innerHTML = `
+<div class="reward-display-title">
+🎉 ROVER REWARD
+</div>
+<div class="reward-display-sub">
+${reward.name}
+</div>
+`;
+    return;
+  }
+
+  spinRewardDisplay.classList.add("mystery");
+  spinRewardDisplay.innerHTML = `
+<div class="reward-display-title">
+🎁 MYSTERY REWARD
+</div>
+<div class="reward-display-sub">
++1 MYSTERY KEY
+</div>
+`;
+}
+
+
+function normalizeDegrees(value){
+  return ((value % 360) + 360) % 360;
+}
+
+
+spinButton.addEventListener(
+  "click",
+  async () => {
+
+    if(spinning)
+      return;
+
+    if(!walletAddress){
+      alert("CONNECT YOUR WALLET FIRST.");
+      return;
+    }
+
+
+    const used = getSpinCount();
+
+    if(used >= 3){
+      alert("YOU HAVE USED ALL 3 SPINS TODAY.\n\nCOME BACK TOMORROW.");
+      updateSpinUI();
+      return;
+    }
+
+
+    spinning = true;
+    spinButton.disabled = true;
+    spinButton.textContent = "SPINNING...";
+
+
+    const reward = randomSpinReward();
+
+
+    try{
+
+      /* Server records the spin and enforces 3/day. */
+      const spinData = await roverRPC(
+        "claim_rover_reward",
+        {
+          p_wallet:walletAddress,
+          p_reward_type:"spin",
+          p_amount:reward.value
+        }
+      );
+
+      const spinResult = firstRow(spinData);
+
+      if(spinResult.reason === "daily_spin_limit_reached"){
+        await loadBackendState();
+        updateSpinUI();
+        alert("YOU HAVE USED ALL 3 SPINS TODAY.\n\nCOME BACK TOMORROW.");
+        spinning = false;
+        return;
+      }
+
+      if(!spinResult.success){
+        throw new Error("Spin was not confirmed by Supabase.");
+      }
+
+
+      /* Mystery result gets one backend key. */
+      if(reward.type === "mystery"){
+
+        const keyData = await roverRPC(
+          "claim_rover_reward",
+          {
+            p_wallet:walletAddress,
+            p_reward_type:"mystery_key",
+            p_amount:0
+          }
+        );
+
+        const keyResult = firstRow(keyData);
+
+        if(!keyResult.success){
+          throw new Error("Mystery key was not confirmed by Supabase.");
+        }
+      }
+
+
+      const targetAngle =
+        wheelSectorCenters[reward.name];
+
+      const current =
+        normalizeDegrees(rotation);
+
+      let delta = normalizeDegrees(
+        -targetAngle - current
+      );
+
+      const fullSpins =
+        5 + Math.floor(Math.random() * 3);
+
+      delta += fullSpins * 360;
+      rotation += delta;
+
+      wheel.style.transform =
+        `rotate(${rotation}deg)`;
+
+
+      setTimeout(async () => {
+
+        showSpinReward(reward);
+
+        await loadBackendState();
+        updateSpinUI();
+        updateMysteryUI();
+        updateAchievements();
+
+        spinning = false;
+
+      },4700);
+
+    }catch(error){
+
+      console.error(
+        "Spin backend error:",
+        error
+      );
+
+      spinning = false;
+      spinButton.disabled = false;
+      updateSpinUI();
+
+      alert(
+        "SPIN FAILED.\n\n" +
+        (error.message || "Please try again.")
+      );
+    }
+  }
+);
+
+
+/* =========================================================
+   MYSTERY BOX
+========================================================= */
+
+function getMysteryKeys(){
+
+  const earned = rewardCount("mystery_key");
+  const opened = rewardCount("mystery_box");
+
+  return Math.max(0,earned-opened);
+}
+
+
+function updateMysteryUI(){
+
+  const keys = getMysteryKeys();
+
+  mysteryKeys.textContent = keys;
+
+  if(keys > 0){
+
+    mysteryBox.classList.remove("locked");
+    mysteryBox.textContent = "🎁";
+    mysteryButton.disabled = false;
+    mysteryButton.textContent = "OPEN MYSTERY BOX";
+    mysteryResult.textContent = "KEY READY";
+    mysteryHelp.textContent = "Use 1 Mystery Key to reveal your hidden reward.";
+
+  }else{
+
+    mysteryBox.classList.add("locked");
+    mysteryBox.textContent = "🔒";
+    mysteryButton.disabled = true;
+    mysteryButton.textContent = "NO KEY";
+    mysteryResult.textContent = "BOX LOCKED";
+    mysteryHelp.textContent = "Spin the wheel and find a Mystery Reward first.";
+  }
+}
+
+
+const mysteryRewards = [
+
+{
+name:"+2 ROVER",
+type:"rover",
+value:2
+},
+
+{
+name:"+5 ROVER",
+type:"rover",
+value:5
+},
+
+{
+name:"+10 ROVER",
+type:"rover",
+value:10
+},
+
+{
+name:"BONUS ROVER",
+type:"rover",
+value:4
+},
+
+{
+name:"SPECIAL DROP",
+type:"special",
+value:0
+}
+
+];
+
+
+mysteryButton.addEventListener(
+  "click",
+  async () => {
+
+    if(!walletAddress){
+      alert("CONNECT YOUR WALLET FIRST.");
+      return;
+    }
+
+
+    const keys = getMysteryKeys();
+
+    if(keys <= 0){
+      updateMysteryUI();
+      return;
+    }
+
+
+    mysteryButton.disabled = true;
+    mysteryBox.style.transform = "scale(.82) rotate(8deg)";
+    mysteryResult.textContent = "OPENING...";
+    mysteryHelp.textContent = "Unlocking your hidden reward...";
+
+
+    setTimeout(async () => {
+
+      const reward = mysteryRewards[
+        Math.floor(
+          Math.random() * mysteryRewards.length
+        )
+      ];
+
+
+      try{
+
+        const data = await roverRPC(
+          "claim_rover_reward",
+          {
+            p_wallet:walletAddress,
+            p_reward_type:"mystery_box",
+            p_amount:reward.value
+          }
+        );
+
+        const result = firstRow(data);
+
+        if(!result.success){
+          throw new Error("Mystery box was not confirmed by Supabase.");
+        }
+
+
+        await loadBackendState();
+
+
+        if(reward.type === "rover"){
+          mysteryResult.textContent =
+            "🎉 " + reward.name;
+        }else{
+          mysteryResult.textContent =
+            "⭐ SPECIAL DROP";
+        }
+
+        mysteryBox.textContent = "★";
+        mysteryBox.style.transform = "scale(1) rotate(0deg)";
+        mysteryHelp.textContent = "Your Mystery Key was consumed.";
+
+        updateMysteryUI();
+        updateAchievements();
+
+      }catch(error){
+
+        console.error(
+          "Mystery box backend error:",
+          error
+        );
+
+        mysteryBox.style.transform = "scale(1) rotate(0deg)";
+        updateMysteryUI();
+
+        alert(
+          "MYSTERY BOX FAILED.\n\n" +
+          (error.message || "Please try again.")
+        );
+      }
+
+    },1000);
+  }
+);
+
+
+/* =========================================================
+   ACHIEVEMENTS
+========================================================= */
+
+function unlockAchievement(
+  element,
+  textElement,
+  current,
+  target
+){
+
+  const text = document.getElementById(textElement);
+  const elementBox = document.getElementById(element);
+
+  text.textContent = current + " / " + target;
+
+  if(current >= target){
+
+    elementBox.classList.remove("locked");
+    elementBox.classList.add("unlocked");
+    text.textContent = "✓ UNLOCKED";
+
+  }else{
+
+    elementBox.classList.add("locked");
+    elementBox.classList.remove("unlocked");
+  }
+}
+
+
+function updateAchievements(){
+
+  if(!walletAddress){
+    return;
+  }
+
+  const checkins = rewardCount("daily_checkin");
+  const streak = calculateCurrentStreak();
+  const spins = rewardCount("spin");
+  const mystery = rewardCount("mystery_box");
+
+  unlockAchievement(
+    "achievementFirst",
+    "achievementFirstText",
+    Math.min(checkins,1),
+    1
+  );
+
+  unlockAchievement(
+    "achievementStreak",
+    "achievementStreakText",
+    Math.min(streak,7),
+    7
+  );
+
+  unlockAchievement(
+    "achievementSpinner",
+    "achievementSpinnerText",
+    Math.min(spins,30),
+    30
+  );
+
+  unlockAchievement(
+    "achievementMystery",
+    "achievementMysteryText",
+    Math.min(mystery,5),
+    5
+  );
+}
+
+
+/* =========================================================
+   BACKEND UI SYNC
+========================================================= */
+
+function updateBackendUI(){
+
+  if(!walletAddress){
+    return;
+  }
+
+  loadCheckin();
+  quizStatusLoad();
+  updateSpinUI();
+  updateMysteryUI();
+
+  streakNumber.textContent =
+    calculateCurrentStreak();
+
+  updateAchievements();
+
+
+  const used = getSpinCount();
+  const left = Math.max(0,3-used);
+
+  if(used >= 3){
+
+    spinRewardDisplay.className = "reward-display";
+    spinRewardDisplay.innerHTML = `
+<div class="reward-display-title">
+DAILY SPINS COMPLETE
+</div>
+<div class="reward-display-sub">
+COME BACK TOMORROW
+</div>
+`;
+
+  }else if(!spinning){
+
+    spinRewardDisplay.className = "reward-display";
+    spinRewardDisplay.innerHTML = `
+<div class="reward-display-title">
+READY TO SPIN
+</div>
+<div class="reward-display-sub">
+${left} CHANCES TODAY
+</div>
+`;
+  }
+}
+
+
+/* =========================================================
+   LOAD GAME
+========================================================= */
+
+async function loadWalletGame(){
+
+  if(!walletAddress)
+    return;
+
+  await loadBackendState();
+}
+
+
+/* =========================================================
+   RESET UI WHEN WALLET DISCONNECTED
+========================================================= */
+
+function resetWalletUI(){
+
+  roverAmount = 0;
+  roverTodayAmount = 0;
+  backendHistory = [];
+  backendStatus = {
+    checkin_claimed:false,
+    quiz_claimed:false
+  };
+
+  updateRoverUI();
+
+  streakNumber.textContent = "0";
+
+  checkinButton.disabled = false;
+  checkinButton.textContent = "DAILY CHECK-IN";
+
+  missionCheckin.textContent = "READY";
+  missionCheckin.classList.remove("done");
+
+  quizStatus.textContent = "CONNECT WALLET";
+  quizButton.textContent = "CONNECT WALLET";
+  quizButton.disabled = false;
+  missionQuiz.textContent = "0/1";
+  missionQuiz.classList.remove("done");
+
+  spinCount.textContent = "3 / 3";
+  missionSpin.textContent = "0/3";
+  missionSpin.classList.remove("done");
+  spinButton.disabled = false;
+  spinButton.textContent = "SPIN NOW";
+
+  spinRewardDisplay.className = "reward-display";
+  spinRewardDisplay.innerHTML = `
+<div class="reward-display-title">
+READY TO SPIN
+</div>
+<div class="reward-display-sub">
+3 CHANCES TODAY
+</div>
+`;
+
+  mysteryKeys.textContent = "0";
+  mysteryBox.textContent = "🔒";
+  mysteryBox.classList.add("locked");
+  mysteryButton.disabled = true;
+  mysteryButton.textContent = "NO KEY";
+  mysteryResult.textContent = "BOX LOCKED";
+  mysteryHelp.textContent = "Connect your wallet to start earning.";
+
+  /* Reset visual achievement state without touching the design. */
+  [
+    ["achievementFirst","achievementFirstText"],
+    ["achievementStreak","achievementStreakText"],
+    ["achievementSpinner","achievementSpinnerText"],
+    ["achievementMystery","achievementMysteryText"]
+  ].forEach(([id,textId]) => {
+    const box = document.getElementById(id);
+    const text = document.getElementById(textId);
+    if(box) box.classList.add("locked");
+    if(box) box.classList.remove("unlocked");
+    if(text){
+      const target =
+        id === "achievementFirst" ? 1 :
+        id === "achievementStreak" ? 7 :
+        id === "achievementSpinner" ? 30 : 5;
+      text.textContent = "0 / " + target;
+    }
+  });
+}
+
+
 /* =========================================================  
    SCROLL ANIMATION  
 ========================================================= */  
