@@ -2776,174 +2776,242 @@ updateAchievements();
    DAILY CHECK-IN  
 ========================================================= */  
   
-function loadCheckin(){  
-  
-const date =  
-localStorage.getItem(  
-gameStorageKey("checkinDate")  
-);  
-  
-  
-if(date === todayKey()){  
-  
-checkinButton.disabled =  
-true;  
-  
-checkinButton.textContent =  
-"ALREADY CHECKED IN";  
-  
-missionCheckin.textContent =  
-"DONE";  
-  
-missionCheckin.classList.add(  
-"done"  
-);  
-  
-return;  
-  
-}  
-  
-  
-checkinButton.disabled =  
-false;  
-  
-checkinButton.textContent =  
-"DAILY CHECK-IN";  
-  
-missionCheckin.textContent =  
-"READY";  
-  
-missionCheckin.classList.remove(  
-"done"  
-);  
-  
-}  
-  
-  
-checkinButton.addEventListener(  
-"click",  
-() => {  
-  
-if(!walletAddress){  
-  
-alert(  
-"CONNECT YOUR WALLET FIRST."  
-);  
-  
-return;  
-  
-}  
-  
-  
-const already =  
-localStorage.getItem(  
-gameStorageKey("checkinDate")  
-) === todayKey();  
-  
-  
-if(already){  
-  
-loadCheckin();  
-  
-return;  
-  
-}  
-  
-  
-checkinButton.disabled =  
-true;  
-  
-checkinButton.textContent =  
-"CHECKING...";  
-  
-  
-setTimeout(() => {  
-  
-localStorage.setItem(  
-gameStorageKey("checkinDate"),  
-todayKey()  
-);  
-  
-addRover(1);  
-  
-  
-let streak =  
-Number(  
-localStorage.getItem(  
-gameStorageKey("streak")  
-) || 0  
-);  
-  
-  
-const previous =  
-localStorage.getItem(  
-gameStorageKey("previousCheckin")  
-);  
-  
-  
-if(previous){  
-  
-const yesterday =  
-new Date();  
-  
-yesterday.setDate(  
-yesterday.getDate() - 1  
-);  
-  
-const y =  
-yesterday.toLocaleDateString(  
-"en-CA"  
-);  
-  
-  
-if(previous === y){  
-  
-streak++;  
-  
-}else{  
-  
-streak = 1;  
-  
-}  
-  
-}else{  
-  
-streak = 1;  
-  
-}  
-  
-  
-localStorage.setItem(  
-gameStorageKey("streak"),  
-String(streak)  
-);  
-  
-localStorage.setItem(  
-gameStorageKey("previousCheckin"),  
-todayKey()  
-);  
-  
-  
-streakNumber.textContent =  
-streak;  
-  
-checkinButton.textContent =  
-"CHECKED IN ✓";  
-  
-missionCheckin.textContent =  
-"DONE";  
-  
-missionCheckin.classList.add(  
-"done"  
-);  
-  
-updateAchievements();  
-  
-},600);  
-  
-}  
-);  
-  
+async function loadCheckin(){
+
+  /* ================================
+     NO WALLET
+  ================================= */
+
+  if(!walletAddress){
+
+    checkinButton.disabled = false;
+    checkinButton.textContent = "DAILY CHECK-IN";
+
+    missionCheckin.textContent = "READY";
+    missionCheckin.classList.remove("done");
+
+    return;
+  }
+
+
+  /* ================================
+     CHECK BACKEND STATUS
+  ================================= */
+
+  try{
+
+    const { data, error } = await supabaseClient.rpc(
+      "rover_reward_status",
+      {
+        p_wallet: walletAddress
+      }
+    );
+
+    if(error) throw error;
+
+    const status = Array.isArray(data)
+      ? (data[0] || {})
+      : (data || {});
+
+
+    /* ================================
+       ALREADY CHECKED TODAY
+    ================================= */
+
+    if(status.checkin_claimed){
+
+      checkinButton.disabled = true;
+      checkinButton.textContent = "ALREADY CHECKED IN";
+
+      missionCheckin.textContent = "DONE";
+      missionCheckin.classList.add("done");
+
+      return;
+    }
+
+
+    /* ================================
+       READY
+    ================================= */
+
+    checkinButton.disabled = false;
+    checkinButton.textContent = "DAILY CHECK-IN";
+
+    missionCheckin.textContent = "READY";
+    missionCheckin.classList.remove("done");
+
+  }catch(error){
+
+    console.error(
+      "Check-in status error:",
+      error
+    );
+
+    checkinButton.disabled = false;
+    checkinButton.textContent = "DAILY CHECK-IN";
+
+    missionCheckin.textContent = "READY";
+    missionCheckin.classList.remove("done");
+  }
+}
+
+
+/* =====================================
+   DAILY CHECK-IN CLICK
+===================================== */
+
+checkinButton.addEventListener("click", async () => {
+
+  if(!walletAddress){
+
+    alert("CONNECT YOUR WALLET FIRST.");
+
+    return;
+  }
+
+
+  /* ================================
+     PREVENT DOUBLE CLICK
+  ================================= */
+
+  if(checkinButton.disabled) return;
+
+
+  checkinButton.disabled = true;
+  checkinButton.textContent = "CHECKING...";
+
+
+  try{
+
+    const { data, error } = await supabaseClient.rpc(
+      "daily_checkin",
+      {
+        p_wallet: walletAddress
+      }
+    );
+
+    if(error) throw error;
+
+
+    const result = Array.isArray(data)
+      ? (data[0] || {})
+      : (data || {});
+
+
+    /* ================================
+       ALREADY CLAIMED
+    ================================= */
+
+    if(result.already_checked_in){
+
+      checkinButton.disabled = true;
+      checkinButton.textContent = "ALREADY CHECKED IN";
+
+      missionCheckin.textContent = "DONE";
+      missionCheckin.classList.add("done");
+
+      return;
+    }
+
+
+    /* ================================
+       SUCCESS
+    ================================= */
+
+    if(result.success){
+
+      const streak = Number(result.streak || 0);
+      const reward = Number(result.reward || 0);
+      const bonus = Number(result.bonus || 0);
+      const totalReward = Number(
+        result.total_reward || reward + bonus
+      );
+
+
+      /* Update streak UI */
+
+      if(streakNumber){
+        streakNumber.textContent = streak;
+      }
+
+
+      /* Update check-in UI */
+
+      checkinButton.textContent = "CHECKED IN ✓";
+      checkinButton.disabled = true;
+
+      missionCheckin.textContent = "DONE";
+      missionCheckin.classList.add("done");
+
+
+      /* ================================
+         RELOAD SUPABASE BALANCE
+      ================================= */
+
+      await loadRoverBalance();
+
+
+      /* Update achievements */
+
+      updateAchievements();
+
+
+      /* ================================
+         RESULT MESSAGE
+      ================================= */
+
+      if(bonus > 0){
+
+        alert(
+          "CHECK-IN SUCCESS!\n\n" +
+          "+" + reward + " ROVER\n" +
+          "+" + bonus + " STREAK BONUS\n\n" +
+          "TOTAL: +" + totalReward + " ROVER\n" +
+          "STREAK: " + streak + " DAYS"
+        );
+
+      }else{
+
+        alert(
+          "CHECK-IN SUCCESS!\n\n" +
+          "+" + reward + " ROVER\n" +
+          "STREAK: " + streak + " DAYS"
+        );
+      }
+
+
+      return;
+    }
+
+
+    /* ================================
+       UNKNOWN RESPONSE
+    ================================= */
+
+    throw new Error(
+      "Check-in was not completed."
+    );
+
+
+  }catch(error){
+
+    console.error(
+      "Daily check-in error:",
+      error
+    );
+
+    checkinButton.disabled = false;
+    checkinButton.textContent = "DAILY CHECK-IN";
+
+    alert(
+      "CHECK-IN FAILED.\n\n" +
+      (error.message || "Please try again.")
+    );
+  }
+
+});
+  
+
   
 /* =========================================================  
    QUIZ  
