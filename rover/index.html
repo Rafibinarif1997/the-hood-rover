@@ -24,6 +24,7 @@
   --green:#42c98b;
   --orange:#ff9d42;
   --red:#e95757;
+  --purple:#9b6cff;
 }
 
 *{
@@ -508,7 +509,7 @@ h1{
 
 
 /* =========================================================
-   SPIN
+   SPIN WHEEL
 ========================================================= */
 
 .spin-area{
@@ -538,65 +539,260 @@ h1{
 
 .wheel-wrap{
   position:relative;
-  padding-top:9px;
+  width:230px;
+  height:230px;
+  padding:0;
+  margin:5px auto;
 }
 
 .wheel{
-  position:relative;
-  width:150px;
-  height:150px;
+  position:absolute;
+  inset:0;
+
+  width:230px;
+  height:230px;
+
   border-radius:50%;
-  border:5px solid var(--line);
+
+  /*
+    Six clearly visible reward positions.
+    The actual reward probability is controlled
+    separately in JavaScript.
+  */
+
   background:
     conic-gradient(
-      var(--red) 0 18%,
-      var(--blue) 18% 34%,
-      var(--yellow) 34% 48%,
-      var(--red) 48% 66%,
-      var(--cyan) 66% 80%,
-      var(--red) 80% 100%
+      from -30deg,
+
+      #ef5350 0deg 60deg,
+      #2f8cff 60deg 120deg,
+      #ffd84d 120deg 180deg,
+      #16c8e8 180deg 240deg,
+      #9b6cff 240deg 300deg,
+      #ff9d42 300deg 360deg
     );
-  box-shadow:5px 5px 0 var(--line);
-  transition:transform 3s cubic-bezier(.15,.8,.15,1);
+
+  border:7px solid var(--line);
+
+  box-shadow:
+    7px 7px 0 var(--line),
+    inset 0 0 0 3px rgba(255,255,255,.45);
+
+  transition:
+    transform 4.5s cubic-bezier(.12,.78,.15,1);
+
+  overflow:hidden;
 }
+
+/* inner ring */
 
 .wheel::before{
   content:"";
   position:absolute;
-  inset:15px;
+  inset:18px;
   border-radius:50%;
-  border:2px dashed rgba(23,48,68,.5);
+  border:3px dashed rgba(23,48,68,.42);
+  pointer-events:none;
 }
+
+/* center */
 
 .wheel::after{
   content:"SPIN";
+
   position:absolute;
-  width:50px;
-  height:50px;
+
+  width:64px;
+  height:64px;
+
   left:50%;
   top:50%;
+
   transform:translate(-50%,-50%);
+
   display:grid;
   place-items:center;
+
   background:#fff;
-  border:4px solid var(--line);
+
+  border:5px solid var(--line);
+
   border-radius:50%;
+
   font-family:"Press Start 2P";
-  font-size:8px;
+  font-size:9px;
+
+  z-index:8;
+
+  box-shadow:
+    3px 3px 0 rgba(20,35,46,.35);
 }
+
+
+/* =========================================================
+   WHEEL REWARD LABELS
+========================================================= */
+
+.wheel-label{
+  position:absolute;
+
+  z-index:5;
+
+  width:66px;
+
+  text-align:center;
+
+  font-family:"Press Start 2P";
+
+  font-size:8px;
+
+  line-height:1.45;
+
+  color:#fff;
+
+  text-shadow:
+    2px 2px 0 rgba(20,35,46,.55);
+
+  pointer-events:none;
+}
+
+.wheel-label span{
+  display:block;
+  font-size:16px;
+  margin-bottom:2px;
+}
+
+.wheel-label small{
+  display:block;
+  margin-top:2px;
+  font-family:"Space Grotesk",sans-serif;
+  font-size:9px;
+  font-weight:900;
+  letter-spacing:.4px;
+}
+
+
+/*
+   Six positions
+*/
+
+.wheel-label.bad{
+  left:17px;
+  top:75px;
+  color:#fff;
+}
+
+.wheel-label.plus2{
+  left:82px;
+  top:20px;
+  color:#fff;
+}
+
+.wheel-label.plus4{
+  right:17px;
+  top:75px;
+  color:#14232e;
+  text-shadow:
+    1px 1px 0 rgba(255,255,255,.65);
+}
+
+.wheel-label.plus5{
+  right:20px;
+  bottom:26px;
+  color:#fff;
+}
+
+.wheel-label.plus6{
+  left:82px;
+  bottom:17px;
+  color:#fff;
+}
+
+.wheel-label.mystery{
+  left:17px;
+  bottom:27px;
+  color:#fff;
+}
+
+
+/* =========================================================
+   POINTER
+========================================================= */
 
 .pointer{
   position:absolute;
-  top:-4px;
+
+  top:-10px;
   left:50%;
+
   transform:translateX(-50%);
+
   width:0;
   height:0;
-  border-left:10px solid transparent;
-  border-right:10px solid transparent;
-  border-top:20px solid var(--line);
-  z-index:4;
+
+  border-left:14px solid transparent;
+  border-right:14px solid transparent;
+  border-top:28px solid var(--line);
+
+  z-index:20;
+
+  filter:
+    drop-shadow(3px 3px 0 #6c7880);
 }
+
+
+/* =========================================================
+   ODDS LEGEND
+========================================================= */
+
+.spin-odds{
+  width:100%;
+
+  display:grid;
+
+  grid-template-columns:repeat(3,1fr);
+
+  gap:6px;
+
+  margin-top:3px;
+}
+
+.spin-odd{
+  padding:7px 4px;
+
+  text-align:center;
+
+  border:2px solid #c1ccd3;
+
+  background:#f7fafb;
+
+  font-size:9px;
+
+  font-weight:900;
+}
+
+.spin-odd strong{
+  display:block;
+
+  font-family:"Press Start 2P";
+
+  font-size:7px;
+
+  margin-bottom:4px;
+}
+
+.spin-odd.bad{
+  border-color:#ef5350;
+}
+
+.spin-odd.mystery{
+  border-color:#9b6cff;
+}
+
+
+/* =========================================================
+   REWARD DISPLAY
+========================================================= */
 
 .reward-display{
   width:100%;
@@ -630,6 +826,14 @@ h1{
 
 .reward-display.bad .reward-display-sub{
   color:var(--red);
+}
+
+.reward-display.mystery{
+  background:#f4efff;
+}
+
+.reward-display.mystery .reward-display-sub{
+  color:#8053d9;
 }
 
 
@@ -1200,6 +1404,74 @@ footer{
     padding:15px;
   }
 
+  .wheel-wrap{
+    width:210px;
+    height:210px;
+  }
+
+  .wheel{
+    width:210px;
+    height:210px;
+  }
+
+  .wheel-label{
+    width:59px;
+    font-size:7px;
+  }
+
+  .wheel-label small{
+    font-size:7px;
+  }
+
+  .wheel-label.bad{
+    left:13px;
+    top:69px;
+  }
+
+  .wheel-label.plus2{
+    left:75px;
+    top:17px;
+  }
+
+  .wheel-label.plus4{
+    right:12px;
+    top:69px;
+  }
+
+  .wheel-label.plus5{
+    right:16px;
+    bottom:22px;
+  }
+
+  .wheel-label.plus6{
+    left:75px;
+    bottom:14px;
+  }
+
+  .wheel-label.mystery{
+    left:13px;
+    bottom:23px;
+  }
+
+  .wheel::after{
+    width:58px;
+    height:58px;
+    font-size:8px;
+  }
+
+  .spin-odds{
+    gap:4px;
+  }
+
+  .spin-odd{
+    padding:6px 2px;
+    font-size:8px;
+  }
+
+  .spin-odd strong{
+    font-size:6px;
+  }
+
 }
 </style>
 </head>
@@ -1351,9 +1623,7 @@ TODAY: +0 ROVER
 <section class="hub-grid">
 
 
-<!-- =====================================================
-     DAILY ASSIGNMENTS
-===================================================== -->
+<!-- DAILY ASSIGNMENTS -->
 
 <article class="card reveal">
 
@@ -1444,9 +1714,7 @@ id="missionMystery">
 </article>
 
 
-<!-- =====================================================
-     QUIZ
-===================================================== -->
+<!-- QUIZ -->
 
 <article class="card reveal">
 
@@ -1505,9 +1773,7 @@ START QUIZ
 </article>
 
 
-<!-- =====================================================
-     STREAK
-===================================================== -->
+<!-- STREAK -->
 
 <article class="card reveal">
 
@@ -1612,9 +1878,104 @@ SPINS LEFT
 
 <div class="pointer"></div>
 
+
 <div
 class="wheel"
 id="wheel">
+
+
+<!--
+  BAD LUCK
+-->
+<div class="wheel-label bad">
+<span>✕</span>
+BAD<br>
+LUCK
+</div>
+
+
+<!--
+  +2
+-->
+<div class="wheel-label plus2">
++2
+<small>ROVER</small>
+</div>
+
+
+<!--
+  +4
+-->
+<div class="wheel-label plus4">
++4
+<small>ROVER</small>
+</div>
+
+
+<!--
+  +5
+-->
+<div class="wheel-label plus5">
++5
+<small>ROVER</small>
+</div>
+
+
+<!--
+  +6
+-->
+<div class="wheel-label plus6">
++6
+<small>ROVER</small>
+</div>
+
+
+<!--
+  MYSTERY
+-->
+<div class="wheel-label mystery">
+🎁
+<small>MYSTERY</small>
+</div>
+
+
+</div>
+
+</div>
+
+
+<!-- ODDS -->
+
+<div class="spin-odds">
+
+<div class="spin-odd bad">
+<strong>BAD</strong>
+65%
+</div>
+
+<div class="spin-odd">
+<strong>+2</strong>
+12%
+</div>
+
+<div class="spin-odd">
+<strong>+4</strong>
+8%
+</div>
+
+<div class="spin-odd">
+<strong>+5</strong>
+6%
+</div>
+
+<div class="spin-odd">
+<strong>+6</strong>
+5%
+</div>
+
+<div class="spin-odd mystery">
+<strong>🎁</strong>
+4%
 </div>
 
 </div>
@@ -1647,9 +2008,7 @@ SPIN NOW
 </article>
 
 
-<!-- =====================================================
-     MYSTERY BOX
-===================================================== -->
+<!-- MYSTERY BOX -->
 
 <article class="card reveal">
 
@@ -1724,9 +2083,7 @@ NO KEY
 </article>
 
 
-<!-- =====================================================
-     ACHIEVEMENTS
-===================================================== -->
+<!-- ACHIEVEMENTS -->
 
 <article class="card reveal">
 
@@ -1810,7 +2167,7 @@ SPINNER
 <div
 class="achievement-progress"
 id="achievementSpinnerText">
-0 / 10
+0 / 30
 </div>
 
 </div>
@@ -1951,8 +2308,6 @@ nav.classList.remove("open");
 
 /* =========================================================
    SUPABASE CLIENT
-   Not used for rewards yet.
-   Backend connection will come after UI testing.
 ========================================================= */
 
 const SUPABASE_URL =
@@ -3330,19 +3685,17 @@ let rotation = 0;
 
 
 /*
-  Daily maximum:
-  3 spins.
+   REWARD PROBABILITIES
 
-  Probability:
+   BAD LUCK       65%
+   +2 ROVER       12%
+   +4 ROVER        8%
+   +5 ROVER        6%
+   +6 ROVER        5%
+   MYSTERY         4%
 
-  BAD LUCK       65%
-  +2 ROVER       12%
-  +4 ROVER        8%
-  +5 ROVER        6%
-  +6 ROVER        5%
-  MYSTERY         4%
+   TOTAL          100%
 */
-
 
 const spinRewards = [
 
@@ -3391,6 +3744,64 @@ weight:4
 ];
 
 
+/*
+   FIXED VISUAL POSITIONS
+
+   These are the six positions shown
+   on the wheel.
+
+   The selected reward is always animated
+   to the top pointer.
+*/
+
+const wheelPositions = {
+
+"BAD LUCK":0,
+
+"+2 ROVER":1,
+
+"+4 ROVER":2,
+
+"+5 ROVER":3,
+
+"+6 ROVER":4,
+
+"MYSTERY REWARD":5
+
+};
+
+
+/*
+   Each visual sector is 60 degrees.
+
+   Wheel CSS begins from -30deg,
+   therefore sector centers are:
+
+   BAD      = 0deg
+   +2       = 60deg
+   +4       = 120deg
+   +5       = 180deg
+   +6       = 240deg
+   MYSTERY  = 300deg
+*/
+
+const wheelSectorCenters = {
+
+"BAD LUCK":0,
+
+"+2 ROVER":60,
+
+"+4 ROVER":120,
+
+"+5 ROVER":180,
+
+"+6 ROVER":240,
+
+"MYSTERY REWARD":300
+
+};
+
+
 function getSpinCount(){
 
 const date =
@@ -3430,66 +3841,9 @@ String(count)
 }
 
 
-function updateSpinUI(){
-
-const used =
-getSpinCount();
-
-const left =
-Math.max(
-0,
-3 - used
-);
-
-
-spinCount.textContent =
-left +
-" / 3";
-
-
-missionSpin.textContent =
-used +
-"/3";
-
-
-if(used >= 3){
-
-spinButton.disabled =
-true;
-
-spinButton.textContent =
-"COME BACK TOMORROW";
-
-}else{
-
-spinButton.disabled =
-false;
-
-spinButton.textContent =
-"SPIN NOW";
-
-}
-
-
-if(used >= 3){
-
-missionSpin.textContent =
-"DONE";
-
-missionSpin.classList.add(
-"done"
-);
-
-}else{
-
-missionSpin.classList.remove(
-"done"
-);
-
-}
-
-}
-
+/* =========================================================
+   WEIGHTED RANDOM REWARD
+========================================================= */
 
 function randomSpinReward(){
 
@@ -3526,6 +3880,68 @@ return spinRewards[0];
 
 }
 
+
+/* =========================================================
+   UPDATE SPIN UI
+========================================================= */
+
+function updateSpinUI(){
+
+const used =
+getSpinCount();
+
+const left =
+Math.max(
+0,
+3 - used
+);
+
+
+spinCount.textContent =
+left +
+" / 3";
+
+
+missionSpin.textContent =
+used +
+"/3";
+
+
+if(used >= 3){
+
+spinButton.disabled =
+true;
+
+spinButton.textContent =
+"COME BACK TOMORROW";
+
+missionSpin.textContent =
+"DONE";
+
+missionSpin.classList.add(
+"done"
+);
+
+}else{
+
+spinButton.disabled =
+false;
+
+spinButton.textContent =
+"SPIN NOW";
+
+missionSpin.classList.remove(
+"done"
+);
+
+}
+
+}
+
+
+/* =========================================================
+   SHOW RESULT
+========================================================= */
 
 function showSpinReward(reward){
 
@@ -3577,6 +3993,10 @@ return;
 
 if(reward.type === "mystery"){
 
+spinRewardDisplay.classList.add(
+"mystery"
+);
+
 spinRewardDisplay.innerHTML = `
 
 <div class="reward-display-title">
@@ -3594,12 +4014,32 @@ spinRewardDisplay.innerHTML = `
 }
 
 
+/* =========================================================
+   GET CURRENT ROTATION
+========================================================= */
+
+function normalizeDegrees(value){
+
+return (
+(
+value % 360
+) + 360
+) % 360;
+
+}
+
+
+/* =========================================================
+   SPIN BUTTON
+========================================================= */
+
 spinButton.addEventListener(
 "click",
 () => {
 
 if(spinning)
 return;
+
 
 if(!walletAddress){
 
@@ -3638,6 +4078,77 @@ spinButton.textContent =
 "SPINNING...";
 
 
+/*
+   Determine the reward BEFORE
+   starting the animation.
+
+   This is important.
+
+   The old version selected the reward
+   AFTER the wheel stopped, so the visual
+   wheel position did not correspond to
+   the actual reward.
+
+   Now the reward determines the
+   destination sector.
+*/
+
+const reward =
+randomSpinReward();
+
+
+const targetAngle =
+wheelSectorCenters[
+reward.name
+];
+
+
+/*
+   Current wheel angle
+*/
+
+const current =
+normalizeDegrees(rotation);
+
+
+/*
+   We want the selected sector center
+   to arrive at the pointer at 0deg.
+*/
+
+let delta =
+normalizeDegrees(
+-targetAngle - current
+);
+
+
+/*
+   Add 5-7 complete rotations.
+*/
+
+const fullSpins =
+5 +
+Math.floor(
+Math.random() * 3
+);
+
+
+delta +=
+fullSpins * 360;
+
+
+rotation +=
+delta;
+
+
+wheel.style.transform =
+`rotate(${rotation}deg)`;
+
+
+/*
+   Count the spin immediately.
+*/
+
 const nextCount =
 used + 1;
 
@@ -3646,28 +4157,21 @@ nextCount
 );
 
 
-rotation +=
-1440 +
-Math.floor(
-Math.random() * 360
-);
-
-
-wheel.style.transform =
-`rotate(${rotation}deg)`;
-
+/*
+   Wait for the wheel animation.
+*/
 
 setTimeout(
 () => {
-
-const reward =
-randomSpinReward();
-
 
 showSpinReward(
 reward
 );
 
+
+/*
+   ROVER REWARD
+*/
 
 if(reward.type === "rover"){
 
@@ -3677,6 +4181,10 @@ reward.value
 
 }
 
+
+/*
+   MYSTERY KEY
+*/
 
 if(reward.type === "mystery"){
 
@@ -3699,6 +4207,11 @@ updateMysteryUI();
 }
 
 
+/*
+   TOTAL SPINS
+   Used for 30-spin achievement.
+*/
+
 let totalSpins =
 Number(
 localStorage.getItem(
@@ -3718,11 +4231,10 @@ updateSpinUI();
 
 updateAchievements();
 
-
 spinning = false;
 
 },
-3000
+4700
 );
 
 }
@@ -4006,6 +4518,10 @@ text.textContent =
 }
 
 
+/*
+   Spinner achievement is now 30.
+*/
+
 function updateAchievements(){
 
 const checkin =
@@ -4057,8 +4573,8 @@ Math.min(streak,7),
 unlockAchievement(
 "achievementSpinner",
 "achievementSpinnerText",
-Math.min(spins,10),
-10
+Math.min(spins,30),
+30
 );
 
 
@@ -4165,6 +4681,22 @@ false;
 
 spinButton.textContent =
 "SPIN NOW";
+
+
+spinRewardDisplay.className =
+"reward-display";
+
+spinRewardDisplay.innerHTML = `
+
+<div class="reward-display-title">
+READY TO SPIN
+</div>
+
+<div class="reward-display-sub">
+CONNECT WALLET FIRST
+</div>
+
+`;
 
 
 mysteryKeys.textContent =
