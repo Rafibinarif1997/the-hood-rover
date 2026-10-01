@@ -3348,142 +3348,270 @@ renderQuestion();
   
 }  
   
-  
-function finishQuiz(passed){  
-  
-if(finished)  
-return;  
-  
-finished = true;  
-  
-  
-localStorage.setItem(  
-gameStorageKey("quizDate"),  
-todayKey()  
-);  
-  
-localStorage.setItem(  
-gameStorageKey("quizResult"),  
-passed  
-?  
-"passed"  
-:  
-"failed"  
-);  
-  
-  
-if(passed){  
-  
-addRover(2);  
-  
-overlay.innerHTML = `  
-  
-<div class="quiz-modal">  
-  
-<div class="quiz-result">  
-  
-<div class="quiz-result-icon">  
-🎉  
-</div>  
-  
-<div class="quiz-result-title">  
-QUIZ COMPLETE  
-</div>  
-  
-<div class="quiz-result-score">  
-5 / 5 CORRECT  
-</div>  
-  
-<div class="quiz-result-reward">  
-+2 ROVER  
-</div>  
-  
-<button  
-class="btn quiz-close"  
-id="closeQuiz">  
-  
-DONE  
-  
-</button>  
-  
-</div>  
-  
-</div>  
-  
-`;  
-  
-}else{  
-  
-overlay.innerHTML = `  
-  
-<div class="quiz-modal">  
-  
-<div class="quiz-result">  
-  
-<div class="quiz-result-icon">  
-❌  
-</div>  
-  
-<div class="quiz-result-title">  
-QUIZ FAILED  
-</div>  
-  
-<div class="quiz-result-score">  
-${score} / 5 CORRECT  
-</div>  
-  
-<div class="quiz-result-reward">  
-0 ROVER  
-</div>  
-  
-<p>  
-One wrong answer ends today's quiz.  
-Try again tomorrow.  
-</p>  
-  
-<button  
-class="btn secondary quiz-close"  
-id="closeQuiz">  
-  
-CLOSE  
-  
-</button>  
-  
-</div>  
-  
-</div>  
-  
-`;  
-  
-}  
-  
-  
-quizStatusLoad();  
-  
-  
-document  
-.getElementById("closeQuiz")  
-.addEventListener(  
-"click",  
-() => {  
-  
-overlay.remove();  
-  
-}  
-);  
-  
-}  
-  
-  
-renderQuestion();  
-  
-}  
-  
-  
-quizButton.addEventListener(  
-"click",  
-openQuiz  
-);  
+
+async function finishQuiz(passed){
+
+  if(finished)
+    return;
+
+  /* =====================================
+     QUIZ FAILED
+  ===================================== */
+
+  if(!passed){
+
+    finished = true;
+
+    localStorage.setItem(
+      gameStorageKey("quizDate"),
+      todayKey()
+    );
+
+    localStorage.setItem(
+      gameStorageKey("quizResult"),
+      "failed"
+    );
+
+    overlay.innerHTML = `
+
+      <div class="quiz-modal">
+
+        <div class="quiz-result">
+
+          <div class="quiz-result-icon">
+            ❌
+          </div>
+
+          <div class="quiz-result-title">
+            QUIZ FAILED
+          </div>
+
+          <div class="quiz-result-score">
+            ${score} / 5 CORRECT
+          </div>
+
+          <div class="quiz-result-reward">
+            0 ROVER
+          </div>
+
+          <p>
+            One wrong answer ends today's quiz.<br>
+            Try again tomorrow.
+          </p>
+
+          <button
+            class="btn secondary quiz-close"
+            id="closeQuiz">
+
+            CLOSE
+
+          </button>
+
+        </div>
+
+      </div>
+
+    `;
+
+    return;
+  }
+
+
+  /* =====================================
+     WALLET CHECK
+  ===================================== */
+
+  if(!walletAddress){
+
+    alert("CONNECT YOUR WALLET FIRST.");
+
+    return;
+  }
+
+
+  /* =====================================
+     CLAIM QUIZ REWARD FROM SUPABASE
+     +2 ROVER
+  ===================================== */
+
+  try{
+
+    const { data, error } = await supabaseClient.rpc(
+      "claim_rover_reward",
+      {
+        p_wallet: walletAddress,
+        p_reward_type: "quiz",
+        p_amount: 2
+      }
+    );
+
+    if(error) throw error;
+
+    const result = Array.isArray(data)
+      ? (data[0] || {})
+      : (data || {});
+
+
+    /* =================================
+       ALREADY CLAIMED TODAY
+    ================================= */
+
+    if(result.reason === "quiz_already_claimed"){
+
+      finished = true;
+
+      localStorage.setItem(
+        gameStorageKey("quizDate"),
+        todayKey()
+      );
+
+      localStorage.setItem(
+        gameStorageKey("quizResult"),
+        "passed"
+      );
+
+      overlay.innerHTML = `
+
+        <div class="quiz-modal">
+
+          <div class="quiz-result">
+
+            <div class="quiz-result-icon">
+              ✓
+            </div>
+
+            <div class="quiz-result-title">
+              QUIZ ALREADY CLAIMED
+            </div>
+
+            <div class="quiz-result-score">
+              ${score} / 5 CORRECT
+            </div>
+
+            <div class="quiz-result-reward">
+              ALREADY CLAIMED
+            </div>
+
+            <button
+              class="btn quiz-close"
+              id="closeQuiz">
+
+              DONE
+
+            </button>
+
+          </div>
+
+        </div>
+
+      `;
+
+      return;
+    }
+
+
+    /* =================================
+       SUCCESS
+    ================================= */
+
+    if(result.success){
+
+      finished = true;
+
+      /* Save only after backend success */
+
+      localStorage.setItem(
+        gameStorageKey("quizDate"),
+        todayKey()
+      );
+
+      localStorage.setItem(
+        gameStorageKey("quizResult"),
+        "passed"
+      );
+
+
+      /* Reload real Supabase balance */
+
+      await loadRoverBalance();
+
+      updateAchievements();
+
+
+      /* =================================
+         ORIGINAL QUIZ RESULT UI
+      ================================= */
+
+      overlay.innerHTML = `
+
+        <div class="quiz-modal">
+
+          <div class="quiz-result">
+
+            <div class="quiz-result-icon">
+              🎉
+            </div>
+
+            <div class="quiz-result-title">
+              QUIZ COMPLETE
+            </div>
+
+            <div class="quiz-result-score">
+              5 / 5 CORRECT
+            </div>
+
+            <div class="quiz-result-reward">
+              +2 ROVER
+            </div>
+
+            <button
+              class="btn quiz-close"
+              id="closeQuiz">
+
+              DONE
+
+            </button>
+
+          </div>
+
+        </div>
+
+      `;
+
+      return;
+    }
+
+
+    /* =================================
+       UNKNOWN BACKEND RESPONSE
+    ================================= */
+
+    throw new Error(
+      "Quiz reward was not confirmed by Supabase."
+    );
+
+
+  }catch(error){
+
+    console.error(
+      "Quiz reward error:",
+      error
+    );
+
+    /*
+      Backend reward না হলে finished=false
+      রাখছি, যাতে আবার চেষ্টা করা যায়।
+    */
+
+    finished = false;
+
+    alert(
+      "QUIZ REWARD SYNC FAILED.\n\n" +
+      "Your Rover was not added.\n" +
+      "Please try again."
+    );
+  }
+}
   
   
 /* =========================================================  
