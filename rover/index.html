@@ -1,1382 +1,1717 @@
 <!doctype html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
 
-<title>ROVER HUB — The Hood Rover</title>
-
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-<style>
-@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Space+Grotesk:wght@400;500;600;700&display=swap');
-
-:root{
-  --ink:#14232e;
-  --line:#173044;
-  --blue:#2f8cff;
-  --cyan:#16c8e8;
-  --yellow:#ffd84d;
-  --cream:#fffaf0;
-  --paper:#f3f7fa;
-  --white:#fff;
-  --muted:#687985;
-  --green:#42c98b;
-  --orange:#ff9d42;
-  --red:#e95757;
-  --purple:#9b6cff;
-}
-
-*{box-sizing:border-box}
-
-html{scroll-behavior:smooth}
-
-body{
-  margin:0;
-  color:var(--ink);
-  background:var(--paper);
-  font-family:"Space Grotesk",sans-serif;
-  overflow-x:hidden;
-}
-
-body::before{
-  content:"";
-  position:fixed;
-  inset:0;
-  pointer-events:none;
-  z-index:-2;
-  opacity:.13;
-  background-image:
-    linear-gradient(rgba(20,50,70,.16) 1px,transparent 1px),
-    linear-gradient(90deg,rgba(20,50,70,.16) 1px,transparent 1px);
-  background-size:24px 24px;
-}
-
-body::after{
-  content:"";
-  position:fixed;
-  inset:0;
-  pointer-events:none;
-  z-index:50;
-  background:repeating-linear-gradient(
-    0deg,
-    transparent 0 3px,
-    rgba(20,40,55,.035) 3px 4px
-  );
-}
-
-a{
-  color:inherit;
-  text-decoration:none;
-}
-
-button{font-family:inherit}
-
-.wrap{
-  width:min(1160px,calc(100% - 32px));
-  margin:auto;
-}
-
-/* NAV */
-
-header{
-  position:sticky;
-  top:0;
-  z-index:30;
-  min-height:76px;
-  display:flex;
-  align-items:center;
-  gap:18px;
-  padding:10px max(16px,calc((100% - 1160px)/2));
-  background:rgba(255,250,240,.95);
-  backdrop-filter:blur(12px);
-  border-bottom:3px solid var(--line);
-}
-
-.brand{
-  display:flex;
-  align-items:center;
-  gap:10px;
-  font-family:"Press Start 2P";
-  font-size:11px;
-  line-height:1.5;
-  white-space:nowrap;
-}
-
-.mark{
-  width:38px;
-  height:38px;
-  display:grid;
-  place-items:center;
-  background:var(--blue);
-  color:#fff;
-  border:3px solid var(--line);
-  box-shadow:3px 3px 0 var(--line);
-  font-family:"Press Start 2P";
-  font-size:10px;
-  flex-shrink:0;
-}
-
-nav{
-  margin-left:auto;
-  display:flex;
-  align-items:center;
-  gap:4px;
-}
-
-nav a{
-  padding:9px 10px;
-  border:2px solid transparent;
-  font-size:12px;
-  font-weight:800;
-}
-
-nav a:hover,
-nav a.active{
-  background:#fff;
-  border-color:var(--line);
-  box-shadow:3px 3px 0 var(--line);
-}
-
-.menu{
-  display:none;
-  margin-left:auto;
-  background:#fff;
-  border:3px solid var(--line);
-  padding:9px 12px;
-  cursor:pointer;
-  font-size:18px;
-  flex-shrink:0;
-}
-
-.wallet-button{
-  flex-shrink:0;
-  white-space:nowrap;
-}
-
-/* BUTTON */
-
-.btn{
-  display:inline-flex;
-  justify-content:center;
-  align-items:center;
-  gap:8px;
-  border:3px solid var(--line);
-  background:var(--blue);
-  color:#fff;
-  padding:13px 16px;
-  font-family:"Press Start 2P";
-  font-size:9px;
-  box-shadow:5px 5px 0 var(--line);
-  cursor:pointer;
-  transition:.15s ease;
-}
-
-.btn:hover{
-  transform:translate(2px,2px);
-  box-shadow:3px 3px 0 var(--line);
-}
-
-.btn.secondary{
-  background:#fff;
-  color:var(--ink);
-}
-
-.btn.yellow{
-  background:var(--yellow);
-  color:var(--ink);
-}
-
-.btn:disabled{
-  opacity:.6;
-  cursor:not-allowed;
-}
-
-/* HERO */
-
-main{padding:55px 0 90px}
-
-.hero{margin-bottom:28px}
-
-.window{
-  background:#fff;
-  border:4px solid var(--line);
-  box-shadow:8px 8px 0 var(--line);
-}
-
-.window-bar{
-  min-height:42px;
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  padding:9px 13px;
-  background:#dceaf2;
-  border-bottom:4px solid var(--line);
-  font-family:"Press Start 2P";
-  font-size:9px;
-}
-
-.window-lights{
-  display:flex;
-  gap:6px;
-}
-
-.light{
-  width:12px;
-  height:12px;
-  border:2px solid var(--line);
-  background:#fff;
-}
-
-.light:nth-child(2){background:var(--yellow)}
-.light:nth-child(3){background:var(--cyan)}
-
-.hero-content{
-  padding:34px;
-  display:grid;
-  grid-template-columns:1fr auto;
-  gap:30px;
-  align-items:end;
-}
-
-.eyebrow{
-  display:inline-block;
-  margin-bottom:16px;
-  color:var(--blue);
-  font-family:"Press Start 2P";
-  font-size:10px;
-}
-
-h1{
-  margin:0 0 16px;
-  font-family:"Press Start 2P";
-  font-size:clamp(28px,5vw,54px);
-  line-height:1.25;
-  letter-spacing:-2px;
-}
-
-.hero-text{
-  max-width:700px;
-  margin:0;
-  color:var(--muted);
-  font-size:17px;
-  line-height:1.65;
-}
-
-.system-status{
-  min-width:210px;
-  padding:20px;
-  background:var(--cream);
-  border:3px solid var(--line);
-}
-
-.status-line{
-  display:flex;
-  align-items:center;
-  gap:9px;
-  font-weight:800;
-  margin-bottom:10px;
-}
-
-.status-dot{
-  width:12px;
-  height:12px;
-  border-radius:50%;
-  background:var(--green);
-  border:2px solid var(--line);
-  animation:pulse 1.5s infinite;
-}
-
-@keyframes pulse{50%{opacity:.35}}
-
-.status-small{
-  color:var(--muted);
-  font-size:12px;
-  margin-top:3px;
-}
-
-/* BALANCE */
-
-.rover-balance{
-  margin-bottom:22px;
-  display:grid;
-  grid-template-columns:1fr auto;
-  gap:20px;
-  align-items:center;
-  background:#173044;
-  color:#fff;
-  border:4px solid var(--line);
-  box-shadow:7px 7px 0 var(--line);
-  padding:22px;
-}
-
-.rover-balance-label{
-  font-family:"Press Start 2P";
-  font-size:9px;
-  color:#9ddfff;
-  margin-bottom:10px;
-}
-
-.rover-balance-number{
-  font-family:"Press Start 2P";
-  font-size:25px;
-}
-
-.rover-balance-today{
-  margin-top:7px;
-  font-size:12px;
-  opacity:.75;
-}
-
-.rover-balance-icon{
-  width:70px;
-  height:70px;
-  display:grid;
-  place-items:center;
-  background:var(--yellow);
-  color:var(--ink);
-  border:4px solid var(--line);
-  font-size:32px;
-  box-shadow:4px 4px 0 #000;
-}
-
-/* GRID */
-
-.hub-grid{
-  display:grid;
-  grid-template-columns:repeat(3,1fr);
-  gap:20px;
-}
-
-.card{
-  position:relative;
-  background:#fff;
-  border:4px solid var(--line);
-  box-shadow:6px 6px 0 var(--line);
-  padding:22px;
-  transition:.2s ease;
-}
-
-.card:hover{
-  transform:translate(-3px,-4px);
-  box-shadow:10px 10px 0 var(--line);
-}
-
-.card-head{
-  display:flex;
-  justify-content:space-between;
-  align-items:flex-start;
-  gap:15px;
-  margin-bottom:18px;
-}
-
-.card-icon{
-  width:48px;
-  height:48px;
-  display:grid;
-  place-items:center;
-  border:3px solid var(--line);
-  background:#dff7ff;
-  font-size:22px;
-}
-
-.card-tag{
-  padding:7px 8px;
-  border:2px solid var(--line);
-  background:var(--cream);
-  font-family:"Press Start 2P";
-  font-size:7px;
-}
-
-.card h3{
-  margin:0 0 9px;
-  font-family:"Press Start 2P";
-  font-size:13px;
-  line-height:1.6;
-}
-
-.card p{
-  margin:0 0 18px;
-  color:var(--muted);
-  font-size:14px;
-  line-height:1.55;
-}
-
-.card .btn{width:100%}
-
-/* MISSIONS */
-
-.mission-list{
-  display:grid;
-  gap:9px;
-  margin:16px 0 18px;
-}
-
-.mission{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  gap:10px;
-  padding:11px;
-  border:2px solid #b8c8d1;
-  background:#f7fafb;
-}
-
-.mission-name{
-  font-size:12px;
-  font-weight:800;
-}
-
-.mission-state{
-  font-family:"Press Start 2P";
-  font-size:7px;
-  padding:6px;
-  background:#e6edf1;
-}
-
-.mission-state.done{
-  background:#bff1d9;
-  border:2px solid #21885d;
-}
-
-/* STREAK */
-
-.streak-box{
-  display:flex;
-  align-items:center;
-  gap:16px;
-  margin:18px 0;
-  padding:16px;
-  background:#fff7d9;
-  border:3px solid var(--line);
-}
-
-.fire{font-size:34px}
-
-.streak-number{
-  font-family:"Press Start 2P";
-  font-size:22px;
-}
-
-.streak-label{
-  display:block;
-  margin-top:6px;
-  color:var(--muted);
-  font-size:11px;
-  font-weight:800;
-}
-
-/* SPIN */
-
-.spin-area{
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  gap:16px;
-  padding:8px 0 12px;
-}
-
-.spin-counter{
-  width:100%;
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  padding:10px 13px;
-  border:3px solid var(--line);
-  background:#f7fafb;
-  font-size:11px;
-  font-weight:900;
-  box-shadow:3px 3px 0 #c4d0d7;
-}
-
-.spin-counter strong{
-  font-family:"Press Start 2P";
-  font-size:8px;
-  color:var(--blue);
-}
-
-/* WHEEL */
-
-.wheel-wrap{
-  --wheel-size:250px;
-  position:relative;
-  width:var(--wheel-size);
-  height:var(--wheel-size);
-  margin:19px auto 12px;
-  display:grid;
-  place-items:center;
-  isolation:isolate;
-}
-
-.wheel-wrap::before{
-  content:"";
-  position:absolute;
-  inset:-15px;
-  border-radius:50%;
-  background:
-    linear-gradient(
-      145deg,
-      #0b1721 0%,
-      #253d4c 22%,
-      #718894 42%,
-      #182d3b 57%,
-      #7e969f 76%,
-      #0a1721 100%
-    );
-  border:3px solid #0b1721;
-  box-shadow:
-    0 16px 28px rgba(13,30,42,.30),
-    0 0 0 2px rgba(255,255,255,.55),
-    inset 0 0 0 2px rgba(255,255,255,.16),
-    inset 0 0 22px rgba(0,0,0,.48);
-  z-index:-3;
-}
-
-.wheel-wrap::after{
-  content:"";
-  position:absolute;
-  inset:-8px;
-  border-radius:50%;
-  border:1px solid rgba(22,200,232,.7);
-  box-shadow:
-    0 0 12px rgba(22,200,232,.28),
-    0 0 30px rgba(22,200,232,.13),
-    inset 0 0 10px rgba(255,255,255,.12);
-  z-index:-2;
-  pointer-events:none;
-}
-
-.wheel{
-  position:absolute;
-  width:var(--wheel-size);
-  height:var(--wheel-size);
-  border-radius:50%;
-  background:
-    radial-gradient(
-      circle at 32% 22%,
-      rgba(255,255,255,.30) 0%,
-      rgba(255,255,255,.08) 17%,
-      transparent 38%
-    ),
-    conic-gradient(
-      from -30deg,
-      #b82f3c 0deg 60deg,
-      #216ac8 60deg 120deg,
-      #d3a91e 120deg 180deg,
-      #079bb7 180deg 240deg,
-      #754bc5 240deg 300deg,
-      #d87824 300deg 360deg
-    );
-  border:7px solid #091923;
-  box-shadow:
-    0 0 0 2px rgba(255,255,255,.8),
-    0 0 0 5px rgba(22,200,232,.22),
-    inset 0 0 0 2px rgba(255,255,255,.18),
-    inset 0 -18px 35px rgba(0,0,0,.22),
-    inset 0 10px 20px rgba(255,255,255,.10);
-  transition:
-    transform 4.5s cubic-bezier(.12,.78,.15,1),
-    box-shadow .3s ease;
-  overflow:hidden;
-  z-index:2;
-}
-
-.wheel::before{
-  content:"";
-  position:absolute;
-  inset:12px;
-  border-radius:50%;
-  border:2px solid rgba(255,255,255,.42);
-  box-shadow:
-    inset 0 0 0 2px rgba(5,20,29,.30),
-    inset 0 0 22px rgba(255,255,255,.10),
-    0 0 0 1px rgba(255,255,255,.15);
-  pointer-events:none;
-  z-index:2;
-}
-
-.wheel::after{
-  content:"HR";
-  position:absolute;
-  width:72px;
-  height:72px;
-  left:50%;
-  top:50%;
-  transform:translate(-50%,-50%);
-  display:grid;
-  place-items:center;
-  border-radius:50%;
-  background:
-    radial-gradient(
-      circle at 35% 25%,
-      #ffffff 0%,
-      #e8f5f8 28%,
-      #9db4be 58%,
-      #314b59 100%
-    );
-  border:5px solid #081822;
-  color:#102b3a;
-  font-family:"Press Start 2P";
-  font-size:13px;
-  text-shadow:1px 1px 0 rgba(255,255,255,.8);
-  z-index:8;
-  box-shadow:
-    0 0 0 3px rgba(255,255,255,.70),
-    0 0 0 5px rgba(8,24,34,.50),
-    0 7px 13px rgba(0,0,0,.30),
-    inset 0 2px 5px rgba(255,255,255,.85),
-    inset 0 -7px 12px rgba(0,0,0,.18);
-  pointer-events:none;
-}
-
-.wheel-shine{
-  position:absolute;
-  inset:0;
-  border-radius:50%;
-  pointer-events:none;
-  z-index:7;
-  background:
-    linear-gradient(
-      125deg,
-      rgba(255,255,255,.22) 0%,
-      rgba(255,255,255,.06) 18%,
-      transparent 38%,
-      transparent 68%,
-      rgba(255,255,255,.06) 82%,
-      rgba(255,255,255,.14) 100%
-    );
-  mix-blend-mode:screen;
-}
-
-.wheel-label{
-  --radius:78px;
-  position:absolute;
-  left:50%;
-  top:50%;
-  z-index:6;
-  width:78px;
-  transform:
-    translate(-50%,-50%)
-    rotate(var(--angle))
-    translateY(calc(var(--radius) * -1))
-    rotate(var(--counter));
-  text-align:center;
-  font-family:"Press Start 2P";
-  font-size:8px;
-  line-height:1.35;
-  color:#fff;
-  text-shadow:2px 2px 0 rgba(5,17,25,.75);
-  pointer-events:none;
-  filter:drop-shadow(0 3px 2px rgba(0,0,0,.22));
-}
-
-.wheel-label::after{
-  content:"";
-  position:absolute;
-  left:50%;
-  top:50%;
-  width:76px;
-  height:44px;
-  transform:translate(-50%,-50%);
-  border-radius:8px;
-  background:rgba(5,18,27,.15);
-  border:1px solid rgba(255,255,255,.14);
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.10);
-  z-index:-1;
-}
-
-.wheel-label span{
-  display:block;
-  font-size:18px;
-  line-height:1;
-  margin-bottom:4px;
-}
-
-.wheel-label small{
-  display:block;
-  margin-top:3px;
-  font-family:"Space Grotesk",sans-serif;
-  font-size:9px;
-  font-weight:900;
-  letter-spacing:.8px;
-  color:#fff;
-}
-
-.wheel-label.bad{
-  --angle:0deg;
-  --counter:0deg;
-}
-
-.wheel-label.plus2{
-  --angle:60deg;
-  --counter:-60deg;
-}
-
-.wheel-label.plus4{
-  --angle:120deg;
-  --counter:-120deg;
-  color:#14232e;
-  text-shadow:1px 1px 0 rgba(255,255,255,.8);
-}
-
-.wheel-label.plus4 small{color:#14232e}
-
-.wheel-label.plus5{
-  --angle:180deg;
-  --counter:-180deg;
-}
-
-.wheel-label.plus6{
-  --angle:240deg;
-  --counter:-240deg;
-}
-
-.wheel-label.mystery{
-  --angle:300deg;
-  --counter:-300deg;
-}
-
-/* POINTER */
-
-.pointer{
-  position:absolute;
-  top:-21px;
-  left:50%;
-  transform:translateX(-50%);
-  width:34px;
-  height:47px;
-  z-index:20;
-  background:
-    linear-gradient(
-      90deg,
-      #687b85 0%,
-      #f7ffff 35%,
-      #ffffff 55%,
-      #718790 100%
-    );
-  clip-path:polygon(50% 100%,0 0,100% 0);
-  filter:drop-shadow(0 5px 3px rgba(0,0,0,.35));
-}
-
-.pointer::before{
-  content:"";
-  position:absolute;
-  inset:0;
-  background:#071923;
-  clip-path:polygon(
-    50% 100%,
-    0 0,
-    100% 0,
-    88% 0,
-    50% 82%,
-    12% 0
-  );
-}
-
-.pointer::after{
-  content:"";
-  position:absolute;
-  top:5px;
-  left:9px;
-  width:16px;
-  height:25px;
-  background:
-    linear-gradient(
-      180deg,
-      #fff7a8,
-      #ffd84d 45%,
-      #c89615
-    );
-  clip-path:polygon(50% 100%,0 0,100% 0);
-}
-
-/* REWARD */
-
-.reward-display{
-  width:100%;
-  min-height:70px;
-  display:flex;
-  flex-direction:column;
-  justify-content:center;
-  align-items:center;
-  padding:10px;
-  border:3px solid var(--line);
-  background:linear-gradient(135deg,#ffffff,#f3f8fb);
-  box-shadow:3px 3px 0 #c4d0d7;
-  text-align:center;
-}
-
-.reward-display-title{
-  font-family:"Press Start 2P";
-  font-size:8px;
-  line-height:1.6;
-}
-
-.reward-display-sub{
-  margin-top:5px;
-  font-size:12px;
-  font-weight:900;
-  color:var(--blue);
-}
-
-.reward-display.bad{
-  background:#fff0f0;
-  border-color:#d94c4c;
-}
-
-.reward-display.bad .reward-display-sub{color:var(--red)}
-
-.reward-display.mystery{
-  background:#f4efff;
-  border-color:#8053d9;
-}
-
-.reward-display.mystery .reward-display-sub{color:#8053d9}
-
-/* MYSTERY */
-
-.mystery{text-align:center}
-
-.key-counter{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  padding:10px 12px;
-  margin-bottom:12px;
-  background:#f3f7fa;
-  border:2px solid var(--line);
-  font-size:12px;
-  font-weight:900;
-}
-
-.key-counter strong{
-  font-family:"Press Start 2P";
-  font-size:9px;
-}
-
-.mystery-box{
-  width:120px;
-  height:100px;
-  margin:12px auto 15px;
-  display:grid;
-  place-items:center;
-  background:linear-gradient(135deg,#d9f7ff,#9ddfff);
-  border:5px solid var(--line);
-  box-shadow:7px 7px 0 var(--line);
-  font-size:42px;
-  cursor:pointer;
-  transition:.2s;
-}
-
-.mystery-box.locked{
-  filter:grayscale(.4);
-  opacity:.75;
-}
-
-.mystery-box:hover{
-  transform:translateY(-5px) rotate(-2deg);
-}
-
-.mystery-result{
-  min-height:24px;
-  color:var(--blue);
-  font-weight:900;
-  margin-bottom:10px;
-}
-
-.mystery-help{
-  color:var(--muted);
-  font-size:11px;
-  line-height:1.5;
-  min-height:34px;
-}
-
-/* ACHIEVEMENTS */
-
-.achievement-list{
-  display:grid;
-  grid-template-columns:repeat(2,1fr);
-  gap:9px;
-  margin-top:16px;
-}
-
-.achievement{
-  padding:12px 8px;
-  text-align:center;
-  background:#f4f7f9;
-  border:2px solid #c2cdd4;
-}
-
-.achievement.locked{
-  opacity:.45;
-  filter:grayscale(1);
-}
-
-.achievement.unlocked{
-  opacity:1;
-  filter:none;
-  background:#fff7d9;
-  border-color:var(--yellow);
-}
-
-.achievement-icon{
-  font-size:22px;
-  margin-bottom:6px;
-}
-
-.achievement small{
-  display:block;
-  font-size:9px;
-  font-weight:800;
-}
-
-.achievement-progress{
-  margin-top:5px;
-  color:var(--muted);
-  font-size:8px;
-}
-
-/* QUICK */
-
-.quick{
-  margin-top:22px;
-  display:grid;
-  grid-template-columns:repeat(3,1fr);
-  gap:16px;
-}
-
-.quick a{
-  background:#fff;
-  border:3px solid var(--line);
-  box-shadow:4px 4px 0 var(--line);
-  padding:17px;
-  font-weight:900;
-  transition:.15s;
-}
-
-.quick a:hover{
-  transform:translate(2px,2px);
-  box-shadow:2px 2px 0 var(--line);
-}
-
-.quick span{
-  display:block;
-  color:var(--muted);
-  font-size:11px;
-  margin-top:5px;
-}
-
-/* INFO */
-
-.info{
-  margin-top:22px;
-  background:#173044;
-  color:#fff;
-  border:4px solid var(--line);
-  padding:18px 20px;
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:20px;
-}
-
-.info strong{
-  font-family:"Press Start 2P";
-  font-size:10px;
-}
-
-.info span{
-  font-size:12px;
-  opacity:.85;
-}
-
-/* FOOTER */
-
-footer{
-  border-top:4px solid var(--line);
-  background:#fff;
-  padding:28px 0 40px;
-}
-
-.footer{
-  display:flex;
-  justify-content:space-between;
-  gap:20px;
-  color:var(--muted);
-  font-size:13px;
-  font-weight:700;
-}
-
-/* IMPORTANT:
-   reveal is visible by default.
-   This prevents the whole page from disappearing
-   if IntersectionObserver does not fire.
-*/
-
-.reveal{
-  opacity:1;
-  transform:none;
-}
-
-.reveal.visible{
-  opacity:1;
-  transform:none;
-}
-
-/* POPUPS */
-
-.wallet-popup-overlay,
-.quiz-overlay{
-  position:fixed;
-  inset:0;
-  z-index:10000;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  padding:18px;
-  background:rgba(20,35,46,.78);
-  backdrop-filter:blur(6px);
-}
-
-.wallet-popup{
-  width:min(420px,100%);
-  background:#fff;
-  border:4px solid var(--line);
-  box-shadow:9px 9px 0 var(--line);
-  padding:28px;
-  text-align:center;
-}
-
-.wallet-popup-icon{
-  width:58px;
-  height:58px;
-  margin:0 auto 16px;
-  display:grid;
-  place-items:center;
-  background:#dff7ff;
-  border:3px solid var(--line);
-  font-size:27px;
-}
-
-.wallet-popup-title{
-  font-family:"Press Start 2P";
-  font-size:11px;
-  line-height:1.6;
-}
-
-.wallet-popup-address{
-  margin-top:10px;
-  padding:10px;
-  background:var(--cream);
-  border:2px solid var(--line);
-  font-family:"Press Start 2P";
-  font-size:8px;
-  overflow:hidden;
-}
-
-.wallet-popup p{
-  color:var(--muted);
-  font-size:14px;
-  line-height:1.5;
-  margin:18px 0;
-}
-
-.wallet-popup-actions{
-  display:flex;
-  gap:10px;
-}
-
-.wallet-popup-actions .btn{flex:1}
-
-/* QUIZ */
-
-.quiz-modal{
-  width:min(650px,100%);
-  max-height:90vh;
-  overflow-y:auto;
-  background:#fff;
-  border:4px solid var(--line);
-  box-shadow:9px 9px 0 var(--line);
-  padding:26px;
-}
-
-.quiz-top{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  gap:15px;
-  margin-bottom:20px;
-}
-
-.quiz-title{
-  font-family:"Press Start 2P";
-  font-size:11px;
-  line-height:1.6;
-}
-
-.quiz-progress{
-  font-family:"Press Start 2P";
-  font-size:8px;
-  background:var(--cream);
-  border:2px solid var(--line);
-  padding:8px;
-}
-
-.quiz-question{
-  margin:20px 0;
-  padding:20px;
-  background:#f3f7fa;
-  border:3px solid var(--line);
-  font-size:18px;
-  font-weight:800;
-  line-height:1.5;
-}
-
-.quiz-options{
-  display:grid;
-  gap:10px;
-}
-
-.quiz-option{
-  width:100%;
-  text-align:left;
-  padding:15px;
-  background:#fff;
-  color:var(--ink);
-  border:3px solid var(--line);
-  box-shadow:4px 4px 0 var(--line);
-  cursor:pointer;
-  font-size:14px;
-  font-weight:700;
-}
-
-.quiz-option:hover{background:#dff7ff}
-
-.quiz-result{
-  text-align:center;
-  padding:15px 5px;
-}
-
-.quiz-result-icon{
-  font-size:45px;
-  margin-bottom:15px;
-}
-
-.quiz-result-title{
-  font-family:"Press Start 2P";
-  font-size:13px;
-  line-height:1.7;
-}
-
-.quiz-result-score{
-  margin:15px 0;
-  font-size:18px;
-  font-weight:900;
-}
-
-.quiz-result-reward{
-  display:inline-block;
-  padding:12px 16px;
-  background:var(--yellow);
-  border:3px solid var(--line);
-  font-family:"Press Start 2P";
-  font-size:10px;
-}
-
-.quiz-close{
-  margin-top:20px;
-  width:100%;
-}
-
-.quiz-warning{
-  margin-top:12px;
-  color:#b22d2d;
-  font-size:12px;
-  font-weight:800;
-  text-align:center;
-}
-
-/* RESPONSIVE */
-
-@media(max-width:1000px){
-
-  header{
-    padding-left:16px;
-    padding-right:16px;
-  }
-
-  nav{
-    display:none;
-    position:absolute;
-    top:76px;
-    left:16px;
-    right:16px;
-    padding:8px;
-    background:#fff;
-    border:3px solid var(--line);
-    box-shadow:5px 5px 0 var(--line);
-    flex-direction:column;
-    align-items:stretch;
-  }
-
-  nav.open{display:flex}
-
-  nav a{padding:13px}
-
-  .menu{display:block}
-
-  .hub-grid{grid-template-columns:repeat(2,1fr)}
-
-  .hero-content{grid-template-columns:1fr}
-
-  .system-status{width:100%}
-}
-
-@media(max-width:620px){
-
-  .wrap{width:calc(100% - 20px)}
-
-  main{padding-top:30px}
-
-  header{
-    min-height:68px;
-    gap:7px;
-    padding:8px 10px;
-  }
-
-  .brand{
-    font-size:8px;
-    min-width:0;
-    flex:1;
-    gap:7px;
-    overflow:hidden;
-  }
-
-  .brand .mark{
-    width:34px;
-    height:34px;
-  }
-
-  .menu{
-    display:block;
-    padding:7px 9px;
-    font-size:17px;
-    margin-left:0;
-  }
-
-  .wallet-button{
-    width:auto !important;
-    min-width:0;
-    padding:10px 9px;
-    font-size:7px;
-    box-shadow:3px 3px 0 var(--line);
-  }
-
-  nav{
-    top:68px;
-    left:10px;
-    right:10px;
-  }
-
-  .hero-content{padding:24px 20px}
-
-  h1{font-size:28px}
-
-  .hero-text{font-size:14px}
-
-  .rover-balance{
-    grid-template-columns:1fr auto;
-    padding:17px;
-  }
-
-  .rover-balance-number{font-size:18px}
-
-  .rover-balance-icon{
-    width:55px;
-    height:55px;
-    font-size:25px;
-  }
-
-  .hub-grid{grid-template-columns:1fr}
-
-  .quick{grid-template-columns:1fr}
-
-  .info{display:block}
-
-  .info span{
-    display:block;
-    margin-top:8px;
-  }
-
-  .footer{display:block}
-
-  .footer div+div{margin-top:10px}
-
-  .wallet-popup{padding:22px 16px}
-
-  .wallet-popup-actions{flex-direction:column}
-
-  .quiz-modal{padding:18px}
-
-  .quiz-question{
-    font-size:15px;
-    padding:15px;
-  }
-
-  .wheel-wrap{
-    --wheel-size:220px;
-    margin-top:17px;
-    margin-bottom:12px;
-  }
-
-  .wheel-label{
-    --radius:67px;
-    width:64px;
-    font-size:7px;
-    line-height:1.3;
-  }
-
-  .wheel-label::after{
-    width:64px;
-    height:40px;
-  }
-
-  .wheel-label span{font-size:16px}
-
-  .wheel-label small{
-    font-size:7px;
-    letter-spacing:.5px;
-  }
-
-  .wheel::after{
-    width:62px;
-    height:62px;
-    font-size:11px;
-  }
-
-  .wheel::before{inset:10px}
-
-  .pointer{
-    top:-18px;
-    transform:translateX(-50%) scale(.88);
-  }
-}
-</style>
-</head>
-
-<body>
-
-<header>
-
-<a class="brand" href="../">
-  <span class="mark">HR</span>
-  THE HOOD ROVER
-</a>
-
-<button class="menu" id="menu" type="button">☰</button>
-
-<nav id="nav">
-<a href="../">HOME</a>
+<html lang="en">  
+<head>  
+<meta charset="utf-8">  
+<meta name="viewport" content="width=device-width,initial-scale=1">  <title>ROVER HUB — The Hood Rover</title>  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>  <style>  
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Space+Grotesk:wght@400;500;600;700&display=swap');  
+  
+:root{  
+  --ink:#14232e;  
+  --line:#173044;  
+  --blue:#2f8cff;  
+  --cyan:#16c8e8;  
+  --yellow:#ffd84d;  
+  --cream:#fffaf0;  
+  --paper:#f3f7fa;  
+  --white:#fff;  
+  --muted:#687985;  
+  --green:#42c98b;  
+  --orange:#ff9d42;  
+  --red:#e95757;  
+  --purple:#9b6cff;  
+}  
+  
+*{  
+  box-sizing:border-box;  
+}  
+  
+html{  
+  scroll-behavior:smooth;  
+}  
+  
+body{  
+  margin:0;  
+  color:var(--ink);  
+  background:var(--paper);  
+  font-family:"Space Grotesk",sans-serif;  
+  overflow-x:hidden;  
+}  
+  
+body::before{  
+  content:"";  
+  position:fixed;  
+  inset:0;  
+  pointer-events:none;  
+  z-index:-2;  
+  opacity:.13;  
+  background-image:  
+    linear-gradient(rgba(20,50,70,.16) 1px,transparent 1px),  
+    linear-gradient(90deg,rgba(20,50,70,.16) 1px,transparent 1px);  
+  background-size:24px 24px;  
+}  
+  
+body::after{  
+  content:"";  
+  position:fixed;  
+  inset:0;  
+  pointer-events:none;  
+  z-index:50;  
+  background:repeating-linear-gradient(  
+    0deg,  
+    transparent 0 3px,  
+    rgba(20,40,55,.035) 3px 4px  
+  );  
+}  
+  
+a{  
+  color:inherit;  
+  text-decoration:none;  
+}  
+  
+button{  
+  font-family:inherit;  
+}  
+  
+.wrap{  
+  width:min(1160px,calc(100% - 32px));  
+  margin:auto;  
+}  
+  
+  
+/* =========================================================  
+   NAV  
+========================================================= */  
+  
+header{  
+  position:sticky;  
+  top:0;  
+  z-index:30;  
+  min-height:76px;  
+  display:flex;  
+  align-items:center;  
+  gap:18px;  
+  padding:10px max(16px,calc((100% - 1160px)/2));  
+  background:rgba(255,250,240,.95);  
+  backdrop-filter:blur(12px);  
+  border-bottom:3px solid var(--line);  
+}  
+  
+.brand{  
+  display:flex;  
+  align-items:center;  
+  gap:10px;  
+  font-family:"Press Start 2P";  
+  font-size:11px;  
+  line-height:1.5;  
+  white-space:nowrap;  
+}  
+  
+.mark{  
+  width:38px;  
+  height:38px;  
+  display:grid;  
+  place-items:center;  
+  background:var(--blue);  
+  color:#fff;  
+  border:3px solid var(--line);  
+  box-shadow:3px 3px 0 var(--line);  
+  font-family:"Press Start 2P";  
+  font-size:10px;  
+  flex-shrink:0;  
+}  
+  
+nav{  
+  margin-left:auto;  
+  display:flex;  
+  align-items:center;  
+  gap:4px;  
+}  
+  
+nav a{  
+  padding:9px 10px;  
+  border:2px solid transparent;  
+  font-size:12px;  
+  font-weight:800;  
+}  
+  
+nav a:hover,  
+nav a.active{  
+  background:#fff;  
+  border-color:var(--line);  
+  box-shadow:3px 3px 0 var(--line);  
+}  
+  
+.menu{  
+  display:none;  
+  margin-left:auto;  
+  background:#fff;  
+  border:3px solid var(--line);  
+  padding:9px 12px;  
+  cursor:pointer;  
+  font-size:18px;  
+  flex-shrink:0;  
+}  
+  
+.wallet-button{  
+  flex-shrink:0;  
+  white-space:nowrap;  
+}  
+  
+  
+/* =========================================================  
+   BUTTON  
+========================================================= */  
+  
+.btn{  
+  display:inline-flex;  
+  justify-content:center;  
+  align-items:center;  
+  gap:8px;  
+  border:3px solid var(--line);  
+  background:var(--blue);  
+  color:#fff;  
+  padding:13px 16px;  
+  font-family:"Press Start 2P";  
+  font-size:9px;  
+  box-shadow:5px 5px 0 var(--line);  
+  cursor:pointer;  
+  transition:.15s ease;  
+}  
+  
+.btn:hover{  
+  transform:translate(2px,2px);  
+  box-shadow:3px 3px 0 var(--line);  
+}  
+  
+.btn.secondary{  
+  background:#fff;  
+  color:var(--ink);  
+}  
+  
+.btn.yellow{  
+  background:var(--yellow);  
+  color:var(--ink);  
+}  
+  
+.btn:disabled{  
+  opacity:.6;  
+  cursor:not-allowed;  
+}  
+  
+  
+/* =========================================================  
+   HERO  
+========================================================= */  
+  
+main{  
+  padding:55px 0 90px;  
+}  
+  
+.hero{  
+  margin-bottom:28px;  
+}  
+  
+.window{  
+  background:#fff;  
+  border:4px solid var(--line);  
+  box-shadow:8px 8px 0 var(--line);  
+}  
+  
+.window-bar{  
+  min-height:42px;  
+  display:flex;  
+  justify-content:space-between;  
+  align-items:center;  
+  padding:9px 13px;  
+  background:#dceaf2;  
+  border-bottom:4px solid var(--line);  
+  font-family:"Press Start 2P";  
+  font-size:9px;  
+}  
+  
+.window-lights{  
+  display:flex;  
+  gap:6px;  
+}  
+  
+.light{  
+  width:12px;  
+  height:12px;  
+  border:2px solid var(--line);  
+  background:#fff;  
+}  
+  
+.light:nth-child(2){  
+  background:var(--yellow);  
+}  
+  
+.light:nth-child(3){  
+  background:var(--cyan);  
+}  
+  
+.hero-content{  
+  padding:34px;  
+  display:grid;  
+  grid-template-columns:1fr auto;  
+  gap:30px;  
+  align-items:end;  
+}  
+  
+.eyebrow{  
+  display:inline-block;  
+  margin-bottom:16px;  
+  color:var(--blue);  
+  font-family:"Press Start 2P";  
+  font-size:10px;  
+}  
+  
+h1{  
+  margin:0 0 16px;  
+  font-family:"Press Start 2P";  
+  font-size:clamp(28px,5vw,54px);  
+  line-height:1.25;  
+  letter-spacing:-2px;  
+}  
+  
+.hero-text{  
+  max-width:700px;  
+  margin:0;  
+  color:var(--muted);  
+  font-size:17px;  
+  line-height:1.65;  
+}  
+  
+.system-status{  
+  min-width:210px;  
+  padding:20px;  
+  background:var(--cream);  
+  border:3px solid var(--line);  
+}  
+  
+.status-line{  
+  display:flex;  
+  align-items:center;  
+  gap:9px;  
+  font-weight:800;  
+  margin-bottom:10px;  
+}  
+  
+.status-dot{  
+  width:12px;  
+  height:12px;  
+  border-radius:50%;  
+  background:var(--green);  
+  border:2px solid var(--line);  
+  animation:pulse 1.5s infinite;  
+}  
+  
+@keyframes pulse{  
+  50%{opacity:.35}  
+}  
+  
+.status-small{  
+  color:var(--muted);  
+  font-size:12px;  
+}  
+  
+  
+/* =========================================================  
+   BALANCE  
+========================================================= */  
+  
+.rover-balance{  
+  margin-bottom:22px;  
+  display:grid;  
+  grid-template-columns:1fr auto;  
+  gap:20px;  
+  align-items:center;  
+  background:#173044;  
+  color:#fff;  
+  border:4px solid var(--line);  
+  box-shadow:7px 7px 0 var(--line);  
+  padding:22px;  
+}  
+  
+.rover-balance-label{  
+  font-family:"Press Start 2P";  
+  font-size:9px;  
+  color:#9ddfff;  
+  margin-bottom:10px;  
+}  
+  
+.rover-balance-number{  
+  font-family:"Press Start 2P";  
+  font-size:25px;  
+}  
+  
+.rover-balance-today{  
+  margin-top:7px;  
+  font-size:12px;  
+  opacity:.75;  
+}  
+  
+.rover-balance-icon{  
+  width:70px;  
+  height:70px;  
+  display:grid;  
+  place-items:center;  
+  background:var(--yellow);  
+  color:var(--ink);  
+  border:4px solid var(--line);  
+  font-size:32px;  
+  box-shadow:4px 4px 0 #000;  
+}  
+  
+  
+/* =========================================================  
+   GRID  
+========================================================= */  
+  
+.hub-grid{  
+  display:grid;  
+  grid-template-columns:repeat(3,1fr);  
+  gap:20px;  
+}  
+  
+.card{  
+  position:relative;  
+  background:#fff;  
+  border:4px solid var(--line);  
+  box-shadow:6px 6px 0 var(--line);  
+  padding:22px;  
+  transition:.2s ease;  
+}  
+  
+.card:hover{  
+  transform:translate(-3px,-4px);  
+  box-shadow:10px 10px 0 var(--line);  
+}  
+  
+.card-head{  
+  display:flex;  
+  justify-content:space-between;  
+  align-items:flex-start;  
+  gap:15px;  
+  margin-bottom:18px;  
+}  
+  
+.card-icon{  
+  width:48px;  
+  height:48px;  
+  display:grid;  
+  place-items:center;  
+  border:3px solid var(--line);  
+  background:#dff7ff;  
+  font-size:22px;  
+}  
+  
+.card-tag{  
+  padding:7px 8px;  
+  border:2px solid var(--line);  
+  background:var(--cream);  
+  font-family:"Press Start 2P";  
+  font-size:7px;  
+}  
+  
+.card h3{  
+  margin:0 0 9px;  
+  font-family:"Press Start 2P";  
+  font-size:13px;  
+  line-height:1.6;  
+}  
+  
+.card p{  
+  margin:0 0 18px;  
+  color:var(--muted);  
+  font-size:14px;  
+  line-height:1.55;  
+}  
+  
+.card .btn{  
+  width:100%;  
+}  
+  
+  
+/* =========================================================  
+   MISSIONS  
+========================================================= */  
+  
+.mission-list{  
+  display:grid;  
+  gap:9px;  
+  margin:16px 0 18px;  
+}  
+  
+.mission{  
+  display:flex;  
+  justify-content:space-between;  
+  align-items:center;  
+  gap:10px;  
+  padding:11px;  
+  border:2px solid #b8c8d1;  
+  background:#f7fafb;  
+}  
+  
+.mission-name{  
+  font-size:12px;  
+  font-weight:800;  
+}  
+  
+.mission-state{  
+  font-family:"Press Start 2P";  
+  font-size:7px;  
+  padding:6px;  
+  background:#e6edf1;  
+}  
+  
+.mission-state.done{  
+  background:#bff1d9;  
+  border:2px solid #21885d;  
+}  
+  
+  
+/* =========================================================  
+   STREAK  
+========================================================= */  
+  
+.streak-box{  
+  display:flex;  
+  align-items:center;  
+  gap:16px;  
+  margin:18px 0;  
+  padding:16px;  
+  background:#fff7d9;  
+  border:3px solid var(--line);  
+}  
+  
+.fire{  
+  font-size:34px;  
+}  
+  
+.streak-number{  
+  font-family:"Press Start 2P";  
+  font-size:22px;  
+}  
+  
+.streak-label{  
+  display:block;  
+  margin-top:6px;  
+  color:var(--muted);  
+  font-size:11px;  
+  font-weight:800;  
+}  
+  
+  
+/* =========================================================  
+   PREMIUM SPIN AREA  
+========================================================= */  
+  
+.spin-area{  
+  display:flex;  
+  flex-direction:column;  
+  align-items:center;  
+  gap:16px;  
+  padding:8px 0 12px;  
+}  
+  
+.spin-counter{  
+  width:100%;  
+  display:flex;  
+  justify-content:space-between;  
+  align-items:center;  
+  padding:10px 13px;  
+  border:3px solid var(--line);  
+  background:#f7fafb;  
+  font-size:11px;  
+  font-weight:900;  
+  box-shadow:3px 3px 0 #c4d0d7;  
+}  
+  
+.spin-counter strong{  
+  font-family:"Press Start 2P";  
+  font-size:8px;  
+  color:var(--blue);  
+}  
+  
+  
+/* =========================================================  
+   PREMIUM WHEEL FRAME  
+========================================================= */  
+  
+.wheel-wrap{  
+  --wheel-size:250px;  
+  
+  position:relative;  
+  
+  width:var(--wheel-size);  
+  height:var(--wheel-size);  
+  
+  margin:19px auto 12px;  
+  
+  display:grid;  
+  place-items:center;  
+  
+  isolation:isolate;  
+}  
+  
+  
+/* deep premium shadow */  
+  
+.wheel-wrap::before{  
+  content:"";  
+  
+  position:absolute;  
+  
+  inset:-15px;  
+  
+  border-radius:50%;  
+  
+  background:  
+    linear-gradient(  
+      145deg,  
+      #0b1721 0%,  
+      #253d4c 22%,  
+      #718894 42%,  
+      #182d3b 57%,  
+      #7e969f 76%,  
+      #0a1721 100%  
+    );  
+  
+  border:3px solid #0b1721;  
+  
+  box-shadow:  
+    0 16px 28px rgba(13,30,42,.30),  
+    0 0 0 2px rgba(255,255,255,.55),  
+    inset 0 0 0 2px rgba(255,255,255,.16),  
+    inset 0 0 22px rgba(0,0,0,.48);  
+  
+  z-index:-3;  
+}  
+  
+  
+/* cyan premium aura */  
+  
+.wheel-wrap::after{  
+  content:"";  
+  
+  position:absolute;  
+  
+  inset:-8px;  
+  
+  border-radius:50%;  
+  
+  border:1px solid rgba(22,200,232,.7);  
+  
+  box-shadow:  
+    0 0 12px rgba(22,200,232,.28),  
+    0 0 30px rgba(22,200,232,.13),  
+    inset 0 0 10px rgba(255,255,255,.12);  
+  
+  z-index:-2;  
+  
+  pointer-events:none;  
+}  
+  
+  
+/* =========================================================  
+   WHEEL  
+========================================================= */  
+  
+.wheel{  
+  position:absolute;  
+  
+  width:var(--wheel-size);  
+  height:var(--wheel-size);  
+  
+  border-radius:50%;  
+  
+  background:  
+    radial-gradient(  
+      circle at 32% 22%,  
+      rgba(255,255,255,.30) 0%,  
+      rgba(255,255,255,.08) 17%,  
+      transparent 38%  
+    ),  
+    conic-gradient(  
+      from -30deg,  
+  
+      #b82f3c 0deg 60deg,  
+      #216ac8 60deg 120deg,  
+      #d3a91e 120deg 180deg,  
+      #079bb7 180deg 240deg,  
+      #754bc5 240deg 300deg,  
+      #d87824 300deg 360deg  
+    );  
+  
+  border:7px solid #091923;  
+  
+  box-shadow:  
+    0 0 0 2px rgba(255,255,255,.8),  
+    0 0 0 5px rgba(22,200,232,.22),  
+    inset 0 0 0 2px rgba(255,255,255,.18),  
+    inset 0 -18px 35px rgba(0,0,0,.22),  
+    inset 0 10px 20px rgba(255,255,255,.10);  
+  
+  transition:  
+    transform 4.5s cubic-bezier(.12,.78,.15,1),  
+    box-shadow .3s ease;  
+  
+  overflow:hidden;  
+  
+  z-index:2;  
+}  
+  
+  
+/* sector separators */  
+  
+.wheel .wheel-label::before{  
+  content:"";  
+  
+  position:absolute;  
+  
+  left:50%;  
+  top:50%;  
+  
+  width:2px;  
+  height:18px;  
+  
+  background:rgba(255,255,255,.28);  
+  
+  transform-origin:0 100%;  
+  
+  pointer-events:none;  
+}  
+  
+  
+/* inner premium ring */  
+  
+.wheel::before{  
+  content:"";  
+  
+  position:absolute;  
+  
+  inset:12px;  
+  
+  border-radius:50%;  
+  
+  border:2px solid rgba(255,255,255,.42);  
+  
+  box-shadow:  
+    inset 0 0 0 2px rgba(5,20,29,.30),  
+    inset 0 0 22px rgba(255,255,255,.10),  
+    0 0 0 1px rgba(255,255,255,.15);  
+  
+  pointer-events:none;  
+  
+  z-index:2;  
+}  
+  
+  
+/* center premium hub */  
+  
+.wheel::after{  
+  content:"HR";  
+  
+  position:absolute;  
+  
+  width:72px;  
+  height:72px;  
+  
+  left:50%;  
+  top:50%;  
+  
+  transform:translate(-50%,-50%);  
+  
+  display:grid;  
+  place-items:center;  
+  
+  border-radius:50%;  
+  
+  background:  
+    radial-gradient(  
+      circle at 35% 25%,  
+      #ffffff 0%,  
+      #e8f5f8 28%,  
+      #9db4be 58%,  
+      #314b59 100%  
+    );  
+  
+  border:5px solid #081822;  
+  
+  color:#102b3a;  
+  
+  font-family:"Press Start 2P";  
+  font-size:13px;  
+  
+  text-shadow:  
+    1px 1px 0 rgba(255,255,255,.8);  
+  
+  z-index:8;  
+  
+  box-shadow:  
+    0 0 0 3px rgba(255,255,255,.70),  
+    0 0 0 5px rgba(8,24,34,.50),  
+    0 7px 13px rgba(0,0,0,.30),  
+    inset 0 2px 5px rgba(255,255,255,.85),  
+    inset 0 -7px 12px rgba(0,0,0,.18);  
+  
+  pointer-events:none;  
+}  
+  
+  
+/* wheel shine */  
+  
+.wheel-shine{  
+  position:absolute;  
+  
+  inset:0;  
+  
+  border-radius:50%;  
+  
+  pointer-events:none;  
+  
+  z-index:7;  
+  
+  background:  
+    linear-gradient(  
+      125deg,  
+      rgba(255,255,255,.22) 0%,  
+      rgba(255,255,255,.06) 18%,  
+      transparent 38%,  
+      transparent 68%,  
+      rgba(255,255,255,.06) 82%,  
+      rgba(255,255,255,.14) 100%  
+    );  
+  
+  mix-blend-mode:screen;  
+}  
+  
+  
+/* =========================================================  
+   WHEEL LABELS  
+========================================================= */  
+  
+.wheel-label{  
+  --radius:78px;  
+  
+  position:absolute;  
+  
+  left:50%;  
+  top:50%;  
+  
+  z-index:6;  
+  
+  width:78px;  
+  
+  transform:  
+    translate(-50%,-50%)  
+    rotate(var(--angle))  
+    translateY(calc(var(--radius) * -1))  
+    rotate(var(--counter));  
+  
+  text-align:center;  
+  
+  font-family:"Press Start 2P";  
+  
+  font-size:8px;  
+  
+  line-height:1.35;  
+  
+  color:#fff;  
+  
+  text-shadow:  
+    2px 2px 0 rgba(5,17,25,.75);  
+  
+  pointer-events:none;  
+  
+  filter:  
+    drop-shadow(0 3px 2px rgba(0,0,0,.22));  
+}  
+  
+  
+/* little reward plate */  
+  
+.wheel-label::after{  
+  content:"";  
+  
+  position:absolute;  
+  
+  left:50%;  
+  top:50%;  
+  
+  width:76px;  
+  height:44px;  
+  
+  transform:translate(-50%,-50%);  
+  
+  border-radius:8px;  
+  
+  background:rgba(5,18,27,.15);  
+  
+  border:1px solid rgba(255,255,255,.14);  
+  
+  box-shadow:  
+    inset 0 1px 0 rgba(255,255,255,.10);  
+  
+  z-index:-1;  
+}  
+  
+  
+/* icon / number */  
+  
+.wheel-label span{  
+  display:block;  
+  
+  font-size:18px;  
+  
+  line-height:1;  
+  
+  margin-bottom:4px;  
+  
+  text-shadow:  
+    2px 2px 0 rgba(5,17,25,.7);  
+}  
+  
+.wheel-label small{  
+  display:block;  
+  
+  margin-top:3px;  
+  
+  font-family:"Space Grotesk",sans-serif;  
+  
+  font-size:9px;  
+  
+  font-weight:900;  
+  
+  letter-spacing:.8px;  
+  
+  color:#fff;  
+}  
+  
+  
+/* individual sector positions */  
+  
+.wheel-label.bad{  
+  --angle:0deg;  
+  --counter:0deg;  
+}  
+  
+.wheel-label.plus2{  
+  --angle:60deg;  
+  --counter:-60deg;  
+}  
+  
+.wheel-label.plus4{  
+  --angle:120deg;  
+  --counter:-120deg;  
+  
+  color:#14232e;  
+  
+  text-shadow:  
+    1px 1px 0 rgba(255,255,255,.8);  
+}  
+  
+.wheel-label.plus4 small{  
+  color:#14232e;  
+}  
+  
+.wheel-label.plus5{  
+  --angle:180deg;  
+  --counter:-180deg;  
+}  
+  
+.wheel-label.plus6{  
+  --angle:240deg;  
+  --counter:-240deg;  
+}  
+  
+.wheel-label.mystery{  
+  --angle:300deg;  
+  --counter:-300deg;  
+}  
+  
+  
+/* =========================================================  
+   PREMIUM POINTER  
+========================================================= */  
+  
+.pointer{  
+  position:absolute;  
+  
+  top:-21px;  
+  left:50%;  
+  
+  transform:translateX(-50%);  
+  
+  width:34px;  
+  height:47px;  
+  
+  z-index:20;  
+  
+  background:  
+    linear-gradient(  
+      90deg,  
+      #687b85 0%,  
+      #f7ffff 35%,  
+      #ffffff 55%,  
+      #718790 100%  
+    );  
+  
+  clip-path:polygon(  
+    50% 100%,  
+    0 0,  
+    100% 0  
+  );  
+  
+  filter:  
+    drop-shadow(0 5px 3px rgba(0,0,0,.35));  
+}  
+  
+  
+/* pointer dark border illusion */  
+  
+.pointer::before{  
+  content:"";  
+  
+  position:absolute;  
+  
+  inset:0;  
+  
+  background:#071923;  
+  
+  clip-path:polygon(  
+    50% 100%,  
+    0 0,  
+    100% 0,  
+    88% 0,  
+    50% 82%,  
+    12% 0  
+  );  
+}  
+  
+  
+/* gold inner pointer */  
+  
+.pointer::after{  
+  content:"";  
+  
+  position:absolute;  
+  
+  top:5px;  
+  left:9px;  
+  
+  width:16px;  
+  height:25px;  
+  
+  background:  
+    linear-gradient(  
+      180deg,  
+      #fff7a8,  
+      #ffd84d 45%,  
+      #c89615  
+    );  
+  
+  clip-path:polygon(  
+    50% 100%,  
+    0 0,  
+    100% 0  
+  );  
+}  
+  
+  
+/* =========================================================  
+   REWARD DISPLAY  
+========================================================= */  
+  
+.reward-display{  
+  width:100%;  
+  min-height:70px;  
+  
+  display:flex;  
+  flex-direction:column;  
+  justify-content:center;  
+  align-items:center;  
+  
+  padding:10px;  
+  
+  border:3px solid var(--line);  
+  
+  background:  
+    linear-gradient(  
+      135deg,  
+      #ffffff,  
+      #f3f8fb  
+    );  
+  
+  box-shadow:  
+    3px 3px 0 #c4d0d7;  
+  
+  text-align:center;  
+}  
+  
+.reward-display-title{  
+  font-family:"Press Start 2P";  
+  font-size:8px;  
+  line-height:1.6;  
+}  
+  
+.reward-display-sub{  
+  margin-top:5px;  
+  font-size:12px;  
+  font-weight:900;  
+  color:var(--blue);  
+}  
+  
+.reward-display.bad{  
+  background:#fff0f0;  
+  border-color:#d94c4c;  
+}  
+  
+.reward-display.bad .reward-display-sub{  
+  color:var(--red);  
+}  
+  
+.reward-display.mystery{  
+  background:#f4efff;  
+  border-color:#8053d9;  
+}  
+  
+.reward-display.mystery .reward-display-sub{  
+  color:#8053d9;  
+}  
+  
+  
+/* =========================================================  
+   MYSTERY  
+========================================================= */  
+  
+.mystery{  
+  text-align:center;  
+}  
+  
+.key-counter{  
+  display:flex;  
+  justify-content:space-between;  
+  align-items:center;  
+  padding:10px 12px;  
+  margin-bottom:12px;  
+  background:#f3f7fa;  
+  border:2px solid var(--line);  
+  font-size:12px;  
+  font-weight:900;  
+}  
+  
+.key-counter strong{  
+  font-family:"Press Start 2P";  
+  font-size:9px;  
+}  
+  
+.mystery-box{  
+  width:120px;  
+  height:100px;  
+  margin:12px auto 15px;  
+  display:grid;  
+  place-items:center;  
+  background:linear-gradient(135deg,#d9f7ff,#9ddfff);  
+  border:5px solid var(--line);  
+  box-shadow:7px 7px 0 var(--line);  
+  font-size:42px;  
+  cursor:pointer;  
+  transition:.2s;  
+}  
+  
+.mystery-box.locked{  
+  filter:grayscale(.4);  
+  opacity:.75;  
+}  
+  
+.mystery-box:hover{  
+  transform:translateY(-5px) rotate(-2deg);  
+}  
+  
+.mystery-result{  
+  min-height:24px;  
+  color:var(--blue);  
+  font-weight:900;  
+  margin-bottom:10px;  
+}  
+  
+.mystery-help{  
+  color:var(--muted);  
+  font-size:11px;  
+  line-height:1.5;  
+  min-height:34px;  
+}  
+  
+  
+/* =========================================================  
+   ACHIEVEMENTS  
+========================================================= */  
+  
+.achievement-list{  
+  display:grid;  
+  grid-template-columns:repeat(2,1fr);  
+  gap:9px;  
+  margin-top:16px;  
+}  
+  
+.achievement{  
+  padding:12px 8px;  
+  text-align:center;  
+  background:#f4f7f9;  
+  border:2px solid #c2cdd4;  
+}  
+  
+.achievement.locked{  
+  opacity:.45;  
+  filter:grayscale(1);  
+}  
+  
+.achievement.unlocked{  
+  opacity:1;  
+  filter:none;  
+  background:#fff7d9;  
+  border-color:var(--yellow);  
+}  
+  
+.achievement-icon{  
+  font-size:22px;  
+  margin-bottom:6px;  
+}  
+  
+.achievement small{  
+  display:block;  
+  font-size:9px;  
+  font-weight:800;  
+}  
+  
+.achievement-progress{  
+  margin-top:5px;  
+  color:var(--muted);  
+  font-size:8px;  
+}  
+  
+  
+/* =========================================================  
+   QUICK  
+========================================================= */  
+  
+.quick{  
+  margin-top:22px;  
+  display:grid;  
+  grid-template-columns:repeat(3,1fr);  
+  gap:16px;  
+}  
+  
+.quick a{  
+  background:#fff;  
+  border:3px solid var(--line);  
+  box-shadow:4px 4px 0 var(--line);  
+  padding:17px;  
+  font-weight:900;  
+  transition:.15s;  
+}  
+  
+.quick a:hover{  
+  transform:translate(2px,2px);  
+  box-shadow:2px 2px 0 var(--line);  
+}  
+  
+.quick span{  
+  display:block;  
+  color:var(--muted);  
+  font-size:11px;  
+  margin-top:5px;  
+}  
+  
+  
+/* =========================================================  
+   INFO  
+========================================================= */  
+  
+.info{  
+  margin-top:22px;  
+  background:#173044;  
+  color:#fff;  
+  border:4px solid var(--line);  
+  padding:18px 20px;  
+  display:flex;  
+  align-items:center;  
+  justify-content:space-between;  
+  gap:20px;  
+}  
+  
+.info strong{  
+  font-family:"Press Start 2P";  
+  font-size:10px;  
+}  
+  
+.info span{  
+  font-size:12px;  
+  opacity:.85;  
+}  
+  
+  
+/* =========================================================  
+   FOOTER  
+========================================================= */  
+  
+footer{  
+  border-top:4px solid var(--line);  
+  background:#fff;  
+  padding:28px 0 40px;  
+}  
+  
+.footer{  
+  display:flex;  
+  justify-content:space-between;  
+  gap:20px;  
+  color:var(--muted);  
+  font-size:13px;  
+  font-weight:700;  
+}  
+  
+  
+/* =========================================================  
+   ANIMATION  
+========================================================= */  
+  
+.reveal{  
+  opacity:0;  
+  transform:translateY(20px);  
+}  
+  
+.reveal.visible{  
+  opacity:1;  
+  transform:none;  
+  transition:  
+    opacity .65s ease,  
+    transform .65s ease;  
+}  
+  
+  
+/* =========================================================  
+   POPUP  
+========================================================= */  
+  
+.wallet-popup-overlay,  
+.quiz-overlay{  
+  position:fixed;  
+  inset:0;  
+  z-index:10000;  
+  display:flex;  
+  align-items:center;  
+  justify-content:center;  
+  padding:18px;  
+  background:rgba(20,35,46,.78);  
+  backdrop-filter:blur(6px);  
+}  
+  
+.wallet-popup{  
+  width:min(420px,100%);  
+  background:#fff;  
+  border:4px solid var(--line);  
+  box-shadow:9px 9px 0 var(--line);  
+  padding:28px;  
+  text-align:center;  
+}  
+  
+.wallet-popup-icon{  
+  width:58px;  
+  height:58px;  
+  margin:0 auto 16px;  
+  display:grid;  
+  place-items:center;  
+  background:#dff7ff;  
+  border:3px solid var(--line);  
+  font-size:27px;  
+}  
+  
+.wallet-popup-title{  
+  font-family:"Press Start 2P";  
+  font-size:11px;  
+  line-height:1.6;  
+}  
+  
+.wallet-popup-address{  
+  margin-top:10px;  
+  padding:10px;  
+  background:var(--cream);  
+  border:2px solid var(--line);  
+  font-family:"Press Start 2P";  
+  font-size:8px;  
+  overflow:hidden;  
+}  
+  
+.wallet-popup p{  
+  color:var(--muted);  
+  font-size:14px;  
+  line-height:1.5;  
+  margin:18px 0;  
+}  
+  
+.wallet-popup-actions{  
+  display:flex;  
+  gap:10px;  
+}  
+  
+.wallet-popup-actions .btn{  
+  flex:1;  
+}  
+  
+  
+/* =========================================================  
+   QUIZ  
+========================================================= */  
+  
+.quiz-modal{  
+  width:min(650px,100%);  
+  max-height:90vh;  
+  overflow-y:auto;  
+  background:#fff;  
+  border:4px solid var(--line);  
+  box-shadow:9px 9px 0 var(--line);  
+  padding:26px;  
+}  
+  
+.quiz-top{  
+  display:flex;  
+  justify-content:space-between;  
+  align-items:center;  
+  gap:15px;  
+  margin-bottom:20px;  
+}  
+  
+.quiz-title{  
+  font-family:"Press Start 2P";  
+  font-size:11px;  
+  line-height:1.6;  
+}  
+  
+.quiz-progress{  
+  font-family:"Press Start 2P";  
+  font-size:8px;  
+  background:var(--cream);  
+  border:2px solid var(--line);  
+  padding:8px;  
+}  
+  
+.quiz-question{  
+  margin:20px 0;  
+  padding:20px;  
+  background:#f3f7fa;  
+  border:3px solid var(--line);  
+  font-size:18px;  
+  font-weight:800;  
+  line-height:1.5;  
+}  
+  
+.quiz-options{  
+  display:grid;  
+  gap:10px;  
+}  
+  
+.quiz-option{  
+  width:100%;  
+  text-align:left;  
+  padding:15px;  
+  background:#fff;  
+  color:var(--ink);  
+  border:3px solid var(--line);  
+  box-shadow:4px 4px 0 var(--line);  
+  cursor:pointer;  
+  font-size:14px;  
+  font-weight:700;  
+}  
+  
+.quiz-option:hover{  
+  background:#dff7ff;  
+}  
+  
+.quiz-result{  
+  text-align:center;  
+  padding:15px 5px;  
+}  
+  
+.quiz-result-icon{  
+  font-size:45px;  
+  margin-bottom:15px;  
+}  
+  
+.quiz-result-title{  
+  font-family:"Press Start 2P";  
+  font-size:13px;  
+  line-height:1.7;  
+}  
+  
+.quiz-result-score{  
+  margin:15px 0;  
+  font-size:18px;  
+  font-weight:900;  
+}  
+  
+.quiz-result-reward{  
+  display:inline-block;  
+  padding:12px 16px;  
+  background:var(--yellow);  
+  border:3px solid var(--line);  
+  font-family:"Press Start 2P";  
+  font-size:10px;  
+}  
+  
+.quiz-close{  
+  margin-top:20px;  
+  width:100%;  
+}  
+  
+.quiz-warning{  
+  margin-top:12px;  
+  color:#b22d2d;  
+  font-size:12px;  
+  font-weight:800;  
+  text-align:center;  
+}  
+  
+  
+/* =========================================================  
+   TABLET  
+========================================================= */  
+  
+@media(max-width:1000px){  
+  
+  header{  
+    padding-left:16px;  
+    padding-right:16px;  
+  }  
+  
+  nav{  
+    display:none;  
+    position:absolute;  
+    top:76px;  
+    left:16px;  
+    right:16px;  
+    padding:8px;  
+    background:#fff;  
+    border:3px solid var(--line);  
+    box-shadow:5px 5px 0 var(--line);  
+    flex-direction:column;  
+    align-items:stretch;  
+  }  
+  
+  nav.open{  
+    display:flex;  
+  }  
+  
+  nav a{  
+    padding:13px;  
+  }  
+  
+  .menu{  
+    display:block;  
+  }  
+  
+  .hub-grid{  
+    grid-template-columns:repeat(2,1fr);  
+  }  
+  
+  .hero-content{  
+    grid-template-columns:1fr;  
+  }  
+  
+  .system-status{  
+    width:100%;  
+  }  
+  
+}  
+  
+  
+/* =========================================================  
+   MOBILE  
+========================================================= */  
+  
+@media(max-width:620px){  
+  
+  .wrap{  
+    width:calc(100% - 20px);  
+  }  
+  
+  main{  
+    padding-top:30px;  
+  }  
+  
+  header{  
+    min-height:68px;  
+    gap:7px;  
+    padding:8px 10px;  
+  }  
+  
+  .brand{  
+    font-size:8px;  
+    min-width:0;  
+    flex:1;  
+    gap:7px;  
+    overflow:hidden;  
+  }  
+  
+  .brand .mark{  
+    width:34px;  
+    height:34px;  
+  }  
+  
+  .menu{  
+    display:block;  
+    padding:7px 9px;  
+    font-size:17px;  
+    margin-left:0;  
+  }  
+  
+  .wallet-button{  
+    width:auto !important;  
+    min-width:0;  
+    padding:10px 9px;  
+    font-size:7px;  
+    box-shadow:3px 3px 0 var(--line);  
+  }  
+  
+  nav{  
+    top:68px;  
+    left:10px;  
+    right:10px;  
+  }  
+  
+  .hero-content{  
+    padding:24px 20px;  
+  }  
+  
+  h1{  
+    font-size:28px;  
+  }  
+  
+  .hero-text{  
+    font-size:14px;  
+  }  
+  
+  .rover-balance{  
+    grid-template-columns:1fr auto;  
+    padding:17px;  
+  }  
+  
+  .rover-balance-number{  
+    font-size:18px;  
+  }  
+  
+  .rover-balance-icon{  
+    width:55px;  
+    height:55px;  
+    font-size:25px;  
+  }  
+  
+  .hub-grid{  
+    grid-template-columns:1fr;  
+  }  
+  
+  .quick{  
+    grid-template-columns:1fr;  
+  }  
+  
+  .info{  
+    display:block;  
+  }  
+  
+  .info span{  
+    display:block;  
+    margin-top:8px;  
+  }  
+  
+  .footer{  
+    display:block;  
+  }  
+  
+  .footer div+div{  
+    margin-top:10px;  
+  }  
+  
+  .wallet-popup{  
+    padding:22px 16px;  
+  }  
+  
+  .wallet-popup-actions{  
+    flex-direction:column;  
+  }  
+  
+  .quiz-modal{  
+    padding:18px;  
+  }  
+  
+  .quiz-question{  
+    font-size:15px;  
+    padding:15px;  
+  }  
+  
+  
+  /* =====================================================  
+     PREMIUM MOBILE WHEEL  
+  ===================================================== */  
+  
+  .wheel-wrap{  
+    --wheel-size:220px;  
+  
+    margin-top:17px;  
+    margin-bottom:12px;  
+  }  
+  
+  .wheel-label{  
+    --radius:67px;  
+  
+    width:64px;  
+  
+    font-size:7px;  
+  
+    line-height:1.3;  
+  }  
+  
+  .wheel-label::after{  
+    width:64px;  
+    height:40px;  
+  }  
+  
+  .wheel-label span{  
+    font-size:16px;  
+  }  
+  
+  .wheel-label small{  
+    font-size:7px;  
+    letter-spacing:.5px;  
+  }  
+  
+  .wheel::after{  
+    width:62px;  
+    height:62px;  
+    font-size:11px;  
+  }  
+  
+  .wheel::before{  
+    inset:10px;  
+  }  
+  
+  .pointer{  
+    top:-18px;  
+    transform:translateX(-50%) scale(.88);  
+  }  
+  
+}  
+</style>  </head>  <body>  <header>  <a class="brand" href="../">  
+  <span class="mark">HR</span>  
+  THE HOOD ROVER  
+</a>  <button  
+class="menu"  
+id="menu"  
+type="button">
+☰
+</button>
+
+<nav id="nav">  <a href="../">HOME</a>
 <a href="../collection/">COLLECTION</a>
 <a class="active" href="../rover/">ROVER HUB</a>
 <a href="../my-rover/">MY ROVER</a>
@@ -1384,3343 +1719,2762 @@ footer{
 <a href="../referral/">REFERRAL</a>
 <a href="../roadmap/">ROADMAP</a>
 <a href="../faq/">FAQ</a>
-</nav>
 
-<button class="btn secondary wallet-button" id="connectWalletButton" type="button">
+</nav>  <button  
+class="btn secondary wallet-button"  
+id="connectWalletButton"  
+type="button">
 CONNECT WALLET
 </button>
 
-</header>
+</header>  <main>  <div class="wrap">  <section class="hero reveal visible">  <div class="window">  <div class="window-bar">  <span>ROVER_HUB.EXE</span>
 
-<main>
+<span class="window-lights">  
+<i class="light"></i>  
+<i class="light"></i>  
+<i class="light"></i>  
+</span>  </div>  <div class="hero-content">  <div>  <span class="eyebrow">  
+HOOD ROVER // COMMAND CENTER  
+</span>  <h1>  
+ROVER HUB  
+</h1>  <p class="hero-text">  
+Your central station for missions, quizzes,  
+streaks, spins, mystery rewards and achievements.  
+Connect your Rover identity and build your activity.  
+</p>  </div>  <div class="system-status">  <div class="status-line">  <span class="status-dot"></span>
 
-<div class="wrap">
-
-<section class="hero reveal visible">
-
-<div class="window">
-
-<div class="window-bar">
-<span>ROVER_HUB.EXE</span>
-
-<span class="window-lights">
-<i class="light"></i>
-<i class="light"></i>
-<i class="light"></i>
-</span>
-</div>
-
-<div class="hero-content">
-
-<div>
-
-<span class="eyebrow">
-HOOD ROVER // COMMAND CENTER
-</span>
-
-<h1>ROVER HUB</h1>
-
-<p class="hero-text">
-Your central station for missions, quizzes,
-streaks, spins, mystery rewards and achievements.
-Connect your Rover identity and build your activity.
-</p>
-
-</div>
-
-<div class="system-status">
-
-<div class="status-line">
-<span class="status-dot"></span>
 SYSTEM ONLINE
-</div>
 
-<div class="status-small">HUB STATUS: READY</div>
-<div class="status-small">COLLECTION: 1,111</div>
+</div>  <div class="status-small">  
+HUB STATUS: READY  
+</div>  <div class="status-small">  
+COLLECTION: 1,111  
+</div>  <div class="status-small" id="walletStatus">  
+WALLET: NOT CONNECTED  
+</div>  </div>  </div>  </div>  </section>  <!-- BALANCE -->  <div class="rover-balance reveal">  <div>  <div class="rover-balance-label">  
+ROVER BALANCE  
+</div>  <div  
+class="rover-balance-number"  
+id="roverBalance">  
+0 ROVER  
+</div>  <div  
+class="rover-balance-today"  
+id="roverToday">  
+TODAY: +0 ROVER  
+</div>  </div>  <div class="rover-balance-icon">  
+◆  
+</div>  </div>  <section class="hub-grid">  <!-- DAILY ASSIGNMENTS -->  <article class="card reveal">  <div class="card-head">  <div class="card-icon">  
+🎯  
+</div>  <span class="card-tag">  
+DAILY  
+</span>  </div>  <h3>  
+DAILY ASSIGNMENTS  
+</h3>  <p>  
+Complete today's activities and track your Rover progress.  
+</p>  <div class="mission-list">  <div class="mission">  <span class="mission-name">  
+CHECK IN  
+</span>  <span  
+class="mission-state"  
+id="missionCheckin">
+READY
+</span>
 
-<div class="status-small" id="walletStatus">
-WALLET: NOT CONNECTED
-</div>
+</div>  <div class="mission">  <span class="mission-name">  
+QUIZ  
+</span>  <span  
+class="mission-state"  
+id="missionQuiz">
+0/1
+</span>
 
-</div>
+</div>  <div class="mission">  <span class="mission-name">  
+3 SPINS  
+</span>  <span  
+class="mission-state"  
+id="missionSpin">
+0/3
+</span>
 
-</div>
-</div>
-</section>
+</div>  <div class="mission">  <span class="mission-name">  
+MYSTERY BOX  
+</span>  <span  
+class="mission-state"  
+id="missionMystery">
+0/1
+</span>
 
-<div class="rover-balance reveal">
-
-<div>
-
-<div class="rover-balance-label">ROVER BALANCE</div>
-
-<div class="rover-balance-number" id="roverBalance">
-0 ROVER
-</div>
-
-<div class="rover-balance-today" id="roverToday">
-TODAY: +0 ROVER
-</div>
-
-</div>
-
-<div class="rover-balance-icon">◆</div>
-
-</div>
-
-<section class="hub-grid">
-
-<!-- DAILY -->
-
-<article class="card reveal">
-
-<div class="card-head">
-
-<div class="card-icon">🎯</div>
-
-<span class="card-tag">DAILY</span>
-
-</div>
-
-<h3>DAILY ASSIGNMENTS</h3>
-
-<p>
-Complete today's activities and track your Rover progress.
-</p>
-
-<div class="mission-list">
-
-<div class="mission">
-<span class="mission-name">CHECK IN</span>
-<span class="mission-state" id="missionCheckin">READY</span>
-</div>
-
-<div class="mission">
-<span class="mission-name">QUIZ</span>
-<span class="mission-state" id="missionQuiz">0/1</span>
-</div>
-
-<div class="mission">
-<span class="mission-name">3 SPINS</span>
-<span class="mission-state" id="missionSpin">0/3</span>
-</div>
-
-<div class="mission">
-<span class="mission-name">MYSTERY BOX</span>
-<span class="mission-state" id="missionMystery">0/1</span>
-</div>
-
-</div>
-</article>
-
-<!-- QUIZ -->
-
-<article class="card reveal">
-
-<div class="card-head">
-
-<div class="card-icon">🧠</div>
-
-<span class="card-tag">+2 ROVER</span>
-
-</div>
-
-<h3>ROVER QUIZ</h3>
-
-<p>
-Answer all five questions correctly.
-One wrong answer ends today's attempt.
-</p>
-
-<div class="streak-box">
-
-<div class="fire">🧠</div>
-
-<div>
-
-<div class="streak-number" id="quizStatus">CONNECT WALLET</div>
-
-<span class="streak-label">TODAY'S QUIZ</span>
-
-</div>
-
-</div>
-
-<button class="btn secondary" id="quizButton" type="button">
-CONNECT WALLET
+</div>  </div>  </article>  <!-- QUIZ -->  <article class="card reveal">  <div class="card-head">  <div class="card-icon">  
+🧠  
+</div>  <span class="card-tag">  
++2 ROVER  
+</span>  </div>  <h3>  
+ROVER QUIZ  
+</h3>  <p>  
+Answer all five questions correctly.  
+One wrong answer ends today's attempt.  
+</p>  <div class="streak-box">  <div class="fire">  
+🧠  
+</div>  <div>  <div  
+class="streak-number"  
+id="quizStatus">  
+READY  
+</div>  <span class="streak-label">  
+TODAY'S QUIZ  
+</span>  </div>  </div>  <button  
+class="btn secondary"  
+id="quizButton"  
+type="button">
+START QUIZ
 </button>
 
-</article>
-
-<!-- STREAK -->
-
-<article class="card reveal">
-
-<div class="card-head">
-
-<div class="card-icon">🔥</div>
-
-<span class="card-tag">+1 ROVER</span>
-
-</div>
-
-<h3>DAILY STREAK</h3>
-
-<p>
-Keep checking in each day and maintain your Rover activity streak.
-</p>
-
-<div class="streak-box">
-
-<div class="fire">🔥</div>
-
-<div>
-
-<div class="streak-number" id="streakNumber">0</div>
-
-<span class="streak-label">CURRENT STREAK</span>
-
-</div>
-
-</div>
-
-<button class="btn yellow" id="checkinButton" type="button">
+</article>  <!-- STREAK -->  <article class="card reveal">  <div class="card-head">  <div class="card-icon">  
+🔥  
+</div>  <span class="card-tag">  
++1 ROVER  
+</span>  </div>  <h3>  
+DAILY STREAK  
+</h3>  <p>  
+Keep checking in each day and maintain your Rover activity streak.  
+</p>  <div class="streak-box">  <div class="fire">  
+🔥  
+</div>  <div>  <div  
+class="streak-number"  
+id="streakNumber">  
+0  
+</div>  <span class="streak-label">  
+CURRENT STREAK  
+</span>  </div>  </div>  <button  
+class="btn yellow"  
+id="checkinButton"  
+type="button">
 DAILY CHECK-IN
 </button>
 
-</article>
+</article>  <!-- =====================================================  
+     SPIN  
+===================================================== -->  <article class="card reveal">  <div class="card-head">  <div class="card-icon">  
+🎡  
+</div>  <span class="card-tag">  
+3 / DAY  
+</span>  </div>  <h3>  
+SPIN WHEEL  
+</h3>  <p>  
+Spin up to three times every day.  
+Most spins are unlucky, but rare rewards can appear.  
+</p>  <div class="spin-area">  <div class="spin-counter">  <span>  
+SPINS LEFT  
+</span>  <strong id="spinCount">  
+3 / 3  
+</strong>  </div>  <div class="wheel-wrap">  <div class="pointer"></div>  <div  
+class="wheel"  
+id="wheel">  <div class="wheel-shine"></div>  <div  
+class="wheel-label bad">  <span>✕</span>
 
-<!-- SPIN -->
+BAD<br>
+LUCK
 
-<article class="card reveal">
+</div>  <div  
+class="wheel-label plus2">  +2
 
-<div class="card-head">
+<small>  
+ROVER  
+</small>  </div>  <div  
+class="wheel-label plus4">  +4
 
-<div class="card-icon">🎡</div>
+<small>  
+ROVER  
+</small>  </div>  <div  
+class="wheel-label plus5">  +5
 
-<span class="card-tag">3 / DAY</span>
+<small>  
+ROVER  
+</small>  </div>  <div  
+class="wheel-label plus6">  +6
 
-</div>
+<small>  
+ROVER  
+</small>  </div>  <div  
+class="wheel-label mystery">  🎁
 
-<h3>SPIN WHEEL</h3>
-
-<p>
-Spin up to three times every day.
-Most spins are unlucky, but rare rewards can appear.
-</p>
-
-<div class="spin-area">
-
-<div class="spin-counter">
-
-<span>SPINS LEFT</span>
-
-<strong id="spinCount">3 / 3</strong>
-
-</div>
-
-<div class="wheel-wrap">
-
-<div class="pointer"></div>
-
-<div class="wheel" id="wheel">
-
-<div class="wheel-shine"></div>
-
-<div class="wheel-label bad">
-<span>✕</span>
-BAD<br>LUCK
-</div>
-
-<div class="wheel-label plus2">
-+2
-<small>ROVER</small>
-</div>
-
-<div class="wheel-label plus4">
-+4
-<small>ROVER</small>
-</div>
-
-<div class="wheel-label plus5">
-+5
-<small>ROVER</small>
-</div>
-
-<div class="wheel-label plus6">
-+6
-<small>ROVER</small>
-</div>
-
-<div class="wheel-label mystery">
-🎁
-<small>MYSTERY</small>
-</div>
-
-</div>
-</div>
-
-<div class="reward-display" id="spinRewardDisplay">
-
-<div class="reward-display-title">
-READY TO SPIN
-</div>
-
-<div class="reward-display-sub">
-3 CHANCES TODAY
-</div>
-
-</div>
-
-</div>
-
-<button class="btn" id="spinButton" type="button">
+<small>  
+MYSTERY  
+</small>  </div>  </div>  </div>  <div  
+class="reward-display"  
+id="spinRewardDisplay">  <div class="reward-display-title">  
+READY TO SPIN  
+</div>  <div class="reward-display-sub">  
+3 CHANCES TODAY  
+</div>  </div>  </div>  <button  
+class="btn"  
+id="spinButton"  
+type="button">
 SPIN NOW
 </button>
 
-</article>
-
-<!-- MYSTERY -->
-
-<article class="card reveal">
-
-<div class="card-head">
-
-<div class="card-icon">🎁</div>
-
-<span class="card-tag">KEY REQUIRED</span>
-
-</div>
-
-<h3>MYSTERY BOX</h3>
-
-<p>
-Find a Mystery Reward from the wheel to receive a key.
-Use that key to unlock this box.
-</p>
-
-<div class="mystery">
-
-<div class="key-counter">
-
-<span>MYSTERY KEYS</span>
-
-<strong id="mysteryKeys">0</strong>
-
-</div>
-
-<div class="mystery-box locked" id="mysteryBox">🔒</div>
-
-<div class="mystery-result" id="mysteryResult">
-BOX LOCKED
-</div>
-
-<div class="mystery-help" id="mysteryHelp">
-Connect your wallet to start earning.
-</div>
-
-</div>
-
-<button class="btn secondary" id="mysteryButton" type="button" disabled>
+</article>  <!-- MYSTERY BOX -->  <article class="card reveal">  <div class="card-head">  <div class="card-icon">  
+🎁  
+</div>  <span class="card-tag">  
+KEY REQUIRED  
+</span>  </div>  <h3>  
+MYSTERY BOX  
+</h3>  <p>  
+Find a Mystery Reward from the wheel to receive a key.  
+Use that key to unlock this box.  
+</p>  <div class="mystery">  <div class="key-counter">  <span>  
+MYSTERY KEYS  
+</span>  <strong id="mysteryKeys">  
+0  
+</strong>  </div>  <div  
+class="mystery-box locked"  
+id="mysteryBox">  
+🔒  
+</div>  <div  
+class="mystery-result"  
+id="mysteryResult">  
+BOX LOCKED  
+</div>  <div  
+class="mystery-help"  
+id="mysteryHelp">  
+Spin the wheel and find a Mystery Reward first.  
+</div>  </div>  <button  
+class="btn secondary"  
+id="mysteryButton"  
+type="button"  
+disabled>
 NO KEY
 </button>
 
-</article>
-
-<!-- ACHIEVEMENTS -->
-
-<article class="card reveal">
-
-<div class="card-head">
-
-<div class="card-icon">🏆</div>
-
-<span class="card-tag">PROFILE</span>
-
-</div>
-
-<h3>ACHIEVEMENTS</h3>
-
-<p>
-Build your activity and unlock Rover milestones.
-</p>
-
-<div class="achievement-list">
-
-<div class="achievement locked" id="achievementFirst">
-
-<div class="achievement-icon">🚀</div>
-
-<small>FIRST STEP</small>
-
-<div class="achievement-progress" id="achievementFirstText">
-0 / 1
-</div>
-
-</div>
-
-<div class="achievement locked" id="achievementStreak">
-
-<div class="achievement-icon">🔥</div>
-
-<small>STREAK</small>
-
-<div class="achievement-progress" id="achievementStreakText">
-0 / 7
-</div>
-
-</div>
-
-<div class="achievement locked" id="achievementSpinner">
-
-<div class="achievement-icon">🎡</div>
-
-<small>SPINNER</small>
-
-<div class="achievement-progress" id="achievementSpinnerText">
-0 / 30
-</div>
-
-</div>
-
-<div class="achievement locked" id="achievementMystery">
-
-<div class="achievement-icon">🎁</div>
-
-<small>MYSTERY HUNTER</small>
-
-<div class="achievement-progress" id="achievementMysteryText">
-0 / 5
-</div>
-
-</div>
-
-</div>
-
-</article>
-
-</section>
-
-<div class="quick reveal">
-
-<a href="../my-rover/">
-MY ROVER
-<span>View your Rover activity</span>
-</a>
-
-<a href="../leaderboard/">
-LEADERBOARD
-<span>See community rankings</span>
-</a>
-
-<a href="../referral/">
-REFERRAL
-<span>Invite genuine Rover users</span>
-</a>
-
-</div>
-
-<div class="info reveal">
-
-<strong>ROVER HUB SYSTEM</strong>
-
-<span>
-Complete activities, collect rewards and build your Rover profile.
-</span>
-
-</div>
-
-</div>
-</main>
-
-<footer>
-
-<div class="wrap footer">
-
-<div><b>THE HOOD ROVER</b></div>
-
-<div>RETRO SYSTEM // 2026</div>
-
-</div>
-
-</footer>
-
-
-<script>
-
-/* =========================================================
-   ROVER HUB — FINAL BACKEND VERSION
-========================================================= */
-
-const SUPABASE_URL =
-"https://hyshlvuywbwhhjgqwfwi.supabase.co";
-
-const SUPABASE_PUBLISHABLE_KEY =
-"sb_publishable_LWmPzfGLuzdjDZvnwKs0Ug_Gvs5yROF";
-
-let supabaseClient = null;
-
-try{
-
-  if(
-    window.supabase &&
-    typeof window.supabase.createClient === "function"
-  ){
-
-    supabaseClient =
-    window.supabase.createClient(
-      SUPABASE_URL,
-      SUPABASE_PUBLISHABLE_KEY
-    );
-
-  }
-
-}catch(error){
-
-  console.error(
-    "Supabase initialization error:",
-    error
-  );
-
-}
-
-
-/* =========================================================
-   ELEMENTS
-========================================================= */
-
-const menu =
-document.getElementById("menu");
-
-const nav =
-document.getElementById("nav");
-
-const connectWalletButton =
-document.getElementById("connectWalletButton");
-
-const walletStatus =
-document.getElementById("walletStatus");
-
-const checkinButton =
-document.getElementById("checkinButton");
-
-const streakNumber =
-document.getElementById("streakNumber");
-
-const missionCheckin =
-document.getElementById("missionCheckin");
-
-const missionQuiz =
-document.getElementById("missionQuiz");
-
-const missionSpin =
-document.getElementById("missionSpin");
-
-const missionMystery =
-document.getElementById("missionMystery");
-
-const roverBalance =
-document.getElementById("roverBalance");
-
-const roverToday =
-document.getElementById("roverToday");
-
-const quizButton =
-document.getElementById("quizButton");
-
-const quizStatus =
-document.getElementById("quizStatus");
-
-const spinButton =
-document.getElementById("spinButton");
-
-const spinCount =
-document.getElementById("spinCount");
-
-const wheel =
-document.getElementById("wheel");
-
-const spinRewardDisplay =
-document.getElementById("spinRewardDisplay");
-
-const mysteryKeys =
-document.getElementById("mysteryKeys");
-
-const mysteryBox =
-document.getElementById("mysteryBox");
-
-const mysteryButton =
-document.getElementById("mysteryButton");
-
-const mysteryResult =
-document.getElementById("mysteryResult");
-
-const mysteryHelp =
-document.getElementById("mysteryHelp");
-
-
-/* =========================================================
-   WALLET
-========================================================= */
-
-let walletAddress = null;
-
-const WALLET_STORAGE_KEY =
-"roverHubWallet";
-
-const WALLET_DISCONNECTED_KEY =
-"roverHubWalletDisconnected";
-
-
-function todayKey(){
-
-  const d = new Date();
-
-  return d.toLocaleDateString(
-    "en-CA"
-  );
-
-}
-
-
-function shortAddress(address){
-
-  if(!address)
-  return "";
-
-  return (
-    address.slice(0,6) +
-    "..." +
-    address.slice(-4)
-  );
-
-}
-
-
-function updateWalletUI(address){
-
-  if(!address){
-
-    walletAddress = null;
-
-    walletStatus.textContent =
-    "WALLET: NOT CONNECTED";
-
-    connectWalletButton.textContent =
-    "CONNECT WALLET";
-
-    return;
-
-  }
-
-  walletAddress =
-  address.toLowerCase();
-
-  walletStatus.textContent =
-  "WALLET: " +
-  shortAddress(walletAddress);
-
-  connectWalletButton.textContent =
-  shortAddress(walletAddress);
-
-}
-
-
-function saveWallet(address){
-
-  localStorage.setItem(
-    WALLET_STORAGE_KEY,
-    address.toLowerCase()
-  );
-
-  localStorage.removeItem(
-    WALLET_DISCONNECTED_KEY
-  );
-
-}
-
-
-function clearWalletState(){
-
-  localStorage.removeItem(
-    WALLET_STORAGE_KEY
-  );
-
-  localStorage.setItem(
-    WALLET_DISCONNECTED_KEY,
-    "1"
-  );
-
-  walletAddress = null;
-
-  updateWalletUI(null);
-
-  resetWalletUI();
-
-}
-
-
-/* =========================================================
-   MOBILE MENU
-========================================================= */
-
-menu.addEventListener(
-  "click",
-  ()=>{
-    nav.classList.toggle("open");
-  }
-);
-
-
-nav.querySelectorAll("a").forEach(
-  link=>{
-    link.addEventListener(
-      "click",
-      ()=>{
-        nav.classList.remove("open");
-      }
-    );
-  }
-);
-
-
-/* =========================================================
-   SUPABASE RPC
-========================================================= */
-
-async function rpc(
-  functionName,
-  args={}
-){
-
-  if(!supabaseClient){
-
-    throw new Error(
-      "Supabase client is not available."
-    );
-
-  }
-
-  const {
-    data,
-    error
-  } =
-  await supabaseClient.rpc(
-    functionName,
-    args
-  );
-
-  if(error){
-
-    console.error(
-      "RPC ERROR:",
-      functionName,
-      error
-    );
-
-    throw error;
-
-  }
-
-  return data;
-
-}
-
-
-/* =========================================================
-   BACKEND STATE
-========================================================= */
-
-let backend = {
-
-  balance:0,
-  today:0,
-  history:[],
-  status:null,
-  streak:0,
-  spinsToday:0,
-  mysteryKeys:0,
-  mysteryOpened:0,
-  totalSpins:0,
-  checkins:0
-
-};
-
-
-/* =========================================================
-   BALANCE
-========================================================= */
-
-async function fetchBalance(){
-
-  if(!walletAddress)
-  return;
-
-  const data =
-  await rpc(
-    "get_rover_balance",
-    {
-      p_wallet:walletAddress
-    }
-  );
-
-  const row =
-  Array.isArray(data)
-  ? data[0]
-  : data;
-
-  backend.balance =
-  Number(
-    row?.balance || 0
-  );
-
-  backend.today =
-  Number(
-    row?.today_earned || 0
-  );
-
-}
-
-
-/* =========================================================
-   STATUS
-========================================================= */
-
-async function fetchRewardStatus(){
-
-  if(!walletAddress)
-  return;
-
-  const data =
-  await rpc(
-    "rover_reward_status",
-    {
-      p_wallet:walletAddress
-    }
-  );
-
-  backend.status =
-  Array.isArray(data)
-  ? data[0]
-  : data;
-
-}
-
-
-/* =========================================================
-   HISTORY
-========================================================= */
-
-async function fetchHistory(){
-
-  if(!walletAddress)
-  return;
-
-  const data =
-  await rpc(
-    "get_rover_history",
-    {
-      p_wallet:walletAddress
-    }
-  );
-
-  backend.history =
-  Array.isArray(data)
-  ? data
-  : [];
-
-}
-
-
-/* =========================================================
-   DATE HELPER
-========================================================= */
-
-function historyDate(item){
-
-  if(!item)
-  return null;
-
-  if(item.created_at){
-
-    const d =
-    new Date(
-      item.created_at
-    );
-
-    if(!Number.isNaN(d.getTime())){
-
-      return d.toLocaleDateString(
-        "en-CA"
-      );
-
-    }
-
-  }
-
-  if(item.reward_date){
-
-    return String(
-      item.reward_date
-    ).slice(0,10);
-
-  }
-
-  return null;
-
-}
-
-
-/* =========================================================
-   ANALYSE HISTORY
-========================================================= */
-
-function analyseHistory(){
-
-  const history =
-  backend.history || [];
-
-  const today =
-  todayKey();
-
-
-  const todayHistory =
-  history.filter(
-    item =>
-    historyDate(item) === today
-  );
-
-
-  /*
-    IMPORTANT:
-    Every spin is recorded by the backend,
-    including BAD LUCK with amount 0.
-  */
-
-  backend.spinsToday =
-  todayHistory.filter(
-    item =>
-    String(
-      item.reward_type || ""
-    ).toLowerCase() === "spin"
-  ).length;
-
-
-  backend.totalSpins =
-  history.filter(
-    item =>
-    String(
-      item.reward_type || ""
-    ).toLowerCase() === "spin"
-  ).length;
-
-
-  backend.mysteryOpened =
-  history.filter(
-    item =>
-    String(
-      item.reward_type || ""
-    ).toLowerCase() === "mystery_box"
-  ).length;
-
-
-  const keysEarned =
-  history.filter(
-    item =>
-    String(
-      item.reward_type || ""
-    ).toLowerCase() === "mystery_key"
-  ).length;
-
-
-  backend.mysteryKeys =
-  Math.max(
-    0,
-    keysEarned -
-    backend.mysteryOpened
-  );
-
-
-  const checkins =
-  history.filter(
-    item=>{
-
-      const type =
-      String(
-        item.reward_type || ""
-      ).toLowerCase();
-
-      return (
-        type === "daily_checkin" ||
-        type === "checkin"
-      );
-
-    }
-  );
-
-
-  backend.checkins =
-  checkins.length;
-
-
-  backend.streak =
-  calculateStreak(
-    checkins
-  );
-
-}
-
-
-/* =========================================================
-   STREAK
-========================================================= */
-
-function calculateStreak(
-  checkins
-){
-
-  if(!checkins.length)
-  return 0;
-
-
-  const dates =
-  [
-    ...new Set(
-      checkins
-      .map(historyDate)
-      .filter(Boolean)
-    )
-  ].sort().reverse();
-
-
-  if(!dates.length)
-  return 0;
-
-
-  const today =
-  todayKey();
-
-
-  let cursor =
-  new Date();
-
-
-  if(!dates.includes(today)){
-
-    cursor.setDate(
-      cursor.getDate() - 1
-    );
-
-  }
-
-
-  let streak = 0;
-
-
-  for(
-    const date of dates
-  ){
-
-    const expected =
-    cursor.toLocaleDateString(
-      "en-CA"
-    );
-
-
-    if(date !== expected)
-    break;
-
-
-    streak++;
-
-
-    cursor.setDate(
-      cursor.getDate() - 1
-    );
-
-  }
-
-
-  return streak;
-
-}
-
-
-/* =========================================================
-   REFRESH ALL BACKEND DATA
-========================================================= */
-
-async function refreshBackendState(){
-
-  if(!walletAddress)
-  return;
-
-
-  /*
-    Do them separately so one failing RPC
-    doesn't hide the other results.
-  */
-
-  try{
-    await fetchBalance();
-  }catch(error){
-    console.error(
-      "Balance error:",
-      error
-    );
-  }
-
-
-  try{
-    await fetchRewardStatus();
-  }catch(error){
-    console.error(
-      "Status error:",
-      error
-    );
-  }
-
-
-  try{
-    await fetchHistory();
-  }catch(error){
-    console.error(
-      "History error:",
-      error
-    );
-  }
-
-
-  analyseHistory();
-
-  updateAllBackendUI();
-
-}
-
-
-/* =========================================================
-   UPDATE UI
-========================================================= */
-
-function updateAllBackendUI(){
-
-  roverBalance.textContent =
-  backend.balance +
-  " ROVER";
-
-
-  roverToday.textContent =
-  "TODAY: +" +
-  backend.today +
-  " ROVER";
-
-
-  streakNumber.textContent =
-  backend.streak;
-
-
-  /* CHECK-IN */
-
-  const checkinDone =
-  Boolean(
-    backend.status &&
-    backend.status.checkin_claimed
-  );
-
-
-  if(checkinDone){
-
-    checkinButton.disabled =
-    true;
-
-    checkinButton.textContent =
-    "ALREADY CHECKED IN";
-
-    missionCheckin.textContent =
-    "DONE";
-
-    missionCheckin.classList.add(
-      "done"
-    );
-
-  }else{
-
-    checkinButton.disabled =
-    false;
-
-    checkinButton.textContent =
-    "DAILY CHECK-IN";
-
-    missionCheckin.textContent =
-    "READY";
-
-    missionCheckin.classList.remove(
-      "done"
-    );
-
-  }
-
-
-  /* QUIZ */
-
-  const quizDone =
-  Boolean(
-    backend.status &&
-    backend.status.quiz_claimed
-  );
-
-
-  const failedToday =
-  walletAddress
-  ?
-  localStorage.getItem(
-    "roverQuizFailed_" +
-    walletAddress +
-    "_" +
-    todayKey()
-  ) === "1"
-  :
-  false;
-
-
-  if(quizDone){
-
-    quizStatus.textContent =
-    "COMPLETED";
-
-    quizButton.textContent =
-    "QUIZ COMPLETED";
-
-    quizButton.disabled =
-    true;
-
-    missionQuiz.textContent =
-    "DONE";
-
-    missionQuiz.classList.add(
-      "done"
-    );
-
-  }else if(failedToday){
-
-    quizStatus.textContent =
-    "FAILED";
-
-    quizButton.textContent =
-    "TRY TOMORROW";
-
-    quizButton.disabled =
-    true;
-
-    missionQuiz.textContent =
-    "FAILED";
-
-    missionQuiz.classList.remove(
-      "done"
-    );
-
-  }else{
-
-    quizStatus.textContent =
-    "READY";
-
-    quizButton.textContent =
-    "START QUIZ";
-
-    quizButton.disabled =
-    false;
-
-    missionQuiz.textContent =
-    "0/1";
-
-    missionQuiz.classList.remove(
-      "done"
-    );
-
-  }
-
-
-  /* SPIN */
-
-  const used =
-  Math.min(
-    backend.spinsToday,
-    3
-  );
-
-
-  const left =
-  Math.max(
-    0,
-    3 - used
-  );
-
-
-  spinCount.textContent =
-  left +
-  " / 3";
-
-
-  missionSpin.textContent =
-  used +
-  "/3";
-
-
-  if(used >= 3){
-
-    spinButton.disabled =
-    true;
-
-    spinButton.textContent =
-    "COME BACK TOMORROW";
-
-    missionSpin.textContent =
-    "DONE";
-
-    missionSpin.classList.add(
-      "done"
-    );
-
-  }else{
-
-    if(!spinning){
-
-      spinButton.disabled =
-      false;
-
-      spinButton.textContent =
-      "SPIN NOW";
-
-    }
-
-    missionSpin.classList.remove(
-      "done"
-    );
-
-  }
-
-
-  /* MYSTERY */
-
-  mysteryKeys.textContent =
-  backend.mysteryKeys;
-
-
-  if(backend.mysteryKeys > 0){
-
-    mysteryBox.classList.remove(
-      "locked"
-    );
-
-    mysteryBox.textContent =
-    "🎁";
-
-    mysteryButton.disabled =
-    false;
-
-    mysteryButton.textContent =
-    "OPEN MYSTERY BOX";
-
-    mysteryResult.textContent =
-    "KEY READY";
-
-    mysteryHelp.textContent =
-    "Use 1 Mystery Key to reveal your hidden reward.";
-
-  }else{
-
-    mysteryBox.classList.add(
-      "locked"
-    );
-
-    mysteryBox.textContent =
-    "🔒";
-
-    mysteryButton.disabled =
-    true;
-
-    mysteryButton.textContent =
-    "NO KEY";
-
-    mysteryResult.textContent =
-    "BOX LOCKED";
-
-    mysteryHelp.textContent =
-    "Spin the wheel and find a Mystery Reward first.";
-
-  }
-
-
-  /*
-    Mystery mission.
-  */
-
-  if(
-    backend.mysteryOpened > 0
-  ){
-
-    missionMystery.textContent =
-    "DONE";
-
-    missionMystery.classList.add(
-      "done"
-    );
-
-  }else{
-
-    missionMystery.textContent =
-    "0/1";
-
-    missionMystery.classList.remove(
-      "done"
-    );
-
-  }
-
-
-  updateAchievements();
-
-}
-
-
-/* =========================================================
-   CLAIM REWARD
-========================================================= */
-
-async function claimRoverReward(
-  rewardType,
-  amount
-){
-
-  if(!walletAddress){
-
-    alert(
-      "CONNECT YOUR WALLET FIRST."
-    );
-
-    return false;
-
-  }
-
-
-  try{
-
-    const data =
-    await rpc(
-      "claim_rover_reward",
-      {
-        p_wallet:walletAddress,
-        p_reward_type:String(
-          rewardType
-        ),
-        p_amount:Number(
-          amount || 0
-        )
-      }
-    );
-
-
-    console.log(
-      "Reward result:",
-      data
-    );
-
-
-    /*
-      The backend returns success=false
-      when daily limits are reached.
-    */
-
-    if(
-      data &&
-      data.success === false
-    ){
-
-      if(
-        data.reason ===
-        "daily_spin_limit_reached"
-      ){
-
-        await refreshBackendState();
-
-        alert(
-          "YOU HAVE USED ALL 3 SPINS TODAY."
-        );
-
-      }else{
-
-        alert(
-          "REWARD NOT CLAIMED.\n\n" +
-          (
-            data.reason ||
-            "Please try again."
-          )
-        );
-
-      }
-
-      return false;
-
-    }
-
-
-    await refreshBackendState();
-
-    return true;
-
-  }catch(error){
-
-    console.error(
-      "Reward claim failed:",
-      error
-    );
-
-
-    alert(
-      "ROVER REWARD FAILED.\n\n" +
-      (
-        error?.message ||
-        "Please try again."
-      )
-    );
-
-
-    return false;
-
-  }
-
-}
-
-
-/* =========================================================
-   WALLET POPUP
-========================================================= */
-
-function showDisconnectPopup(){
-
-  const popup =
-  document.createElement(
-    "div"
-  );
-
-
-  popup.innerHTML = `
-
-  <div class="wallet-popup-overlay">
-
-    <div class="wallet-popup">
-
-      <div class="wallet-popup-icon">
-        🔌
-      </div>
-
-      <div class="wallet-popup-title">
-        WALLET CONNECTED
-      </div>
-
-      <div class="wallet-popup-address">
-        ${shortAddress(walletAddress)}
-      </div>
-
-      <p>
-        Do you want to disconnect this wallet
-        from Rover Hub?
-      </p>
-
-      <div class="wallet-popup-actions">
-
-        <button
-          class="btn secondary"
-          id="cancelDisconnect"
-          type="button">
-          CANCEL
-        </button>
-
-        <button
-          class="btn"
-          id="confirmDisconnect"
-          type="button">
-          DISCONNECT
-        </button>
-
-      </div>
-
-    </div>
-
-  </div>
-  `;
-
-
-  document.body.appendChild(
-    popup
-  );
-
-
-  document
-  .getElementById(
-    "cancelDisconnect"
-  )
-  .addEventListener(
-    "click",
-    ()=>{
-      popup.remove();
-    }
-  );
-
-
-  document
-  .getElementById(
-    "confirmDisconnect"
-  )
-  .addEventListener(
-    "click",
-    async()=>{
-
-      await disconnectWallet();
-
-      popup.remove();
-
-    }
-  );
-
-}
-
-
-/* =========================================================
-   DISCONNECT
-========================================================= */
-
-async function disconnectWallet(){
-
-  try{
-
-    if(window.ethereum){
-
-      try{
-
-        await window.ethereum.request({
-
-          method:
-          "wallet_revokePermissions",
-
-          params:[
-            {
-              eth_accounts:{}
-            }
-          ]
-
-        );
-
-      }catch(error){
-
-        console.log(
-          "Provider revoke not supported:",
-          error
-        );
-
-      }
-
-    }
-
-  }finally{
-
-    clearWalletState();
-
-  }
-
-}
-
-
-/* =========================================================
-   CONNECT
-========================================================= */
-
-async function connectWallet(){
-
-  if(!window.ethereum){
-
-    alert(
-      "NO WEB3 WALLET DETECTED.\n\n" +
-      "Please open Rover Hub inside your wallet browser."
-    );
-
-    return;
-
-  }
-
-
-  try{
-
-    connectWalletButton.disabled =
-    true;
-
-    connectWalletButton.textContent =
-    "CONNECTING...";
-
-
-    const accounts =
-    await window.ethereum.request({
-      method:"eth_requestAccounts"
-    });
-
-
-    if(
-      !accounts ||
-      !accounts.length
-    ){
-
-      throw new Error(
-        "No wallet account returned."
-      );
-
-    }
-
-
-    const address =
-    accounts[0].toLowerCase();
-
-
-    saveWallet(address);
-
-    updateWalletUI(address);
-
-    await loadWalletGame();
-
-
-  }catch(error){
-
-    console.error(
-      "Wallet connection failed:",
-      error
-    );
-
-
-    if(error.code === 4001){
-
-      alert(
-        "WALLET CONNECTION CANCELLED."
-      );
-
-    }else{
-
-      alert(
-        "WALLET CONNECTION FAILED.\n\n" +
-        (
-          error?.message ||
-          "Please try again."
-        )
-      );
-
-    }
-
-  }finally{
-
-    connectWalletButton.disabled =
-    false;
-
-  }
-
-}
-
-
-connectWalletButton.addEventListener(
-  "click",
-  ()=>{
-
-    if(walletAddress){
-
-      showDisconnectPopup();
-
-    }else{
-
-      connectWallet();
-
-    }
-
-  }
-);
-
-
-/* =========================================================
-   RESTORE WALLET
-========================================================= */
-
-async function restoreWallet(){
-
-  const savedWallet =
-  localStorage.getItem(
-    WALLET_STORAGE_KEY
-  );
-
-
-  const disconnected =
-  localStorage.getItem(
-    WALLET_DISCONNECTED_KEY
-  ) === "1";
-
-
-  if(disconnected){
-
-    updateWalletUI(null);
-
-    return;
-
-  }
-
-
-  if(!window.ethereum){
-
-    /*
-      If provider isn't available,
-      don't falsely show connected state.
-    */
-
-    updateWalletUI(null);
-
-    return;
-
-  }
-
-
-  try{
-
-    const accounts =
-    await window.ethereum.request({
-      method:"eth_accounts"
-    });
-
-
-    if(
-      accounts &&
-      accounts.length
-    ){
-
-      const address =
-      accounts[0].toLowerCase();
-
-
-      saveWallet(address);
-
-      updateWalletUI(address);
-
-      await loadWalletGame();
-
-      return;
-
-    }
-
-
-    /*
-      No provider account.
-    */
-
-    updateWalletUI(null);
-
-    /*
-      Keep saved wallet only as local history
-      but don't display it as connected.
-    */
-
-    if(savedWallet){
-
-      localStorage.removeItem(
-        WALLET_STORAGE_KEY
-      );
-
-    }
-
-  }catch(error){
-
-    console.error(
-      "Wallet restore failed:",
-      error
-    );
-
-    updateWalletUI(null);
-
-  }
-
-}
-
-
-/* =========================================================
-   ACCOUNT CHANGED
-========================================================= */
-
-if(window.ethereum){
-
-  window.ethereum.on(
-    "accountsChanged",
-    async accounts=>{
-
-      if(
-        !accounts ||
-        !accounts.length
-      ){
-
-        clearWalletState();
-
-        return;
-
-      }
-
-
-      const address =
-      accounts[0].toLowerCase();
-
-
-      saveWallet(address);
-
-      updateWalletUI(address);
-
-      await loadWalletGame();
-
-    }
-  );
-
-}
-
-
-/* =========================================================
-   DAILY CHECK-IN
-========================================================= */
-
-checkinButton.addEventListener(
-  "click",
-  async()=>{
-
-    if(!walletAddress){
-
-      alert(
-        "CONNECT YOUR WALLET FIRST."
-      );
-
-      return;
-
-    }
-
-
-    if(
-      backend.status &&
-      backend.status.checkin_claimed
-    ){
-
-      return;
-
-    }
-
-
-    checkinButton.disabled =
-    true;
-
-    checkinButton.textContent =
-    "CHECKING...";
-
-
-    try{
-
-      const result =
-      await rpc(
-        "daily_checkin",
-        {
-          p_wallet:walletAddress
-        }
-      );
-
-
-      console.log(
-        "Daily check-in result:",
-        result
-      );
-
-
-      if(
-        result &&
-        result.success === false
-      ){
-
-        await refreshBackendState();
-
-        if(
-          result.already_checked_in
-        ){
-
-          alert(
-            "YOU ALREADY CHECKED IN TODAY."
-          );
-
-        }else{
-
-          alert(
-            "CHECK-IN WAS NOT COMPLETED."
-          );
-
-        }
-
-        return;
-
-      }
-
-
-      await refreshBackendState();
-
-
-      checkinButton.textContent =
-      "CHECKED IN ✓";
-
-
-    }catch(error){
-
-      console.error(
-        "Check-in failed:",
-        error
-      );
-
-
-      alert(
-        "CHECK-IN FAILED.\n\n" +
-        (
-          error?.message ||
-          "Please try again."
-        )
-      );
-
-
-      checkinButton.disabled =
-      false;
-
-      checkinButton.textContent =
-      "DAILY CHECK-IN";
-
-    }
-
-  }
-);
-
-
-/* =========================================================
-   QUIZ DATA
-========================================================= */
-
-const quizQuestions = [
-
-{
-  question:"What is The Hood Rover?",
-  options:[
-    "A Rover NFT ecosystem",
-    "A music platform",
-    "A payment app",
-    "A news website"
-  ],
-  answer:0
-},
-
-{
-  question:"What is the main purpose of Rover Hub?",
-  options:[
-    "Watch movies",
-    "Complete activities and earn Rover",
-    "Buy groceries",
-    "Create emails"
-  ],
-  answer:1
-},
-
-{
-  question:"How many NFTs are planned in The Hood Rover collection?",
-  options:[
-    "404",
-    "555",
-    "1,111",
-    "10,000"
-  ],
-  answer:2
-},
-
-{
-  question:"How many times can a user attempt the daily quiz?",
-  options:[
-    "Unlimited",
-    "Three times",
-    "Two times",
-    "One time"
-  ],
-  answer:3
-},
-
-{
-  question:"What happens if a quiz answer is wrong?",
-  options:[
-    "The user gets bonus Rover",
-    "The quiz is failed",
-    "The user gets another attempt",
-    "Nothing happens"
-  ],
-  answer:1
-}
-
-];
-
-
-/* =========================================================
-   QUIZ
-========================================================= */
-
-function openQuiz(){
-
-  if(!walletAddress){
-
-    alert(
-      "CONNECT YOUR WALLET FIRST."
-    );
-
-    return;
-
-  }
-
-
-  const failedKey =
-  "roverQuizFailed_" +
-  walletAddress +
-  "_" +
-  todayKey();
-
-
-  if(
-    backend.status &&
-    backend.status.quiz_claimed
-  ){
-
-    alert(
-      "TODAY'S QUIZ IS ALREADY COMPLETED."
-    );
-
-    return;
-
-  }
-
-
-  if(
-    localStorage.getItem(
-      failedKey
-    ) === "1"
-  ){
-
-    alert(
-      "TODAY'S QUIZ HAS ALREADY BEEN FAILED.\n\n" +
-      "TRY AGAIN TOMORROW."
-    );
-
-    return;
-
-  }
-
-
-  let questionIndex = 0;
-  let score = 0;
-  let finished = false;
-
-
-  const overlay =
-  document.createElement(
-    "div"
-  );
-
-  overlay.className =
-  "quiz-overlay";
-
-  document.body.appendChild(
-    overlay
-  );
-
-
-  function renderQuestion(){
-
-    const q =
-    quizQuestions[
-      questionIndex
-    ];
-
-
-    overlay.innerHTML = `
-
-      <div class="quiz-modal">
-
-        <div class="quiz-top">
-
-          <div class="quiz-title">
-            ROVER QUIZ
-          </div>
-
-          <div class="quiz-progress">
-            ${questionIndex + 1}
-            /
-            ${quizQuestions.length}
-          </div>
-
-        </div>
-
-        <div class="quiz-question">
-          ${q.question}
-        </div>
-
-        <div class="quiz-options">
-
-          ${q.options.map(
-            (option,index)=>`
-
-              <button
-                class="quiz-option"
-                data-answer="${index}"
-                type="button">
-
-                ${String.fromCharCode(65+index)}.
-                ${option}
-
-              </button>
-
-            `
-          ).join("")}
-
-        </div>
-
-        <div class="quiz-warning">
-          ONE WRONG ANSWER =
-          TODAY'S QUIZ FAILED.
-        </div>
-
-      </div>
-
-    `;
-
-
-    overlay
-    .querySelectorAll(
-      ".quiz-option"
-    )
-    .forEach(
-      button=>{
-
-        button.addEventListener(
-          "click",
-          ()=>{
-
-            const answer =
-            Number(
-              button.dataset.answer
-            );
-
-
-            if(
-              answer !==
-              q.answer
-            ){
-
-              finishQuiz(false);
-
-              return;
-
-            }
-
-
-            score++;
-
-            questionIndex++;
-
-
-            if(
-              questionIndex >=
-              quizQuestions.length
-            ){
-
-              finishQuiz(true);
-
-              return;
-
-            }
-
-
-            renderQuestion();
-
-          }
-        );
-
-      }
-    );
-
-  }
-
-
-  async function finishQuiz(
-    passed
-  ){
-
-    if(finished)
-    return;
-
-    finished = true;
-
-
-    if(!passed){
-
-      localStorage.setItem(
-        failedKey,
-        "1"
-      );
-
-
-      overlay.innerHTML = `
-
-        <div class="quiz-modal">
-
-          <div class="quiz-result">
-
-            <div class="quiz-result-icon">
-              ❌
-            </div>
-
-            <div class="quiz-result-title">
-              QUIZ FAILED
-            </div>
-
-            <div class="quiz-result-score">
-              ${score} / 5 CORRECT
-            </div>
-
-            <div class="quiz-result-reward">
-              0 ROVER
-            </div>
-
-            <p>
-              One wrong answer ends today's quiz.
-              Try again tomorrow.
-            </p>
-
-            <button
-              class="btn secondary quiz-close"
-              id="closeQuiz"
-              type="button">
-              CLOSE
-            </button>
-
-          </div>
-
-        </div>
-      `;
-
-
-      document
-      .getElementById(
-        "closeQuiz"
-      )
-      .addEventListener(
-        "click",
-        ()=>{
-          overlay.remove();
-          refreshBackendState();
-        }
-      );
-
-
-      await refreshBackendState();
-
-      return;
-
-    }
-
-
-    overlay.innerHTML = `
-
-      <div class="quiz-modal">
-
-        <div class="quiz-result">
-
-          <div class="quiz-result-icon">
-            ⏳
-          </div>
-
-          <div class="quiz-result-title">
-            CLAIMING ROVER...
-          </div>
-
-          <div class="quiz-result-score">
-            5 / 5 CORRECT
-          </div>
-
-        </div>
-
-      </div>
-    `;
-
-
-    const success =
-    await claimRoverReward(
-      "quiz",
-      2
-    );
-
-
-    if(success){
-
-      /*
-        Remove failure marker if any.
-      */
-
-      localStorage.removeItem(
-        failedKey
-      );
-
-
-      overlay.innerHTML = `
-
-        <div class="quiz-modal">
-
-          <div class="quiz-result">
-
-            <div class="quiz-result-icon">
-              🎉
-            </div>
-
-            <div class="quiz-result-title">
-              QUIZ COMPLETE
-            </div>
-
-            <div class="quiz-result-score">
-              5 / 5 CORRECT
-            </div>
-
-            <div class="quiz-result-reward">
-              +2 ROVER
-            </div>
-
-            <button
-              class="btn quiz-close"
-              id="closeQuiz"
-              type="button">
-              DONE
-            </button>
-
-          </div>
-
-        </div>
-      `;
-
-
-      document
-      .getElementById(
-        "closeQuiz"
-      )
-      .addEventListener(
-        "click",
-        ()=>{
-          overlay.remove();
-        }
-      );
-
-
-    }else{
-
-      finished = false;
-
-    }
-
-  }
-
-
-  renderQuestion();
-
-}
-
-
-quizButton.addEventListener(
-  "click",
-  openQuiz
-);
-
-
-/* =========================================================
-   SPIN SYSTEM
-========================================================= */
-
-let spinning = false;
-
-let rotation = 0;
-
-
-const spinRewards = [
-
-{
-  name:"BAD LUCK",
-  type:"bad",
-  value:0,
-  weight:65
-},
-
-{
-  name:"+2 ROVER",
-  type:"rover",
-  value:2,
-  weight:12
-},
-
-{
-  name:"+4 ROVER",
-  type:"rover",
-  value:4,
-  weight:8
-},
-
-{
-  name:"+5 ROVER",
-  type:"rover",
-  value:5,
-  weight:6
-},
-
-{
-  name:"+6 ROVER",
-  type:"rover",
-  value:6,
-  weight:5
-},
-
-{
-  name:"MYSTERY REWARD",
-  type:"mystery",
-  value:1,
-  weight:4
-}
-
-];
-
-
-const wheelSectorCenters = {
-
-  "BAD LUCK":0,
-  "+2 ROVER":60,
-  "+4 ROVER":120,
-  "+5 ROVER":180,
-  "+6 ROVER":240,
-  "MYSTERY REWARD":300
-
-};
-
-
-function randomSpinReward(){
-
-  const total =
-  spinRewards.reduce(
-    (sum,item)=>
-    sum + item.weight,
-    0
-  );
-
-
-  let random =
-  Math.random() *
-  total;
-
-
-  for(
-    const reward of spinRewards
-  ){
-
-    random -=
-    reward.weight;
-
-
-    if(random <= 0){
-
-      return reward;
-
-    }
-
-  }
-
-
-  return spinRewards[0];
-
-}
-
-
-function normalizeDegrees(value){
-
-  return (
-    (
-      value % 360
-    ) + 360
-  ) % 360;
-
-}
-
-
-function showSpinReward(
-  reward
-){
-
-  spinRewardDisplay.className =
-  "reward-display";
-
-
-  if(
-    reward.type ===
-    "bad"
-  ){
-
-    spinRewardDisplay.classList.add(
-      "bad"
-    );
-
-    spinRewardDisplay.innerHTML = `
-
-      <div class="reward-display-title">
-        ❌ BAD LUCK
-      </div>
-
-      <div class="reward-display-sub">
-        NO REWARD THIS TIME
-      </div>
-    `;
-
-    return;
-
-  }
-
-
-  if(
-    reward.type ===
-    "rover"
-  ){
-
-    spinRewardDisplay.innerHTML = `
-
-      <div class="reward-display-title">
-        🎉 ROVER REWARD
-      </div>
-
-      <div class="reward-display-sub">
-        ${reward.name}
-      </div>
-    `;
-
-    return;
-
-  }
-
-
-  if(
-    reward.type ===
-    "mystery"
-  ){
-
-    spinRewardDisplay.classList.add(
-      "mystery"
-    );
-
-    spinRewardDisplay.innerHTML = `
-
-      <div class="reward-display-title">
-        🎁 MYSTERY REWARD
-      </div>
-
-      <div class="reward-display-sub">
-        +1 MYSTERY KEY
-      </div>
-    `;
-
-  }
-
-}
-
-
-/* =========================================================
-   SPIN
-========================================================= */
-
-spinButton.addEventListener(
-  "click",
-  async()=>{
-
-    if(spinning)
-    return;
-
-
-    if(!walletAddress){
-
-      alert(
-        "CONNECT YOUR WALLET FIRST."
-      );
-
-      return;
-
-    }
-
-
-    /*
-      Always refresh first.
-      Backend history is the authority.
-    */
-
-    await refreshBackendState();
-
-
-    if(
-      backend.spinsToday >= 3
-    ){
-
-      alert(
-        "YOU HAVE USED ALL 3 SPINS TODAY.\n\n" +
-        "COME BACK TOMORROW."
-      );
-
-      return;
-
-    }
-
-
-    spinning = true;
-
-    spinButton.disabled =
-    true;
-
-    spinButton.textContent =
-    "SPINNING...";
-
-
-    /*
-      Select visual result.
-    */
-
-    const reward =
-    randomSpinReward();
-
-
-    const targetAngle =
-    wheelSectorCenters[
-      reward.name
-    ];
-
-
-    const current =
-    normalizeDegrees(
-      rotation
-    );
-
-
-    let delta =
-    normalizeDegrees(
-      -targetAngle -
-      current
-    );
-
-
-    const fullSpins =
-    5 +
-    Math.floor(
-      Math.random() * 3
-    );
-
-
-    delta +=
-    fullSpins * 360;
-
-
-    rotation +=
-    delta;
-
-
-    wheel.style.transform =
-    `rotate(${rotation}deg)`;
-
-
-    setTimeout(
-      async()=>{
-
-        showSpinReward(
-          reward
-        );
-
-
-        /*
-          CRITICAL FIX:
-          EVERY spin must be sent to backend.
-
-          Previously BAD LUCK did not create
-          a spin record, which made spins unlimited.
-        */
-
-        let success = false;
-
-
-        if(
-          reward.type ===
-          "rover"
-        ){
-
-          success =
-          await claimRoverReward(
-            "spin",
-            reward.value
-          );
-
-        }else if(
-          reward.type ===
-          "mystery"
-        ){
-
-          success =
-          await claimRoverReward(
-            "spin",
-            0
-          );
-
-
-          if(success){
-
-            /*
-              Create the mystery key separately.
-            */
-
-            await claimRoverReward(
-              "mystery_key",
-              0
-            );
-
-          }
-
-        }else{
-
-          /*
-            BAD LUCK = 0 ROVER,
-            BUT IT STILL COUNTS AS A SPIN.
-          */
-
-          success =
-          await claimRoverReward(
-            "spin",
-            0
-          );
-
-        }
-
-
-        /*
-          If backend refused the spin,
-          refresh the real state.
-        */
-
-        await refreshBackendState();
-
-
-        spinning = false;
-
-
-        if(
-          backend.spinsToday >= 3
-        ){
-
-          spinButton.disabled =
-          true;
-
-          spinButton.textContent =
-          "COME BACK TOMORROW";
-
-        }else{
-
-          spinButton.disabled =
-          false;
-
-          spinButton.textContent =
-          "SPIN NOW";
-
-        }
-
-      },
-      4700
-    );
-
-  }
-);
-
-
-/* =========================================================
-   MYSTERY BOX
-========================================================= */
-
-const mysteryRewards = [
-
-{
-  name:"+2 ROVER",
-  type:"rover",
-  value:2
-},
-
-{
-  name:"+5 ROVER",
-  type:"rover",
-  value:5
-},
-
-{
-  name:"+10 ROVER",
-  type:"rover",
-  value:10
-},
-
-{
-  name:"BONUS ROVER",
-  type:"rover",
-  value:4
-},
-
-{
-  name:"SPECIAL DROP",
-  type:"special",
-  value:0
-}
-
-];
-
-
-mysteryButton.addEventListener(
-  "click",
-  async()=>{
-
-    if(!walletAddress){
-
-      alert(
-        "CONNECT YOUR WALLET FIRST."
-      );
-
-      return;
-
-    }
-
-
-    await refreshBackendState();
-
-
-    if(
-      backend.mysteryKeys <= 0
-    ){
-
-      updateAllBackendUI();
-
-      return;
-
-    }
-
-
-    mysteryButton.disabled =
-    true;
-
-    mysteryBox.style.transform =
-    "scale(.82) rotate(8deg)";
-
-    mysteryResult.textContent =
-    "OPENING...";
-
-    mysteryHelp.textContent =
-    "Unlocking your hidden reward...";
-
-
-    setTimeout(
-      async()=>{
-
-        const reward =
-        mysteryRewards[
-          Math.floor(
-            Math.random() *
-            mysteryRewards.length
-          )
-        ];
-
-
-        /*
-          First consume the key.
-
-          The backend's mystery_box record
-          represents one used key.
-        */
-
-        const success =
-        await claimRoverReward(
-          "mystery_box",
-          reward.type === "rover"
-          ? reward.value
-          : 0
-        );
-
-
-        if(success){
-
-          if(
-            reward.type ===
-            "rover"
-          ){
-
-            mysteryResult.textContent =
-            "🎉 " +
-            reward.name;
-
-          }else{
-
-            mysteryResult.textContent =
-            "⭐ SPECIAL DROP";
-
-          }
-
-        }else{
-
-          mysteryResult.textContent =
-          "REWARD FAILED";
-
-        }
-
-
-        mysteryBox.textContent =
-        "★";
-
-        mysteryBox.style.transform =
-        "scale(1) rotate(0deg)";
-
-        mysteryHelp.textContent =
-        "Your Mystery Key was consumed.";
-
-
-        await refreshBackendState();
-
-      },
-      1000
-    );
-
-  }
-);
-
-
-/* =========================================================
-   ACHIEVEMENTS
-========================================================= */
-
-function unlockAchievement(
-  element,
-  textElement,
-  current,
-  target
-){
-
-  const text =
-  document.getElementById(
-    textElement
-  );
-
-  const elementBox =
-  document.getElementById(
-    element
-  );
-
-
-  text.textContent =
-  current +
-  " / " +
-  target;
-
-
-  if(
-    current >= target
-  ){
-
-    elementBox.classList.remove(
-      "locked"
-    );
-
-    elementBox.classList.add(
-      "unlocked"
-    );
-
-    text.textContent =
-    "✓ UNLOCKED";
-
-  }else{
-
-    elementBox.classList.add(
-      "locked"
-    );
-
-    elementBox.classList.remove(
-      "unlocked"
-    );
-
-  }
-
-}
-
-
-function updateAchievements(){
-
-  if(!walletAddress){
-
-    unlockAchievement(
-      "achievementFirst",
-      "achievementFirstText",
-      0,
-      1
-    );
-
-    unlockAchievement(
-      "achievementStreak",
-      "achievementStreakText",
-      0,
-      7
-    );
-
-    unlockAchievement(
-      "achievementSpinner",
-      "achievementSpinnerText",
-      0,
-      30
-    );
-
-    unlockAchievement(
-      "achievementMystery",
-      "achievementMysteryText",
-      0,
-      5
-    );
-
-    return;
-
-  }
-
-
-  unlockAchievement(
-    "achievementFirst",
-    "achievementFirstText",
-    backend.checkins > 0
-    ? 1
-    : 0,
-    1
-  );
-
-
-  unlockAchievement(
-    "achievementStreak",
-    "achievementStreakText",
-    Math.min(
-      backend.streak,
-      7
-    ),
-    7
-  );
-
-
-  unlockAchievement(
-    "achievementSpinner",
-    "achievementSpinnerText",
-    Math.min(
-      backend.totalSpins,
-      30
-    ),
-    30
-  );
-
-
-  unlockAchievement(
-    "achievementMystery",
-    "achievementMysteryText",
-    Math.min(
-      backend.mysteryOpened,
-      5
-    ),
-    5
-  );
-
-}
-
-
-/* =========================================================
-   LOAD WALLET GAME
-========================================================= */
-
-async function loadWalletGame(){
-
-  if(!walletAddress)
-  return;
-
-
-  roverBalance.textContent =
-  "LOADING...";
-
-  roverToday.textContent =
-  "SYNCING ROVER DATA";
-
-
-  try{
-
-    await refreshBackendState();
-
-  }catch(error){
-
-    console.error(
-      "Wallet game load failed:",
-      error
-    );
-
-
-    roverBalance.textContent =
-    "0 ROVER";
-
-    roverToday.textContent =
-    "TODAY: +0 ROVER";
-
-  }
-
-}
-
-
-/* =========================================================
-   RESET UI
-========================================================= */
-
-function resetWalletUI(){
-
-  backend = {
-
-    balance:0,
-    today:0,
-    history:[],
-    status:null,
-    streak:0,
-    spinsToday:0,
-    mysteryKeys:0,
-    mysteryOpened:0,
-    totalSpins:0,
-    checkins:0
-
-  };
-
-
-  roverBalance.textContent =
-  "0 ROVER";
-
-  roverToday.textContent =
-  "TODAY: +0 ROVER";
-
-
-  streakNumber.textContent =
-  "0";
-
-
-  checkinButton.disabled =
-  false;
-
-  checkinButton.textContent =
-  "DAILY CHECK-IN";
-
-
-  missionCheckin.textContent =
-  "READY";
-
-  missionCheckin.classList.remove(
-    "done"
-  );
-
-
-  quizStatus.textContent =
-  "CONNECT WALLET";
-
-  quizButton.textContent =
-  "CONNECT WALLET";
-
-  quizButton.disabled =
-  false;
-
-  missionQuiz.textContent =
-  "0/1";
-
-  missionQuiz.classList.remove(
-    "done"
-  );
-
-
-  spinCount.textContent =
-  "3 / 3";
-
-  missionSpin.textContent =
-  "0/3";
-
-  missionSpin.classList.remove(
-    "done"
-  );
-
-
-  spinButton.disabled =
-  false;
-
-  spinButton.textContent =
-  "SPIN NOW";
-
-
-  spinRewardDisplay.className =
-  "reward-display";
-
-  spinRewardDisplay.innerHTML = `
-
-    <div class="reward-display-title">
-      READY TO SPIN
-    </div>
-
-    <div class="reward-display-sub">
-      3 CHANCES TODAY
-    </div>
-  `;
-
-
-  mysteryKeys.textContent =
-  "0";
-
-  mysteryBox.textContent =
-  "🔒";
-
-  mysteryBox.classList.add(
-    "locked"
-  );
-
-  mysteryButton.disabled =
-  true;
-
-  mysteryButton.textContent =
-  "NO KEY";
-
-  mysteryResult.textContent =
-  "BOX LOCKED";
-
-  mysteryHelp.textContent =
-  "Connect your wallet to start earning.";
-
-
-  missionMystery.textContent =
-  "0/1";
-
-  missionMystery.classList.remove(
-    "done"
-  );
-
-
-  updateAchievements();
-
-}
-
-
-/* =========================================================
-   START
-========================================================= */
-
-resetWalletUI();
-
-restoreWallet();
-
-</script>
-
-</body>
+</article>  <!-- ACHIEVEMENTS -->  <article class="card reveal">  <div class="card-head">  <div class="card-icon">  
+🏆  
+</div>  <span class="card-tag">  
+PROFILE  
+</span>  </div>  <h3>  
+ACHIEVEMENTS  
+</h3>  <p>  
+Build your activity and unlock Rover milestones.  
+</p>  <div class="achievement-list">  <div  
+class="achievement"  
+id="achievementFirst">  <div class="achievement-icon">  
+🚀  
+</div>  <small>  
+FIRST STEP  
+</small>  <div  
+class="achievement-progress"  
+id="achievementFirstText">  
+0 / 1  
+</div>  </div>  <div  
+class="achievement locked"  
+id="achievementStreak">  <div class="achievement-icon">  
+🔥  
+</div>  <small>  
+STREAK  
+</small>  <div  
+class="achievement-progress"  
+id="achievementStreakText">  
+0 / 7  
+</div>  </div>  <div  
+class="achievement locked"  
+id="achievementSpinner">  <div class="achievement-icon">  
+🎡  
+</div>  <small>  
+SPINNER  
+</small>  <div  
+class="achievement-progress"  
+id="achievementSpinnerText">  
+0 / 30  
+</div>  </div>  <div  
+class="achievement locked"  
+id="achievementMystery">  <div class="achievement-icon">  
+🎁  
+</div>  <small>  
+MYSTERY HUNTER  
+</small>  <div  
+class="achievement-progress"  
+id="achievementMysteryText">  
+0 / 5  
+</div>  </div>  </div>  </article>  </section>  <!-- QUICK ACCESS -->  <div class="quick reveal">  <a href="../my-rover/">  MY ROVER
+
+<span>  
+View your Rover activity  
+</span>  </a>  <a href="../leaderboard/">  LEADERBOARD
+
+<span>  
+See community rankings  
+</span>  </a>  <a href="../referral/">  REFERRAL
+
+<span>  
+Invite genuine Rover users  
+</span>  </a>  </div>  <div class="info reveal">  <strong>  
+ROVER HUB SYSTEM  
+</strong>  <span>  
+Complete activities, collect rewards and build your Rover profile.  
+</span>  </div>  </div>  </main>  <footer>  <div class="wrap footer">  <div>  
+<b>THE HOOD ROVER</b>  
+</div>  <div>  
+RETRO SYSTEM // 2026  
+</div>  </div>  </footer>  <script>  
+  
+/* =========================================================  
+   MOBILE MENU  
+========================================================= */  
+  
+const menu =  
+document.getElementById("menu");  
+  
+const nav =  
+document.getElementById("nav");  
+  
+  
+menu.addEventListener("click",() => {  
+  
+nav.classList.toggle("open");  
+  
+});  
+  
+  
+nav.querySelectorAll("a")  
+.forEach(link => {  
+  
+link.addEventListener("click",() => {  
+  
+nav.classList.remove("open");  
+  
+});  
+  
+});  
+  
+  
+/* =========================================================  
+   SUPABASE CLIENT  
+========================================================= */  
+  
+const SUPABASE_URL =  
+"https://hyshlvuywbwhhjgqwfwi.supabase.co";  
+  
+const SUPABASE_PUBLISHABLE_KEY =  
+"sb_publishable_LWmPzfGLuzdjDZvnwKs0Ug_Gvs5yROF";  
+  
+const {createClient} =  
+window.supabase;  
+  
+const supabaseClient =  
+createClient(  
+SUPABASE_URL,  
+SUPABASE_PUBLISHABLE_KEY  
+);  
+  
+  
+/* =========================================================  
+   ELEMENTS  
+========================================================= */  
+  
+const connectWalletButton =  
+document.getElementById(  
+"connectWalletButton"  
+);  
+  
+const walletStatus =  
+document.getElementById(  
+"walletStatus"  
+);  
+  
+const checkinButton =  
+document.getElementById(  
+"checkinButton"  
+);  
+  
+const streakNumber =  
+document.getElementById(  
+"streakNumber"  
+);  
+  
+const missionCheckin =  
+document.getElementById(  
+"missionCheckin"  
+);  
+  
+const missionQuiz =  
+document.getElementById(  
+"missionQuiz"  
+);  
+  
+const missionSpin =  
+document.getElementById(  
+"missionSpin"  
+);  
+  
+const missionMystery =  
+document.getElementById(  
+"missionMystery"  
+);  
+  
+const roverBalance =  
+document.getElementById(  
+"roverBalance"  
+);  
+  
+const roverToday =  
+document.getElementById(  
+"roverToday"  
+);  
+  
+const quizButton =  
+document.getElementById(  
+"quizButton"  
+);  
+  
+const quizStatus =  
+document.getElementById(  
+"quizStatus"  
+);  
+  
+const spinButton =  
+document.getElementById(  
+"spinButton"  
+);  
+  
+const spinCount =  
+document.getElementById(  
+"spinCount"  
+);  
+  
+const wheel =  
+document.getElementById(  
+"wheel"  
+);  
+  
+const spinRewardDisplay =  
+document.getElementById(  
+"spinRewardDisplay"  
+);  
+  
+const mysteryKeys =  
+document.getElementById(  
+"mysteryKeys"  
+);  
+  
+const mysteryBox =  
+document.getElementById(  
+"mysteryBox"  
+);  
+  
+const mysteryButton =  
+document.getElementById(  
+"mysteryButton"  
+);  
+  
+const mysteryResult =  
+document.getElementById(  
+"mysteryResult"  
+);  
+  
+const mysteryHelp =  
+document.getElementById(  
+"mysteryHelp"  
+);  
+  
+  
+/* =========================================================  
+   WALLET  
+========================================================= */  
+  
+let walletAddress = null;  
+  
+const WALLET_STORAGE_KEY =  
+"roverHubWallet";  
+  
+const WALLET_DISCONNECTED_KEY =  
+"roverHubWalletDisconnected";  
+  
+  
+function shortAddress(address){  
+  
+if(!address) return "";  
+  
+return (  
+address.slice(0,6) +  
+"..." +  
+address.slice(-4)  
+);  
+  
+}  
+  
+  
+function updateWalletUI(address){  
+  
+if(!address){  
+  
+walletAddress = null;  
+  
+walletStatus.textContent =  
+"WALLET: NOT CONNECTED";  
+  
+connectWalletButton.textContent =  
+"CONNECT WALLET";  
+  
+return;  
+  
+}  
+  
+  
+walletAddress =  
+address.toLowerCase();  
+  
+  
+walletStatus.textContent =  
+"WALLET: " +  
+shortAddress(walletAddress);  
+  
+  
+connectWalletButton.textContent =  
+shortAddress(walletAddress);  
+  
+}  
+  
+  
+function saveWallet(address){  
+  
+localStorage.setItem(  
+WALLET_STORAGE_KEY,  
+address.toLowerCase()  
+);  
+  
+localStorage.removeItem(  
+WALLET_DISCONNECTED_KEY  
+);  
+  
+}  
+  
+  
+function clearWalletState(){  
+  
+localStorage.removeItem(  
+WALLET_STORAGE_KEY  
+);  
+  
+localStorage.setItem(  
+WALLET_DISCONNECTED_KEY,  
+"1"  
+);  
+  
+walletAddress = null;  
+  
+updateWalletUI(null);  
+  
+resetWalletUI();  
+  
+}  
+  
+  
+/* =========================================================  
+   WALLET POPUP  
+========================================================= */  
+  
+function showDisconnectPopup(){  
+  
+const popup =  
+document.createElement("div");  
+  
+popup.innerHTML = `  
+  
+<div class="wallet-popup-overlay">  
+  
+<div class="wallet-popup">  
+  
+<div class="wallet-popup-icon">  
+🔌  
+</div>  
+  
+<div class="wallet-popup-title">  
+WALLET CONNECTED  
+</div>  
+  
+<div class="wallet-popup-address">  
+${shortAddress(walletAddress)}  
+</div>  
+  
+<p>  
+Do you want to disconnect this wallet  
+from Rover Hub?  
+</p>  
+  
+<div class="wallet-popup-actions">  
+  
+<button  
+class="btn secondary"  
+id="cancelDisconnect">  
+CANCEL  
+</button>  
+  
+<button  
+class="btn"  
+id="confirmDisconnect">  
+DISCONNECT  
+</button>  
+  
+</div>  
+  
+</div>  
+  
+</div>  
+  
+`;  
+  
+  
+document.body.appendChild(popup);  
+  
+  
+document  
+.getElementById("cancelDisconnect")  
+.addEventListener(  
+"click",  
+() => popup.remove()  
+);  
+  
+  
+document  
+.getElementById("confirmDisconnect")  
+.addEventListener(  
+"click",  
+async () => {  
+  
+await disconnectWallet();  
+  
+popup.remove();  
+  
+}  
+);  
+  
+}  
+  
+  
+/* =========================================================  
+   DISCONNECT  
+========================================================= */  
+  
+async function disconnectWallet(){  
+  
+try{  
+  
+if(window.ethereum){  
+  
+try{  
+  
+await window.ethereum.request({  
+  
+method:  
+"wallet_revokePermissions",  
+  
+params:[  
+{  
+eth_accounts:{}  
+}  
+]  
+  
+});  
+  
+}catch(error){  
+  
+console.log(  
+"Provider revoke not supported:",  
+error  
+);  
+  
+}  
+  
+}  
+  
+}finally{  
+  
+clearWalletState();  
+  
+}  
+  
+}  
+  
+  
+/* =========================================================  
+   CONNECT  
+========================================================= */  
+  
+async function connectWallet(){  
+  
+if(!window.ethereum){  
+  
+alert(  
+"NO WEB3 WALLET DETECTED.\n\n" +  
+"Please open Rover Hub inside your wallet browser."  
+);  
+  
+return;  
+  
+}  
+  
+  
+try{  
+  
+connectWalletButton.disabled =  
+true;  
+  
+connectWalletButton.textContent =  
+"CONNECTING...";  
+  
+  
+const accounts =  
+await window.ethereum.request({  
+  
+method:  
+"eth_requestAccounts"  
+  
+});  
+  
+  
+if(  
+!accounts ||  
+accounts.length === 0  
+){  
+  
+throw new Error(  
+"No wallet account returned"  
+);  
+  
+}  
+  
+  
+const address =  
+accounts[0].toLowerCase();  
+  
+  
+saveWallet(address);  
+  
+updateWalletUI(address);  
+  
+loadWalletGame();  
+  
+}catch(error){  
+  
+console.error(  
+"Wallet connection failed:",  
+error  
+);  
+  
+  
+if(error.code === 4001){  
+  
+alert(  
+"WALLET CONNECTION CANCELLED."  
+);  
+  
+}else{  
+  
+alert(  
+"WALLET CONNECTION FAILED.\n\n" +  
+"Please try again."  
+);  
+  
+}  
+  
+}finally{  
+  
+connectWalletButton.disabled =  
+false;  
+  
+}  
+  
+}  
+  
+  
+connectWalletButton.addEventListener(  
+"click",  
+() => {  
+  
+if(walletAddress){  
+  
+showDisconnectPopup();  
+  
+}else{  
+  
+connectWallet();  
+  
+}  
+  
+}  
+);  
+  
+  
+/* =========================================================  
+   RESTORE WALLET  
+========================================================= */  
+  
+async function restoreWallet(){  
+  
+const savedWallet =  
+localStorage.getItem(  
+WALLET_STORAGE_KEY  
+);  
+  
+const disconnected =  
+localStorage.getItem(  
+WALLET_DISCONNECTED_KEY  
+) === "1";  
+  
+  
+if(disconnected){  
+  
+updateWalletUI(null);  
+  
+return;  
+  
+}  
+  
+  
+if(!window.ethereum){  
+  
+if(savedWallet){  
+  
+updateWalletUI(  
+savedWallet  
+);  
+  
+loadWalletGame();  
+  
+}  
+  
+return;  
+  
+}  
+  
+  
+try{  
+  
+const accounts =  
+await window.ethereum.request({  
+  
+method:  
+"eth_accounts"  
+  
+});  
+  
+  
+if(  
+accounts &&  
+accounts.length > 0  
+){  
+  
+const address =  
+accounts[0].toLowerCase();  
+  
+saveWallet(address);  
+  
+updateWalletUI(address);  
+  
+loadWalletGame();  
+  
+return;  
+  
+}  
+  
+  
+updateWalletUI(null);  
+  
+}catch(error){  
+  
+console.error(  
+"Wallet restore failed:",  
+error  
+);  
+  
+}  
+  
+}  
+  
+  
+if(window.ethereum){  
+  
+window.ethereum.on(  
+"accountsChanged",  
+accounts => {  
+  
+if(  
+!accounts ||  
+accounts.length === 0  
+){  
+  
+clearWalletState();  
+  
+return;  
+  
+}  
+  
+  
+const address =  
+accounts[0].toLowerCase();  
+  
+saveWallet(address);  
+  
+updateWalletUI(address);  
+  
+loadWalletGame();  
+  
+}  
+);  
+  
+}  
+  
+  
+/* =========================================================  
+   GAME STORAGE  
+========================================================= */  
+  
+function getWalletKey(){  
+  
+if(!walletAddress){  
+  
+return "guest";  
+  
+}  
+  
+return walletAddress.toLowerCase();  
+  
+}  
+  
+  
+function todayKey(){  
+  
+return new Date()  
+.toLocaleDateString(  
+"en-CA"  
+);  
+  
+}  
+  
+  
+function gameStorageKey(name){  
+  
+return (  
+"hoodRover_" +  
+name +  
+"_" +  
+getWalletKey()  
+);  
+  
+}  
+  
+  
+/* =========================================================  
+   ROVER BALANCE  
+========================================================= */  
+  
+let roverAmount = 0;  
+  
+let roverTodayAmount = 0;  
+  
+  
+function loadRoverBalance(){  
+  
+const saved =  
+localStorage.getItem(  
+gameStorageKey("balance")  
+);  
+  
+const savedToday =  
+localStorage.getItem(  
+gameStorageKey("today")  
+);  
+  
+const savedDate =  
+localStorage.getItem(  
+gameStorageKey("todayDate")  
+);  
+  
+  
+roverAmount =  
+Number(saved || 0);  
+  
+  
+if(savedDate !== todayKey()){  
+  
+roverTodayAmount = 0;  
+  
+localStorage.setItem(  
+gameStorageKey("today"),  
+"0"  
+);  
+  
+localStorage.setItem(  
+gameStorageKey("todayDate"),  
+todayKey()  
+);  
+  
+}else{  
+  
+roverTodayAmount =  
+Number(savedToday || 0);  
+  
+}  
+  
+  
+updateRoverUI();  
+  
+}  
+  
+  
+function updateRoverUI(){  
+  
+roverBalance.textContent =  
+roverAmount +  
+" ROVER";  
+  
+roverToday.textContent =  
+"TODAY: +" +  
+roverTodayAmount +  
+" ROVER";  
+  
+}  
+  
+  
+function addRover(amount){  
+  
+if(amount <= 0)  
+return;  
+  
+  
+roverAmount += amount;  
+  
+roverTodayAmount += amount;  
+  
+  
+localStorage.setItem(  
+gameStorageKey("balance"),  
+String(roverAmount)  
+);  
+  
+localStorage.setItem(  
+gameStorageKey("today"),  
+String(roverTodayAmount)  
+);  
+  
+localStorage.setItem(  
+gameStorageKey("todayDate"),  
+todayKey()  
+);  
+  
+  
+updateRoverUI();  
+  
+updateAchievements();  
+  
+}  
+  
+  
+/* =========================================================  
+   DAILY CHECK-IN  
+========================================================= */  
+  
+function loadCheckin(){  
+  
+const date =  
+localStorage.getItem(  
+gameStorageKey("checkinDate")  
+);  
+  
+  
+if(date === todayKey()){  
+  
+checkinButton.disabled =  
+true;  
+  
+checkinButton.textContent =  
+"ALREADY CHECKED IN";  
+  
+missionCheckin.textContent =  
+"DONE";  
+  
+missionCheckin.classList.add(  
+"done"  
+);  
+  
+return;  
+  
+}  
+  
+  
+checkinButton.disabled =  
+false;  
+  
+checkinButton.textContent =  
+"DAILY CHECK-IN";  
+  
+missionCheckin.textContent =  
+"READY";  
+  
+missionCheckin.classList.remove(  
+"done"  
+);  
+  
+}  
+  
+  
+checkinButton.addEventListener(  
+"click",  
+() => {  
+  
+if(!walletAddress){  
+  
+alert(  
+"CONNECT YOUR WALLET FIRST."  
+);  
+  
+return;  
+  
+}  
+  
+  
+const already =  
+localStorage.getItem(  
+gameStorageKey("checkinDate")  
+) === todayKey();  
+  
+  
+if(already){  
+  
+loadCheckin();  
+  
+return;  
+  
+}  
+  
+  
+checkinButton.disabled =  
+true;  
+  
+checkinButton.textContent =  
+"CHECKING...";  
+  
+  
+setTimeout(() => {  
+  
+localStorage.setItem(  
+gameStorageKey("checkinDate"),  
+todayKey()  
+);  
+  
+addRover(1);  
+  
+  
+let streak =  
+Number(  
+localStorage.getItem(  
+gameStorageKey("streak")  
+) || 0  
+);  
+  
+  
+const previous =  
+localStorage.getItem(  
+gameStorageKey("previousCheckin")  
+);  
+  
+  
+if(previous){  
+  
+const yesterday =  
+new Date();  
+  
+yesterday.setDate(  
+yesterday.getDate() - 1  
+);  
+  
+const y =  
+yesterday.toLocaleDateString(  
+"en-CA"  
+);  
+  
+  
+if(previous === y){  
+  
+streak++;  
+  
+}else{  
+  
+streak = 1;  
+  
+}  
+  
+}else{  
+  
+streak = 1;  
+  
+}  
+  
+  
+localStorage.setItem(  
+gameStorageKey("streak"),  
+String(streak)  
+);  
+  
+localStorage.setItem(  
+gameStorageKey("previousCheckin"),  
+todayKey()  
+);  
+  
+  
+streakNumber.textContent =  
+streak;  
+  
+checkinButton.textContent =  
+"CHECKED IN ✓";  
+  
+missionCheckin.textContent =  
+"DONE";  
+  
+missionCheckin.classList.add(  
+"done"  
+);  
+  
+updateAchievements();  
+  
+},600);  
+  
+}  
+);  
+  
+  
+/* =========================================================  
+   QUIZ  
+========================================================= */  
+  
+const quizQuestions = [  
+  
+{  
+question:  
+"What is The Hood Rover?",  
+  
+options:[  
+"A Rover NFT ecosystem",  
+"A music platform",  
+"A payment app",  
+"A news website"  
+],  
+  
+answer:0  
+},  
+  
+{  
+question:  
+"What is the main purpose of Rover Hub?",  
+  
+options:[  
+"Watch movies",  
+"Complete activities and earn Rover",  
+"Buy groceries",  
+"Create emails"  
+],  
+  
+answer:1  
+},  
+  
+{  
+question:  
+"How many NFTs are planned in The Hood Rover collection?",  
+  
+options:[  
+"404",  
+"555",  
+"1,111",  
+"10,000"  
+],  
+  
+answer:2  
+},  
+  
+{  
+question:  
+"How many times can a user attempt the daily quiz?",  
+  
+options:[  
+"Unlimited",  
+"Three times",  
+"Two times",  
+"One time"  
+],  
+  
+answer:3  
+},  
+  
+{  
+question:  
+"What happens if a quiz answer is wrong?",  
+  
+options:[  
+"The user gets bonus Rover",  
+"The quiz is failed",  
+"The user gets another attempt",  
+"Nothing happens"  
+],  
+  
+answer:1  
+}  
+  
+];  
+  
+  
+function quizStatusLoad(){  
+  
+const date =  
+localStorage.getItem(  
+gameStorageKey("quizDate")  
+);  
+  
+const result =  
+localStorage.getItem(  
+gameStorageKey("quizResult")  
+);  
+  
+  
+if(date !== todayKey()){  
+  
+quizStatus.textContent =  
+"READY";  
+  
+quizButton.textContent =  
+"START QUIZ";  
+  
+quizButton.disabled =  
+false;  
+  
+missionQuiz.textContent =  
+"0/1";  
+  
+missionQuiz.classList.remove(  
+"done"  
+);  
+  
+return;  
+  
+}  
+  
+  
+if(result === "passed"){  
+  
+quizStatus.textContent =  
+"COMPLETED";  
+  
+quizButton.textContent =  
+"QUIZ COMPLETED";  
+  
+quizButton.disabled =  
+true;  
+  
+missionQuiz.textContent =  
+"DONE";  
+  
+missionQuiz.classList.add(  
+"done"  
+);  
+  
+return;  
+  
+}  
+  
+  
+if(result === "failed"){  
+  
+quizStatus.textContent =  
+"FAILED";  
+  
+quizButton.textContent =  
+"TRY AGAIN TOMORROW";  
+  
+quizButton.disabled =  
+true;  
+  
+missionQuiz.textContent =  
+"FAILED";  
+  
+return;  
+  
+}  
+  
+}  
+  
+  
+function openQuiz(){  
+  
+if(!walletAddress){  
+  
+alert(  
+"CONNECT YOUR WALLET FIRST."  
+);  
+  
+return;  
+  
+}  
+  
+  
+const date =  
+localStorage.getItem(  
+gameStorageKey("quizDate")  
+);  
+  
+  
+const result =  
+localStorage.getItem(  
+gameStorageKey("quizResult")  
+);  
+  
+  
+if(  
+date === todayKey() &&  
+result  
+){  
+  
+alert(  
+result === "passed"  
+?  
+"TODAY'S QUIZ IS ALREADY COMPLETED."  
+:  
+"TODAY'S QUIZ IS ALREADY FAILED.\n\nTRY AGAIN TOMORROW."  
+);  
+  
+return;  
+  
+}  
+  
+  
+let questionIndex = 0;  
+  
+let score = 0;  
+  
+let finished = false;  
+  
+  
+const overlay =  
+document.createElement(  
+"div"  
+);  
+  
+overlay.className =  
+"quiz-overlay";  
+  
+document.body.appendChild(  
+overlay  
+);  
+  
+  
+function renderQuestion(){  
+  
+const q =  
+quizQuestions[  
+questionIndex  
+];  
+  
+  
+overlay.innerHTML = `  
+  
+<div class="quiz-modal">  
+  
+<div class="quiz-top">  
+  
+<div class="quiz-title">  
+ROVER QUIZ  
+</div>  
+  
+<div class="quiz-progress">  
+${questionIndex + 1}  
+/  
+${quizQuestions.length}  
+</div>  
+  
+</div>  
+  
+<div class="quiz-question">  
+${q.question}  
+</div>  
+  
+<div class="quiz-options">  
+  
+${q.options.map(  
+(option,index) => `  
+  
+<button  
+class="quiz-option"  
+data-answer="${index}"  
+type="button">  
+  
+${String.fromCharCode(65 + index)}.  
+${option}  
+  
+</button>  
+  
+`  
+).join("")}  
+  
+</div>  
+  
+<div class="quiz-warning">  
+  
+ONE WRONG ANSWER =  
+TODAY'S QUIZ FAILED.  
+  
+</div>  
+  
+</div>  
+  
+`;  
+  
+  
+overlay  
+.querySelectorAll(  
+".quiz-option"  
+)  
+.forEach(button => {  
+  
+button.addEventListener(  
+"click",  
+() => {  
+  
+const answer =  
+Number(  
+button.dataset.answer  
+);  
+  
+  
+if(answer !== q.answer){  
+  
+finishQuiz(false);  
+  
+return;  
+  
+}  
+  
+  
+score++;  
+  
+questionIndex++;  
+  
+  
+if(  
+questionIndex >=  
+quizQuestions.length  
+){  
+  
+finishQuiz(true);  
+  
+return;  
+  
+}  
+  
+  
+renderQuestion();  
+  
+}  
+);  
+  
+});  
+  
+}  
+  
+  
+function finishQuiz(passed){  
+  
+if(finished)  
+return;  
+  
+finished = true;  
+  
+  
+localStorage.setItem(  
+gameStorageKey("quizDate"),  
+todayKey()  
+);  
+  
+localStorage.setItem(  
+gameStorageKey("quizResult"),  
+passed  
+?  
+"passed"  
+:  
+"failed"  
+);  
+  
+  
+if(passed){  
+  
+addRover(2);  
+  
+overlay.innerHTML = `  
+  
+<div class="quiz-modal">  
+  
+<div class="quiz-result">  
+  
+<div class="quiz-result-icon">  
+🎉  
+</div>  
+  
+<div class="quiz-result-title">  
+QUIZ COMPLETE  
+</div>  
+  
+<div class="quiz-result-score">  
+5 / 5 CORRECT  
+</div>  
+  
+<div class="quiz-result-reward">  
++2 ROVER  
+</div>  
+  
+<button  
+class="btn quiz-close"  
+id="closeQuiz">  
+  
+DONE  
+  
+</button>  
+  
+</div>  
+  
+</div>  
+  
+`;  
+  
+}else{  
+  
+overlay.innerHTML = `  
+  
+<div class="quiz-modal">  
+  
+<div class="quiz-result">  
+  
+<div class="quiz-result-icon">  
+❌  
+</div>  
+  
+<div class="quiz-result-title">  
+QUIZ FAILED  
+</div>  
+  
+<div class="quiz-result-score">  
+${score} / 5 CORRECT  
+</div>  
+  
+<div class="quiz-result-reward">  
+0 ROVER  
+</div>  
+  
+<p>  
+One wrong answer ends today's quiz.  
+Try again tomorrow.  
+</p>  
+  
+<button  
+class="btn secondary quiz-close"  
+id="closeQuiz">  
+  
+CLOSE  
+  
+</button>  
+  
+</div>  
+  
+</div>  
+  
+`;  
+  
+}  
+  
+  
+quizStatusLoad();  
+  
+  
+document  
+.getElementById("closeQuiz")  
+.addEventListener(  
+"click",  
+() => {  
+  
+overlay.remove();  
+  
+}  
+);  
+  
+}  
+  
+  
+renderQuestion();  
+  
+}  
+  
+  
+quizButton.addEventListener(  
+"click",  
+openQuiz  
+);  
+  
+  
+/* =========================================================  
+   SPIN SYSTEM  
+========================================================= */  
+  
+let spinning = false;  
+  
+let rotation = 0;  
+  
+  
+const spinRewards = [  
+  
+{  
+name:"BAD LUCK",  
+type:"bad",  
+value:0,  
+weight:65  
+},  
+  
+{  
+name:"+2 ROVER",  
+type:"rover",  
+value:2,  
+weight:12  
+},  
+  
+{  
+name:"+4 ROVER",  
+type:"rover",  
+value:4,  
+weight:8  
+},  
+  
+{  
+name:"+5 ROVER",  
+type:"rover",  
+value:5,  
+weight:6  
+},  
+  
+{  
+name:"+6 ROVER",  
+type:"rover",  
+value:6,  
+weight:5  
+},  
+  
+{  
+name:"MYSTERY REWARD",  
+type:"mystery",  
+value:1,  
+weight:4  
+}  
+  
+];  
+  
+  
+const wheelPositions = {  
+  
+"BAD LUCK":0,  
+  
+"+2 ROVER":1,  
+  
+"+4 ROVER":2,  
+  
+"+5 ROVER":3,  
+  
+"+6 ROVER":4,  
+  
+"MYSTERY REWARD":5  
+  
+};  
+  
+  
+const wheelSectorCenters = {  
+  
+"BAD LUCK":0,  
+  
+"+2 ROVER":60,  
+  
+"+4 ROVER":120,  
+  
+"+5 ROVER":180,  
+  
+"+6 ROVER":240,  
+  
+"MYSTERY REWARD":300  
+  
+};  
+  
+  
+function getSpinCount(){  
+  
+const date =  
+localStorage.getItem(  
+gameStorageKey("spinDate")  
+);  
+  
+  
+if(date !== todayKey()){  
+  
+return 0;  
+  
+}  
+  
+  
+return Number(  
+localStorage.getItem(  
+gameStorageKey("spinCount")  
+) || 0  
+);  
+  
+}  
+  
+  
+function setSpinCount(count){  
+  
+localStorage.setItem(  
+gameStorageKey("spinDate"),  
+todayKey()  
+);  
+  
+localStorage.setItem(  
+gameStorageKey("spinCount"),  
+String(count)  
+);  
+  
+}  
+  
+  
+/* =========================================================  
+   WEIGHTED RANDOM REWARD  
+========================================================= */  
+  
+function randomSpinReward(){  
+  
+const total =  
+spinRewards.reduce(  
+(sum,item) =>  
+sum + item.weight,  
+0  
+);  
+  
+  
+let random =  
+Math.random() * total;  
+  
+  
+for(  
+const reward of spinRewards  
+){  
+  
+random -=  
+reward.weight;  
+  
+  
+if(random <= 0){  
+  
+return reward;  
+  
+}  
+  
+}  
+  
+  
+return spinRewards[0];  
+  
+}  
+  
+  
+/* =========================================================  
+   UPDATE SPIN UI  
+========================================================= */  
+  
+function updateSpinUI(){  
+  
+const used =  
+getSpinCount();  
+  
+const left =  
+Math.max(  
+0,  
+3 - used  
+);  
+  
+  
+spinCount.textContent =  
+left +  
+" / 3";  
+  
+  
+missionSpin.textContent =  
+used +  
+"/3";  
+  
+  
+if(used >= 3){  
+  
+spinButton.disabled =  
+true;  
+  
+spinButton.textContent =  
+"COME BACK TOMORROW";  
+  
+missionSpin.textContent =  
+"DONE";  
+  
+missionSpin.classList.add(  
+"done"  
+);  
+  
+}else{  
+  
+spinButton.disabled =  
+false;  
+  
+spinButton.textContent =  
+"SPIN NOW";  
+  
+missionSpin.classList.remove(  
+"done"  
+);  
+  
+}  
+  
+}  
+  
+  
+/* =========================================================  
+   SHOW RESULT  
+========================================================= */  
+  
+function showSpinReward(reward){  
+  
+spinRewardDisplay.className =  
+"reward-display";  
+  
+  
+if(reward.type === "bad"){  
+  
+spinRewardDisplay.classList.add(  
+"bad"  
+);  
+  
+spinRewardDisplay.innerHTML = `  
+  
+<div class="reward-display-title">  
+❌ BAD LUCK  
+</div>  
+  
+<div class="reward-display-sub">  
+NO REWARD THIS TIME  
+</div>  
+  
+`;  
+  
+return;  
+  
+}  
+  
+  
+if(reward.type === "rover"){  
+  
+spinRewardDisplay.innerHTML = `  
+  
+<div class="reward-display-title">  
+🎉 ROVER REWARD  
+</div>  
+  
+<div class="reward-display-sub">  
+${reward.name}  
+</div>  
+  
+`;  
+  
+return;  
+  
+}  
+  
+  
+if(reward.type === "mystery"){  
+  
+spinRewardDisplay.classList.add(  
+"mystery"  
+);  
+  
+spinRewardDisplay.innerHTML = `  
+  
+<div class="reward-display-title">  
+🎁 MYSTERY REWARD  
+</div>  
+  
+<div class="reward-display-sub">  
++1 MYSTERY KEY  
+</div>  
+  
+`;  
+  
+}  
+  
+}  
+  
+  
+/* =========================================================  
+   GET CURRENT ROTATION  
+========================================================= */  
+  
+function normalizeDegrees(value){  
+  
+return (  
+(  
+value % 360  
+) + 360  
+) % 360;  
+  
+}  
+  
+  
+/* =========================================================  
+   SPIN BUTTON  
+========================================================= */  
+  
+spinButton.addEventListener(  
+"click",  
+() => {  
+  
+if(spinning)  
+return;  
+  
+  
+if(!walletAddress){  
+  
+alert(  
+"CONNECT YOUR WALLET FIRST."  
+);  
+  
+return;  
+  
+}  
+  
+  
+const used =  
+getSpinCount();  
+  
+  
+if(used >= 3){  
+  
+alert(  
+"YOU HAVE USED ALL 3 SPINS TODAY.\n\nCOME BACK TOMORROW."  
+);  
+  
+updateSpinUI();  
+  
+return;  
+  
+}  
+  
+  
+spinning = true;  
+  
+spinButton.disabled =  
+true;  
+  
+spinButton.textContent =  
+"SPINNING...";  
+  
+  
+const reward =  
+randomSpinReward();  
+  
+  
+const targetAngle =  
+wheelSectorCenters[  
+reward.name  
+];  
+  
+  
+const current =  
+normalizeDegrees(rotation);  
+  
+  
+let delta =  
+normalizeDegrees(  
+-targetAngle - current  
+);  
+  
+  
+const fullSpins =  
+5 +  
+Math.floor(  
+Math.random() * 3  
+);  
+  
+  
+delta +=  
+fullSpins * 360;  
+  
+  
+rotation +=  
+delta;  
+  
+  
+wheel.style.transform =  
+`rotate(${rotation}deg)`;  
+  
+  
+const nextCount =  
+used + 1;  
+  
+setSpinCount(  
+nextCount  
+);  
+  
+  
+setTimeout(  
+() => {  
+  
+showSpinReward(  
+reward  
+);  
+  
+  
+if(reward.type === "rover"){  
+  
+addRover(  
+reward.value  
+);  
+  
+}  
+  
+  
+if(reward.type === "mystery"){  
+  
+let keys =  
+Number(  
+localStorage.getItem(  
+gameStorageKey("mysteryKeys")  
+) || 0  
+);  
+  
+keys++;  
+  
+localStorage.setItem(  
+gameStorageKey("mysteryKeys"),  
+String(keys)  
+);  
+  
+updateMysteryUI();  
+  
+}  
+  
+  
+let totalSpins =  
+Number(  
+localStorage.getItem(  
+gameStorageKey("totalSpins")  
+) || 0  
+);  
+  
+totalSpins++;  
+  
+localStorage.setItem(  
+gameStorageKey("totalSpins"),  
+String(totalSpins)  
+);  
+  
+  
+updateSpinUI();  
+  
+updateAchievements();  
+  
+spinning = false;  
+  
+},  
+4700  
+);  
+  
+}  
+);  
+  
+  
+/* =========================================================  
+   MYSTERY BOX  
+========================================================= */  
+  
+function getMysteryKeys(){  
+  
+return Number(  
+localStorage.getItem(  
+gameStorageKey("mysteryKeys")  
+) || 0  
+);  
+  
+}  
+  
+  
+function setMysteryKeys(keys){  
+  
+localStorage.setItem(  
+gameStorageKey("mysteryKeys"),  
+String(  
+Math.max(0,keys)  
+)  
+);  
+  
+}  
+  
+  
+function updateMysteryUI(){  
+  
+const keys =  
+getMysteryKeys();  
+  
+  
+mysteryKeys.textContent =  
+keys;  
+  
+  
+if(keys > 0){  
+  
+mysteryBox.classList.remove(  
+"locked"  
+);  
+  
+mysteryBox.textContent =  
+"🎁";  
+  
+mysteryButton.disabled =  
+false;  
+  
+mysteryButton.textContent =  
+"OPEN MYSTERY BOX";  
+  
+mysteryResult.textContent =  
+"KEY READY";  
+  
+mysteryHelp.textContent =  
+"Use 1 Mystery Key to reveal your hidden reward.";  
+  
+}else{  
+  
+mysteryBox.classList.add(  
+"locked"  
+);  
+  
+mysteryBox.textContent =  
+"🔒";  
+  
+mysteryButton.disabled =  
+true;  
+  
+mysteryButton.textContent =  
+"NO KEY";  
+  
+mysteryResult.textContent =  
+"BOX LOCKED";  
+  
+mysteryHelp.textContent =  
+"Spin the wheel and find a Mystery Reward first.";  
+  
+}  
+  
+}  
+  
+  
+const mysteryRewards = [  
+  
+{  
+name:"+2 ROVER",  
+type:"rover",  
+value:2  
+},  
+  
+{  
+name:"+5 ROVER",  
+type:"rover",  
+value:5  
+},  
+  
+{  
+name:"+10 ROVER",  
+type:"rover",  
+value:10  
+},  
+  
+{  
+name:"BONUS ROVER",  
+type:"rover",  
+value:4  
+},  
+  
+{  
+name:"SPECIAL DROP",  
+type:"special",  
+value:0  
+}  
+  
+];  
+  
+  
+mysteryButton.addEventListener(  
+"click",  
+() => {  
+  
+if(!walletAddress){  
+  
+alert(  
+"CONNECT YOUR WALLET FIRST."  
+);  
+  
+return;  
+  
+}  
+  
+  
+const keys =  
+getMysteryKeys();  
+  
+  
+if(keys <= 0){  
+  
+updateMysteryUI();  
+  
+return;  
+  
+}  
+  
+  
+mysteryButton.disabled =  
+true;  
+  
+mysteryBox.style.transform =  
+"scale(.82) rotate(8deg)";  
+  
+mysteryResult.textContent =  
+"OPENING...";  
+  
+mysteryHelp.textContent =  
+"Unlocking your hidden reward...";  
+  
+  
+setTimeout(  
+() => {  
+  
+setMysteryKeys(  
+keys - 1  
+);  
+  
+  
+const reward =  
+mysteryRewards[  
+Math.floor(  
+Math.random() *  
+mysteryRewards.length  
+)  
+];  
+  
+  
+if(reward.type === "rover"){  
+  
+addRover(  
+reward.value  
+);  
+  
+mysteryResult.textContent =  
+"🎉 " +  
+reward.name;  
+  
+}else{  
+  
+mysteryResult.textContent =  
+"⭐ SPECIAL DROP";  
+  
+}  
+  
+  
+mysteryBox.textContent =  
+"★";  
+  
+mysteryBox.style.transform =  
+"scale(1) rotate(0deg)";  
+  
+mysteryHelp.textContent =  
+"Your Mystery Key was consumed.";  
+  
+let opened =  
+Number(  
+localStorage.getItem(  
+gameStorageKey("mysteryOpened")  
+) || 0  
+);  
+  
+opened++;  
+  
+localStorage.setItem(  
+gameStorageKey("mysteryOpened"),  
+String(opened)  
+);  
+  
+  
+updateMysteryUI();  
+  
+updateAchievements();  
+  
+},  
+1000  
+);  
+  
+}  
+);  
+  
+  
+/* =========================================================  
+   ACHIEVEMENTS  
+========================================================= */  
+  
+function unlockAchievement(  
+element,  
+textElement,  
+current,  
+target  
+){  
+  
+const text =  
+document.getElementById(  
+textElement  
+);  
+  
+const elementBox =  
+document.getElementById(  
+element  
+);  
+  
+  
+text.textContent =  
+current +  
+" / " +  
+target;  
+  
+  
+if(current >= target){  
+  
+elementBox.classList.remove(  
+"locked"  
+);  
+  
+elementBox.classList.add(  
+"unlocked"  
+);  
+  
+text.textContent =  
+"✓ UNLOCKED";  
+  
+}  
+  
+}  
+  
+  
+function updateAchievements(){  
+  
+const checkin =  
+localStorage.getItem(  
+gameStorageKey("checkinDate")  
+) === todayKey();  
+  
+  
+const streak =  
+Number(  
+localStorage.getItem(  
+gameStorageKey("streak")  
+) || 0  
+);  
+  
+  
+const spins =  
+Number(  
+localStorage.getItem(  
+gameStorageKey("totalSpins")  
+) || 0  
+);  
+  
+  
+const mystery =  
+Number(  
+localStorage.getItem(  
+gameStorageKey("mysteryOpened")  
+) || 0  
+);  
+  
+  
+unlockAchievement(  
+"achievementFirst",  
+"achievementFirstText",  
+checkin ? 1 : 0,  
+1  
+);  
+  
+  
+unlockAchievement(  
+"achievementStreak",  
+"achievementStreakText",  
+Math.min(streak,7),  
+7  
+);  
+  
+  
+unlockAchievement(  
+"achievementSpinner",  
+"achievementSpinnerText",  
+Math.min(spins,30),  
+30  
+);  
+  
+  
+unlockAchievement(  
+"achievementMystery",  
+"achievementMysteryText",  
+Math.min(mystery,5),  
+5  
+);  
+  
+}  
+  
+  
+/* =========================================================  
+   LOAD GAME  
+========================================================= */  
+  
+function loadWalletGame(){  
+  
+if(!walletAddress)  
+return;  
+  
+  
+loadRoverBalance();  
+  
+loadCheckin();  
+  
+quizStatusLoad();  
+  
+updateSpinUI();  
+  
+updateMysteryUI();  
+  
+updateAchievements();  
+  
+  
+streakNumber.textContent =  
+Number(  
+localStorage.getItem(  
+gameStorageKey("streak")  
+) || 0  
+);  
+  
+  
+const used =  
+getSpinCount();  
+  
+const left =  
+Math.max(  
+0,  
+3 - used  
+);  
+  
+  
+if(used >= 3){  
+  
+spinRewardDisplay.className =  
+"reward-display";  
+  
+spinRewardDisplay.innerHTML = `  
+  
+<div class="reward-display-title">  
+DAILY SPINS COMPLETE  
+</div>  
+  
+<div class="reward-display-sub">  
+COME BACK TOMORROW  
+</div>  
+  
+`;  
+  
+}else{  
+  
+spinRewardDisplay.className =  
+"reward-display";  
+  
+spinRewardDisplay.innerHTML = `  
+  
+<div class="reward-display-title">  
+READY TO SPIN  
+</div>  
+  
+<div class="reward-display-sub">  
+${left} CHANCES TODAY  
+</div>  
+  
+`;  
+  
+}  
+  
+}  
+  
+  
+/* =========================================================  
+   RESET UI WHEN WALLET DISCONNECTED  
+========================================================= */  
+  
+function resetWalletUI(){  
+  
+roverAmount = 0;  
+  
+roverTodayAmount = 0;  
+  
+updateRoverUI();  
+  
+  
+streakNumber.textContent =  
+"0";  
+  
+  
+checkinButton.disabled =  
+false;  
+  
+checkinButton.textContent =  
+"DAILY CHECK-IN";  
+  
+  
+missionCheckin.textContent =  
+"READY";  
+  
+missionCheckin.classList.remove(  
+"done"  
+);  
+  
+  
+quizStatus.textContent =  
+"CONNECT WALLET";  
+  
+quizButton.textContent =  
+"CONNECT WALLET";  
+  
+quizButton.disabled =  
+false;  
+  
+missionQuiz.textContent =  
+"0/1";  
+  
+  
+spinCount.textContent =  
+"3 / 3";  
+  
+missionSpin.textContent =  
+"0/3";  
+  
+missionSpin.classList.remove(  
+"done"  
+);  
+  
+spinButton.disabled =  
+false;  
+  
+spinButton.textContent =  
+"SPIN NOW";  
+  
+  
+spinRewardDisplay.className =  
+"reward-display";  
+  
+spinRewardDisplay.innerHTML = `  
+  
+<div class="reward-display-title">  
+READY TO SPIN  
+</div>  
+  
+<div class="reward-display-sub">  
+3 CHANCES TODAY  
+</div>  
+  
+`;  
+  
+  
+mysteryKeys.textContent =  
+"0";  
+  
+mysteryBox.textContent =  
+"🔒";  
+  
+mysteryBox.classList.add(  
+"locked"  
+);  
+  
+mysteryButton.disabled =  
+true;  
+  
+mysteryButton.textContent =  
+"NO KEY";  
+  
+mysteryResult.textContent =  
+"BOX LOCKED";  
+  
+mysteryHelp.textContent =  
+"Connect your wallet to start earning.";  
+  
+}  
+  
+  
+/* =========================================================  
+   SCROLL ANIMATION  
+========================================================= */  
+  
+const observer =  
+new IntersectionObserver(  
+entries => {  
+  
+entries.forEach(  
+(entry,index) => {  
+  
+if(entry.isIntersecting){  
+  
+setTimeout(  
+() => {  
+  
+entry.target.classList.add(  
+"visible"  
+);  
+  
+},  
+index * 70  
+);  
+  
+  
+observer.unobserve(  
+entry.target  
+);  
+  
+}  
+  
+}  
+  
+);  
+},  
+{  
+threshold:.08  
+}  
+);  
+  
+  
+document  
+.querySelectorAll(".reveal")  
+.forEach(  
+el =>  
+observer.observe(el)  
+);  
+  
+  
+/* =========================================================  
+   START  
+========================================================= */  
+  
+resetWalletUI();  
+  
+restoreWallet();  
+  
+</script>  </body>  
 </html>
