@@ -2670,53 +2670,58 @@ let roverAmount = 0;
 let roverTodayAmount = 0;  
   
   
-function loadRoverBalance(){  
-  
-const saved =  
-localStorage.getItem(  
-gameStorageKey("balance")  
-);  
-  
-const savedToday =  
-localStorage.getItem(  
-gameStorageKey("today")  
-);  
-  
-const savedDate =  
-localStorage.getItem(  
-gameStorageKey("todayDate")  
-);  
-  
-  
-roverAmount =  
-Number(saved || 0);  
-  
-  
-if(savedDate !== todayKey()){  
-  
-roverTodayAmount = 0;  
-  
-localStorage.setItem(  
-gameStorageKey("today"),  
-"0"  
-);  
-  
-localStorage.setItem(  
-gameStorageKey("todayDate"),  
-todayKey()  
-);  
-  
-}else{  
-  
-roverTodayAmount =  
-Number(savedToday || 0);  
-  
-}  
-  
-  
-updateRoverUI();  
-  
-}  
+async function loadRoverBalance(){
+
+  if(!walletAddress){
+    roverAmount = 0;
+    roverTodayAmount = 0;
+    updateRoverUI();
+    return;
+  }
+
+  try{
+
+    const { data, error } = await supabaseClient.rpc(
+      "get_rover_balance",
+      {
+        p_wallet: walletAddress
+      }
+    );
+
+    if(error) throw error;
+
+    const row = Array.isArray(data) ? data[0] : data;
+
+    roverAmount = Number(row?.balance || 0);
+    roverTodayAmount = Number(row?.today_earned || 0);
+
+    updateRoverUI();
+
+    console.log(
+      "ROVER BACKEND:",
+      roverAmount,
+      "TODAY:",
+      roverTodayAmount
+    );
+
+  }catch(error){
+
+    console.error(
+      "Supabase Rover Balance Error:",
+      error
+    );
+
+    /*
+      Backend error হলে পুরোনো localStorage
+      balance দিয়ে নতুন balance দেখাব না।
+    */
+
+    roverAmount = 0;
+    roverTodayAmount = 0;
+
+    updateRoverUI();
+  }
+}
   
   
 function updateRoverUI(){  
