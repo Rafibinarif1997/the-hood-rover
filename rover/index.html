@@ -2676,6 +2676,12 @@ async function roverRPC(functionName,args={}){
 }
 
 
+function todayKey(){
+  // Keep the browser date format identical to Supabase current_date.
+  return new Date().toISOString().slice(0,10);
+}
+
+
 function addLocalReward(rewardType,amount){
 
   const value = Number(amount || 0);
@@ -3716,7 +3722,16 @@ spinButton.addEventListener(
     }
 
 
-    const used = getSpinCount();
+    let used = 0;
+
+    try{
+      used = getSpinCount();
+    }catch(error){
+      console.error("Spin count error:",error);
+      alert("SPIN FAILED.\n\n" + (error.message || "Please try again."));
+      updateSpinUI();
+      return;
+    }
 
     if(used >= 3){
       alert("YOU HAVE USED ALL 3 SPINS TODAY.\n\nCOME BACK TOMORROW.");
