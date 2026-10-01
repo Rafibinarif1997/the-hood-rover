@@ -39,8 +39,6 @@ body{
   overflow-x:hidden;
 }
 
-/* PIXEL GRID */
-
 body::before{
   content:"";
   position:fixed;
@@ -53,8 +51,6 @@ body::before{
     linear-gradient(90deg,rgba(20,50,70,.16) 1px,transparent 1px);
   background-size:24px 24px;
 }
-
-/* CRT */
 
 body::after{
   content:"";
@@ -364,6 +360,40 @@ h1{
   font-size:17px;
   line-height:1.7;
   font-weight:700;
+}
+
+/* =========================
+   INVITE BOX
+========================= */
+
+.invite-box{
+  margin-top:25px;
+  padding:22px;
+  background:var(--cream);
+  border:4px solid var(--line);
+  box-shadow:5px 5px 0 var(--line);
+}
+
+.invite-title{
+  margin-bottom:12px;
+  color:var(--blue);
+  font-family:"Press Start 2P";
+  font-size:9px;
+}
+
+.invite-text{
+  margin:0 0 18px;
+  font-size:15px;
+  line-height:1.7;
+  font-weight:800;
+}
+
+.invite-status{
+  margin-top:14px;
+  color:var(--muted);
+  font-size:11px;
+  font-weight:800;
+  line-height:1.6;
 }
 
 /* =========================
@@ -696,6 +726,10 @@ footer{
     font-size:14px;
   }
 
+  .invite-text{
+    font-size:14px;
+  }
+
   .link-row{
     flex-direction:column;
   }
@@ -733,10 +767,6 @@ footer{
 </head>
 
 <body>
-
-<!-- =========================
-     LOCKED HEADER
-========================= -->
 
 <header>
 
@@ -780,10 +810,6 @@ footer{
 
 <div class="wrap">
 
-<!-- =========================
-     REFERRAL HERO
-========================= -->
-
 <section class="hero reveal">
 
   <div class="window">
@@ -804,7 +830,6 @@ footer{
 
     </div>
 
-
     <div class="hero-content">
 
       <div>
@@ -820,11 +845,10 @@ footer{
         <p class="hero-text">
           Invite real Rovers into the Hood.
           Build your network through genuine activity
-          and unlock your referral progress.
+          and earn Rover rewards from successful invites.
         </p>
 
       </div>
-
 
       <div class="system-status">
 
@@ -853,10 +877,6 @@ footer{
 </section>
 
 
-<!-- =========================
-     REFERRAL SYSTEM
-========================= -->
-
 <section class="referral-window reveal">
 
   <div class="referral-bar">
@@ -865,7 +885,7 @@ footer{
       REFERRAL_SYSTEM.EXE
     </span>
 
-    <span>
+    <span id="referralBarStatus">
       [ READY ]
     </span>
 
@@ -892,6 +912,41 @@ footer{
     </p>
 
 
+    <!-- INVITE AREA -->
+
+    <div
+      class="invite-box"
+      id="inviteBox"
+      style="display:none;"
+    >
+
+      <div class="invite-title">
+        INVITE DETECTED
+      </div>
+
+      <p class="invite-text">
+        You have been invited to
+        The Hood Rover.
+      </p>
+
+      <button
+        class="btn"
+        id="acceptInviteBtn"
+        type="button"
+      >
+        ACCEPT INVITE
+      </button>
+
+      <div
+        class="invite-status"
+        id="inviteStatus"
+      >
+        CONNECT YOUR WALLET TO ACCEPT THIS INVITE.
+      </div>
+
+    </div>
+
+
     <!-- REFERRAL LINK -->
 
     <div class="ref-box">
@@ -910,7 +965,11 @@ footer{
           value="CONNECT WALLET TO GENERATE"
         >
 
-        <button class="copy-btn" id="copyBtn">
+        <button
+          class="copy-btn"
+          id="copyBtn"
+          type="button"
+        >
           COPY LINK
         </button>
 
@@ -1007,12 +1066,12 @@ footer{
       <div class="rule">
 
         <b>
-          02 // REAL ACTIVITY
+          02 // ACCEPT INVITE
         </b>
 
         <p>
-          A referral becomes successful only after the
-          invited user completes the required genuine activity.
+          A referral becomes successful when the invited
+          user connects their wallet and accepts the invite.
         </p>
 
       </div>
@@ -1039,8 +1098,8 @@ footer{
         </b>
 
         <p>
-          Duplicate, automated or suspicious activity
-          can be excluded from referral progress.
+          Duplicate, self-referral or suspicious activity
+          can be rejected by the referral system.
         </p>
 
       </div>
@@ -1053,7 +1112,7 @@ footer{
     <div class="activity">
 
       <div class="activity-title">
-        RECENT REFERRAL ACTIVITY
+        REFERRAL ACTIVITY
       </div>
 
 
@@ -1076,7 +1135,7 @@ footer{
           REFERRALS
         </span>
 
-        <span>
+        <span id="activityReferrals">
           0 SUCCESSFUL
         </span>
 
@@ -1089,7 +1148,7 @@ footer{
           LIMIT
         </span>
 
-        <span>
+        <span id="activityLimit">
           10 USERS
         </span>
 
@@ -1100,9 +1159,10 @@ footer{
 
     <p class="note">
 
-      Referral rewards and verification will be connected
-      to the real backend later. This page does not publicly
-      describe any token.
+      Successful referrals are verified and recorded
+      through the Hood Rover backend.
+      Each successful referral gives the referrer
+      <strong>+2 ROVER</strong>.
 
     </p>
 
@@ -1132,10 +1192,6 @@ footer{
 </main>
 
 
-<!-- =========================
-     LOCKED FOOTER
-========================= -->
-
 <footer>
 
   <div class="wrap footer">
@@ -1155,9 +1211,9 @@ footer{
 
 <script>
 
-/* =========================
+/* =========================================================
    MOBILE MENU
-========================= */
+========================================================= */
 
 const menu =
   document.getElementById("menu");
@@ -1165,57 +1221,304 @@ const menu =
 const nav =
   document.getElementById("nav");
 
-menu.addEventListener("click", () => {
+menu.addEventListener(
+  "click",
+  () => {
 
-  nav.classList.toggle("open");
+    nav.classList.toggle("open");
 
-});
+  }
+);
 
-
-/* =========================
-   CLOSE MENU
-========================= */
 
 document
   .querySelectorAll("#nav a")
   .forEach(link => {
 
-    link.addEventListener("click", () => {
+    link.addEventListener(
+      "click",
+      () => {
 
-      nav.classList.remove("open");
+        nav.classList.remove("open");
 
-    });
+      }
+    );
 
   });
 
 
-/* =========================
+/* =========================================================
+   SUPABASE
+========================================================= */
+
+const SUPABASE_URL =
+  "https://hyshlvuywbwhhjgqwfwi.supabase.co";
+
+const SUPABASE_PUBLISHABLE_KEY =
+  "sb_publishable_LWmPzfGLuzdjDZvnwKs0Ug_Gvs5yROF";
+
+const {
+  createClient
+} = window.supabase;
+
+const supabaseClient =
+  createClient(
+    SUPABASE_URL,
+    SUPABASE_PUBLISHABLE_KEY
+  );
+
+
+/* =========================================================
    WALLET
-========================= */
+   SAME KEY USED BY ROVER HUB
+========================================================= */
 
 const walletKey =
-  "hoodRoverWallet";
+  "roverHubWallet";
+
+let walletAddress =
+  null;
+
+let incomingReferrer =
+  null;
 
 
-function createReferralLink(address){
+/* =========================================================
+   ELEMENTS
+========================================================= */
 
-  return window.location.origin +
-    window.location.pathname +
-    "?ref=" +
-    address.toLowerCase();
+const refLink =
+  document.getElementById(
+    "refLink"
+  );
+
+const copyBtn =
+  document.getElementById(
+    "copyBtn"
+  );
+
+const refCount =
+  document.getElementById(
+    "refCount"
+  );
+
+const statusText =
+  document.getElementById(
+    "statusText"
+  );
+
+const progressBar =
+  document.getElementById(
+    "progressBar"
+  );
+
+const progressText =
+  document.getElementById(
+    "progressText"
+  );
+
+const systemActivity =
+  document.getElementById(
+    "systemActivity"
+  );
+
+const activityReferrals =
+  document.getElementById(
+    "activityReferrals"
+  );
+
+const activityLimit =
+  document.getElementById(
+    "activityLimit"
+  );
+
+const inviteBox =
+  document.getElementById(
+    "inviteBox"
+  );
+
+const acceptInviteBtn =
+  document.getElementById(
+    "acceptInviteBtn"
+  );
+
+const inviteStatus =
+  document.getElementById(
+    "inviteStatus"
+  );
+
+
+/* =========================================================
+   RPC HELPER
+========================================================= */
+
+async function roverRPC(
+  functionName,
+  args = {}
+){
+
+  const {
+    data,
+    error
+  } =
+    await supabaseClient.rpc(
+      functionName,
+      args
+    );
+
+  if(error){
+
+    throw error;
+
+  }
+
+  return data;
 
 }
 
+
+/* =========================================================
+   REFERRAL LINK
+========================================================= */
+
+function createReferralLink(
+  address
+){
+
+  return (
+    window.location.origin +
+    window.location.pathname +
+    "?ref=" +
+    address.toLowerCase()
+  );
+
+}
+
+
+/* =========================================================
+   GET URL REFERRER
+========================================================= */
+
+function getIncomingReferrer(){
+
+  const params =
+    new URLSearchParams(
+      window.location.search
+    );
+
+  const ref =
+    params.get("ref");
+
+  if(!ref){
+
+    return null;
+
+  }
+
+  const clean =
+    ref
+      .trim()
+      .toLowerCase();
+
+  if(
+    !clean.startsWith("0x") ||
+    clean.length !== 42
+  ){
+
+    return null;
+
+  }
+
+  return clean;
+
+}
+
+
+/* =========================================================
+   SHOW INVITE BOX
+========================================================= */
+
+function showInvite(
+  message,
+  showButton = true
+){
+
+  inviteBox.style.display =
+    "block";
+
+  inviteStatus.textContent =
+    message;
+
+  acceptInviteBtn.style.display =
+    showButton
+      ? "inline-flex"
+      : "none";
+
+}
+
+
+/* =========================================================
+   HIDE INVITE BOX
+========================================================= */
+
+function hideInvite(){
+
+  inviteBox.style.display =
+    "none";
+
+}
+
+
+/* =========================================================
+   UPDATE WALLET UI
+========================================================= */
+
+function updateWalletUI(){
+
+  if(!walletAddress){
+
+    refLink.value =
+      "CONNECT WALLET TO GENERATE";
+
+    statusText.textContent =
+      "READY";
+
+    systemActivity.textContent =
+      "WAITING FOR WALLET";
+
+    return;
+
+  }
+
+
+  refLink.value =
+    createReferralLink(
+      walletAddress
+    );
+
+  statusText.textContent =
+    "ACTIVE";
+
+  systemActivity.textContent =
+    "WALLET CONNECTED";
+
+}
+
+
+/* =========================================================
+   CONNECT WALLET
+========================================================= */
 
 async function connectWallet(){
 
   if(!window.ethereum){
 
     alert(
-      "No Web3 wallet detected. Connect MetaMask or another compatible wallet."
+      "NO WEB3 WALLET DETECTED.\n\n" +
+      "Please open this page inside your wallet browser."
     );
 
-    return;
+    return null;
 
   }
 
@@ -1224,70 +1527,566 @@ async function connectWallet(){
 
     const accounts =
       await window.ethereum.request({
-        method:"eth_requestAccounts"
+        method:
+          "eth_requestAccounts"
       });
 
 
-    if(accounts && accounts[0]){
+    if(
+      !accounts ||
+      !accounts[0]
+    ){
 
-      const wallet =
-        accounts[0];
-
-
-      localStorage.setItem(
-        walletKey,
-        wallet
-      );
-
-
-      document
-        .getElementById("refLink")
-        .value =
-        createReferralLink(wallet);
-
-
-      document
-        .getElementById("statusText")
-        .textContent =
-        "ACTIVE";
-
-
-      document
-        .getElementById("systemActivity")
-        .textContent =
-        "WALLET CONNECTED";
+      return null;
 
     }
 
-  }catch(error){
 
-    console.log(error);
+    walletAddress =
+      accounts[0].toLowerCase();
+
+
+    localStorage.setItem(
+      walletKey,
+      walletAddress
+    );
+
+
+    updateWalletUI();
+
+    await loadReferralData();
+
+    await checkIncomingReferral();
+
+
+    return walletAddress;
+
+  }
+  catch(error){
+
+    console.error(
+      "Wallet connection error:",
+      error
+    );
+
+    alert(
+      "WALLET CONNECTION FAILED."
+    );
+
+    return null;
 
   }
 
 }
 
 
-/* =========================
-   COPY LINK
-========================= */
+/* =========================================================
+   LOAD SAVED WALLET
+========================================================= */
 
-document
-  .getElementById("copyBtn")
-  .addEventListener("click", async function(){
+async function loadSavedWallet(){
 
-    const input =
-      document.getElementById("refLink");
+  const savedWallet =
+    localStorage.getItem(
+      walletKey
+    );
 
 
-    if(
-      input.value ===
-      "CONNECT WALLET TO GENERATE"
-    ){
+  if(savedWallet){
 
-      await connectWallet();
+    walletAddress =
+      savedWallet
+        .toLowerCase();
+
+    updateWalletUI();
+
+    await loadReferralData();
+
+  }
+
+}
+
+
+/* =========================================================
+   LOAD REFERRAL DATA
+========================================================= */
+
+async function loadReferralData(){
+
+  if(!walletAddress){
+
+    return;
+
+  }
+
+
+  try{
+
+    const data =
+      await roverRPC(
+        "get_referral_data",
+        {
+          p_wallet:
+            walletAddress
+        }
+      );
+
+
+    const result =
+      Array.isArray(data)
+        ? data[0] || {}
+        : data || {};
+
+
+    const count =
+      Number(
+        result.referral_count || 0
+      );
+
+
+    const max =
+      Number(
+        result.max_referrals || 10
+      );
+
+
+    const percent =
+      Math.min(
+        100,
+        (count / max) * 100
+      );
+
+
+    refCount.textContent =
+      `${count} / ${max}`;
+
+
+    progressBar.style.width =
+      `${percent}%`;
+
+
+    progressText.textContent =
+      `${Math.round(percent)}%`;
+
+
+    activityReferrals.textContent =
+      `${count} SUCCESSFUL`;
+
+
+    if(count >= max){
+
+      activityLimit.textContent =
+        "MAX REACHED";
+
+      statusText.textContent =
+        "MAX REACHED";
+
+    }
+    else{
+
+      activityLimit.textContent =
+        `${max - count} SLOTS LEFT`;
+
+      statusText.textContent =
+        "ACTIVE";
+
+    }
+
+  }
+  catch(error){
+
+    console.error(
+      "Referral data error:",
+      error
+    );
+
+  }
+
+}
+
+
+/* =========================================================
+   CHECK INCOMING REFERRAL
+========================================================= */
+
+async function checkIncomingReferral(){
+
+  incomingReferrer =
+    getIncomingReferrer();
+
+
+  if(!incomingReferrer){
+
+    hideInvite();
+
+    return;
+
+  }
+
+
+  /*
+     No wallet yet.
+     Show invite immediately.
+  */
+
+  if(!walletAddress){
+
+    showInvite(
+      "CONNECT YOUR WALLET TO ACCEPT THIS INVITE.",
+      true
+    );
+
+    return;
+
+  }
+
+
+  /*
+     Self referral.
+  */
+
+  if(
+    incomingReferrer ===
+    walletAddress
+  ){
+
+    showInvite(
+      "SELF REFERRAL IS NOT ALLOWED.",
+      false
+    );
+
+    return;
+
+  }
+
+
+  /*
+     Check whether this wallet
+     already accepted a referral.
+  */
+
+  try{
+
+    const data =
+      await roverRPC(
+        "get_referral_status",
+        {
+          p_wallet:
+            walletAddress
+        }
+      );
+
+
+    const result =
+      Array.isArray(data)
+        ? data[0] || {}
+        : data || {};
+
+
+    if(result.accepted){
+
+      showInvite(
+        "THIS WALLET HAS ALREADY ACCEPTED A REFERRAL.",
+        false
+      );
 
       return;
+
+    }
+
+
+    showInvite(
+      "YOUR INVITE IS READY TO ACCEPT.",
+      true
+    );
+
+  }
+  catch(error){
+
+    console.error(
+      "Referral status error:",
+      error
+    );
+
+    showInvite(
+      "UNABLE TO VERIFY INVITE. PLEASE TRY AGAIN.",
+      false
+    );
+
+  }
+
+}
+
+
+/* =========================================================
+   ACCEPT REFERRAL
+========================================================= */
+
+acceptInviteBtn.addEventListener(
+  "click",
+  async () => {
+
+    /*
+       Wallet required
+    */
+
+    if(!walletAddress){
+
+      const connected =
+        await connectWallet();
+
+      if(!connected){
+
+        return;
+
+      }
+
+    }
+
+
+    /*
+       Refresh URL ref
+    */
+
+    incomingReferrer =
+      getIncomingReferrer();
+
+
+    if(!incomingReferrer){
+
+      showInvite(
+        "NO VALID REFERRAL INVITE FOUND.",
+        false
+      );
+
+      return;
+
+    }
+
+
+    /*
+       Self referral
+    */
+
+    if(
+      incomingReferrer ===
+      walletAddress
+    ){
+
+      showInvite(
+        "SELF REFERRAL IS NOT ALLOWED.",
+        false
+      );
+
+      return;
+
+    }
+
+
+    acceptInviteBtn.disabled =
+      true;
+
+    acceptInviteBtn.textContent =
+      "PROCESSING...";
+
+    inviteStatus.textContent =
+      "VERIFYING INVITE...";
+
+
+    try{
+
+      const data =
+        await roverRPC(
+          "accept_referral",
+          {
+            p_wallet:
+              walletAddress,
+
+            p_referrer_wallet:
+              incomingReferrer
+          }
+        );
+
+
+      const result =
+        Array.isArray(data)
+          ? data[0] || {}
+          : data || {};
+
+
+      /*
+         FAILED
+      */
+
+      if(!result.success){
+
+        let message =
+          "REFERRAL COULD NOT BE ACCEPTED.";
+
+
+        if(
+          result.reason ===
+          "already_referred"
+        ){
+
+          message =
+            "THIS WALLET HAS ALREADY ACCEPTED A REFERRAL.";
+
+        }
+
+
+        if(
+          result.reason ===
+          "self_referral"
+        ){
+
+          message =
+            "SELF REFERRAL IS NOT ALLOWED.";
+
+        }
+
+
+        if(
+          result.reason ===
+          "referral_limit_reached"
+        ){
+
+          message =
+            "THIS REFERRER HAS REACHED THE 10 USER LIMIT.";
+
+        }
+
+
+        if(
+          result.reason ===
+          "referrer_not_found"
+        ){
+
+          message =
+            "REFERRER WAS NOT FOUND.";
+
+        }
+
+
+        acceptInviteBtn.disabled =
+          false;
+
+        acceptInviteBtn.textContent =
+          "ACCEPT INVITE";
+
+        inviteStatus.textContent =
+          message;
+
+        return;
+
+      }
+
+
+      /*
+         SUCCESS
+      */
+
+      acceptInviteBtn.disabled =
+        true;
+
+      acceptInviteBtn.textContent =
+        "INVITE ACCEPTED ✓";
+
+      acceptInviteBtn.style.background =
+        "var(--green)";
+
+      inviteStatus.textContent =
+        "WELCOME TO THE HOOD ROVER.";
+
+
+      statusText.textContent =
+        "INVITE ACCEPTED";
+
+
+      systemActivity.textContent =
+        "REFERRAL ACCEPTED";
+
+
+      /*
+         The referrer has now received:
+         +1 referral
+         +2 ROVER
+      */
+
+
+      /*
+         Remove ?ref= from URL
+      */
+
+      const cleanUrl =
+        window.location.origin +
+        window.location.pathname;
+
+
+      window.history.replaceState(
+        {},
+        document.title,
+        cleanUrl
+      );
+
+
+      alert(
+        "INVITE ACCEPTED!\n\n" +
+        "WELCOME TO THE HOOD ROVER."
+      );
+
+
+    }
+    catch(error){
+
+      console.error(
+        "Accept referral error:",
+        error
+      );
+
+
+      acceptInviteBtn.disabled =
+        false;
+
+      acceptInviteBtn.textContent =
+        "ACCEPT INVITE";
+
+      inviteStatus.textContent =
+        "REFERRAL FAILED. PLEASE TRY AGAIN.";
+
+
+      alert(
+        "REFERRAL FAILED.\n\n" +
+        (
+          error.message ||
+          "Please try again."
+        )
+      );
+
+    }
+
+  }
+);
+
+
+/* =========================================================
+   COPY REFERRAL LINK
+========================================================= */
+
+copyBtn.addEventListener(
+  "click",
+  async function(){
+
+    if(!walletAddress){
+
+      const connected =
+        await connectWallet();
+
+      if(!connected){
+
+        return;
+
+      }
 
     }
 
@@ -1295,7 +2094,7 @@ document
     try{
 
       await navigator.clipboard.writeText(
-        input.value
+        refLink.value
       );
 
 
@@ -1303,102 +2102,173 @@ document
         "COPIED!";
 
 
-      setTimeout(() => {
+      setTimeout(
+        () => {
 
-        this.textContent =
-          "COPY LINK";
+          this.textContent =
+            "COPY LINK";
 
-      },1500);
+        },
+        1500
+      );
 
+    }
+    catch(error){
 
-    }catch(error){
+      refLink.select();
 
-      input.select();
+      document.execCommand(
+        "copy"
+      );
 
-      document.execCommand("copy");
 
       this.textContent =
         "COPIED!";
 
 
-      setTimeout(() => {
+      setTimeout(
+        () => {
 
-        this.textContent =
-          "COPY LINK";
+          this.textContent =
+            "COPY LINK";
 
-      },1500);
+        },
+        1500
+      );
 
     }
 
-  });
-
-
-/* =========================
-   LOAD WALLET
-========================= */
-
-window.addEventListener("load", () => {
-
-  const savedWallet =
-    localStorage.getItem(walletKey);
-
-
-  if(savedWallet){
-
-    document
-      .getElementById("refLink")
-      .value =
-      createReferralLink(savedWallet);
-
-
-    document
-      .getElementById("statusText")
-      .textContent =
-      "ACTIVE";
-
-
-    document
-      .getElementById("systemActivity")
-      .textContent =
-      "WALLET CONNECTED";
-
   }
+);
 
 
-  setTimeout(() => {
+/* =========================================================
+   WALLET ACCOUNT CHANGED
+========================================================= */
 
-    document
-      .querySelectorAll(".reveal")
-      .forEach((element,index) => {
+if(window.ethereum){
 
-        setTimeout(() => {
+  window.ethereum.on(
+    "accountsChanged",
+    async accounts => {
 
-          element.classList.add("visible");
+      if(
+        !accounts ||
+        !accounts[0]
+      ){
 
-        },index * 120);
+        walletAddress =
+          null;
 
-      });
+        localStorage.removeItem(
+          walletKey
+        );
 
-  },100);
+        updateWalletUI();
 
-});
+        await checkIncomingReferral();
+
+        return;
+
+      }
 
 
-/* =========================
+      walletAddress =
+        accounts[0]
+          .toLowerCase();
+
+
+      localStorage.setItem(
+        walletKey,
+        walletAddress
+      );
+
+
+      updateWalletUI();
+
+      await loadReferralData();
+
+      await checkIncomingReferral();
+
+    }
+  );
+
+}
+
+
+/* =========================================================
+   REVEAL
+========================================================= */
+
+function startReveal(){
+
+  setTimeout(
+    () => {
+
+      document
+        .querySelectorAll(
+          ".reveal"
+        )
+        .forEach(
+          (element,index) => {
+
+            setTimeout(
+              () => {
+
+                element.classList.add(
+                  "visible"
+                );
+
+              },
+              index * 120
+            );
+
+          }
+        );
+
+    },
+    100
+  );
+
+}
+
+
+/* =========================================================
    OPENSEA
-========================= */
+========================================================= */
 
 document
   .getElementById("mintButton")
-  .addEventListener("click", event => {
+  .addEventListener(
+    "click",
+    event => {
 
-    event.preventDefault();
+      event.preventDefault();
 
-    alert(
-      "OpenSea mint link will be connected here."
-    );
+      alert(
+        "OpenSea mint link will be connected here."
+      );
 
-  });
+    }
+  );
+
+
+/* =========================================================
+   PAGE LOAD
+========================================================= */
+
+window.addEventListener(
+  "load",
+  async () => {
+
+    await loadSavedWallet();
+
+    await checkIncomingReferral();
+
+    startReveal();
+
+  }
+);
 
 </script>
 
