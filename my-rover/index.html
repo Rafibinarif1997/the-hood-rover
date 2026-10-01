@@ -4,7 +4,9 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 
-<title>MY ROVER — The Hood Rover</title>
+<title>ROVER HUB — The Hood Rover</title>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Space+Grotesk:wght@400;500;600;700&display=swap');
@@ -24,734 +26,265 @@
 }
 
 *{box-sizing:border-box}
-
 html{scroll-behavior:smooth}
-
 body{
-  margin:0;
-  color:var(--ink);
-  background:var(--paper);
-  font-family:"Space Grotesk",sans-serif;
-  overflow-x:hidden;
+  margin:0;color:var(--ink);background:var(--paper);
+  font-family:"Space Grotesk",sans-serif;overflow-x:hidden;
 }
-
 body::before{
-  content:"";
-  position:fixed;
-  inset:0;
-  pointer-events:none;
-  z-index:-2;
-  opacity:.13;
-  background-image:
-    linear-gradient(rgba(20,50,70,.16) 1px,transparent 1px),
-    linear-gradient(90deg,rgba(20,50,70,.16) 1px,transparent 1px);
+  content:"";position:fixed;inset:0;pointer-events:none;z-index:-2;opacity:.13;
+  background-image:linear-gradient(rgba(20,50,70,.16) 1px,transparent 1px),
+  linear-gradient(90deg,rgba(20,50,70,.16) 1px,transparent 1px);
   background-size:24px 24px;
 }
-
 body::after{
-  content:"";
-  position:fixed;
-  inset:0;
-  pointer-events:none;
-  z-index:50;
-  background:repeating-linear-gradient(
-    0deg,
-    transparent 0 3px,
-    rgba(20,40,55,.035) 3px 4px
-  );
+  content:"";position:fixed;inset:0;pointer-events:none;z-index:50;
+  background:repeating-linear-gradient(0deg,transparent 0 3px,rgba(20,40,55,.035) 3px 4px);
 }
+a{color:inherit;text-decoration:none}
+button{font-family:inherit}
 
-a{
-  color:inherit;
-  text-decoration:none;
-}
+.wrap{width:min(1160px,calc(100% - 32px));margin:auto}
 
-button{
-  font-family:inherit;
-}
-
-.wrap{
-  width:min(1160px,calc(100% - 32px));
-  margin:auto;
-}
-
-/* =========================
-   NAV
-========================= */
-
+/* TOP NAV */
 header{
-  position:sticky;
-  top:0;
-  z-index:30;
-  min-height:76px;
-  display:flex;
-  align-items:center;
-  gap:18px;
-  padding:10px max(16px,calc((100% - 1160px)/2));
-  background:rgba(255,250,240,.95);
-  backdrop-filter:blur(12px);
+  position:sticky;top:0;z-index:30;min-height:76px;display:flex;align-items:center;
+  gap:18px;padding:10px max(16px,calc((100% - 1160px)/2));
+  background:rgba(255,250,240,.95);backdrop-filter:blur(12px);
   border-bottom:3px solid var(--line);
 }
-
 .brand{
-  display:flex;
-  align-items:center;
-  gap:10px;
-  font-family:"Press Start 2P";
-  font-size:11px;
-  line-height:1.5;
-  white-space:nowrap;
+  display:flex;align-items:center;gap:10px;font-family:"Press Start 2P";
+  font-size:11px;line-height:1.5;white-space:nowrap;
 }
-
 .mark{
-  width:38px;
-  height:38px;
-  display:grid;
-  place-items:center;
-  background:var(--blue);
-  color:#fff;
-  border:3px solid var(--line);
-  box-shadow:3px 3px 0 var(--line);
-  font-family:"Press Start 2P";
-  font-size:10px;
+  width:38px;height:38px;display:grid;place-items:center;background:var(--blue);color:#fff;
+  border:3px solid var(--line);box-shadow:3px 3px 0 var(--line);
+  font-family:"Press Start 2P";font-size:10px;flex-shrink:0;
 }
-
-nav{
-  margin-left:auto;
-  display:flex;
-  align-items:center;
-  gap:4px;
-}
-
+nav{margin-left:auto;display:flex;align-items:center;gap:4px}
 nav a{
-  padding:9px 10px;
-  border:2px solid transparent;
-  font-size:12px;
-  font-weight:800;
+  padding:9px 10px;border:2px solid transparent;font-size:12px;font-weight:800
 }
-
-nav a:hover,
-nav a.active{
-  background:#fff;
-  border-color:var(--line);
-  box-shadow:3px 3px 0 var(--line);
+nav a:hover,nav a.active{
+  background:#fff;border-color:var(--line);box-shadow:3px 3px 0 var(--line)
 }
-
 .menu{
-  display:none;
-  margin-left:auto;
-  background:#fff;
-  border:3px solid var(--line);
-  padding:9px 12px;
-  cursor:pointer;
-  font-size:18px;
+  display:none;margin-left:auto;background:#fff;border:3px solid var(--line);
+  padding:9px 12px;cursor:pointer;font-size:18px;flex-shrink:0;
 }
+.wallet-button{flex-shrink:0;white-space:nowrap}
 
-/* =========================
-   BUTTON
-========================= */
-
+/* BUTTON */
 .btn{
-  display:inline-flex;
-  justify-content:center;
-  align-items:center;
-  gap:8px;
-  border:3px solid var(--line);
-  background:var(--blue);
-  color:#fff;
-  padding:13px 16px;
-  font-family:"Press Start 2P";
-  font-size:9px;
-  box-shadow:5px 5px 0 var(--line);
-  cursor:pointer;
-  transition:.15s ease;
+  display:inline-flex;justify-content:center;align-items:center;gap:8px;
+  border:3px solid var(--line);background:var(--blue);color:#fff;padding:13px 16px;
+  font-family:"Press Start 2P";font-size:9px;box-shadow:5px 5px 0 var(--line);
+  cursor:pointer;transition:.15s ease;
 }
+.btn:hover{transform:translate(2px,2px);box-shadow:3px 3px 0 var(--line)}
+.btn.secondary{background:#fff;color:var(--ink)}
+.btn.yellow{background:var(--yellow);color:var(--ink)}
+.btn:disabled{opacity:.65;cursor:not-allowed}
 
-.btn:hover{
-  transform:translate(2px,2px);
-  box-shadow:3px 3px 0 var(--line);
-}
-
-.btn.secondary{
-  background:#fff;
-  color:var(--ink);
-}
-
-.btn.yellow{
-  background:var(--yellow);
-  color:var(--ink);
-}
-
-/* =========================
-   MAIN
-========================= */
-
-main{
-  padding:55px 0 90px;
-}
-
-/* =========================
-   HERO WINDOW
-========================= */
-
-.window{
-  background:#fff;
-  border:4px solid var(--line);
-  box-shadow:8px 8px 0 var(--line);
-}
-
+/* HERO */
+main{padding:55px 0 90px}
+.hero{margin-bottom:28px}
+.window{background:#fff;border:4px solid var(--line);box-shadow:8px 8px 0 var(--line)}
 .window-bar{
-  min-height:42px;
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  padding:9px 13px;
-  background:#dceaf2;
-  border-bottom:4px solid var(--line);
-  font-family:"Press Start 2P";
-  font-size:9px;
+  min-height:42px;display:flex;justify-content:space-between;align-items:center;
+  padding:9px 13px;background:#dceaf2;border-bottom:4px solid var(--line);
+  font-family:"Press Start 2P";font-size:9px;
 }
-
-.window-lights{
-  display:flex;
-  gap:6px;
+.window-lights{display:flex;gap:6px}
+.light{width:12px;height:12px;border:2px solid var(--line);background:#fff}
+.light:nth-child(2){background:var(--yellow)}
+.light:nth-child(3){background:var(--cyan)}
+.hero-content{
+  padding:34px;display:grid;grid-template-columns:1fr auto;gap:30px;align-items:end
 }
-
-.light{
-  width:12px;
-  height:12px;
-  border:2px solid var(--line);
-  background:#fff;
-}
-
-.light:nth-child(2){
-  background:var(--yellow);
-}
-
-.light:nth-child(3){
-  background:var(--cyan);
-}
-
-.profile-head{
-  padding:32px;
-  display:grid;
-  grid-template-columns:auto 1fr auto;
-  align-items:center;
-  gap:25px;
-}
-
-.avatar{
-  width:125px;
-  height:125px;
-  display:grid;
-  place-items:center;
-  background:
-    linear-gradient(135deg,#dff8ff,#8edfff);
-  border:5px solid var(--line);
-  box-shadow:6px 6px 0 var(--line);
-  font-size:58px;
-}
-
-.eyebrow{
-  display:inline-block;
-  margin-bottom:12px;
-  color:var(--blue);
-  font-family:"Press Start 2P";
-  font-size:9px;
-}
-
+.eyebrow{display:inline-block;margin-bottom:16px;color:var(--blue);font-family:"Press Start 2P";font-size:10px}
 h1{
-  margin:0 0 12px;
-  font-family:"Press Start 2P";
-  font-size:clamp(24px,4vw,42px);
-  line-height:1.35;
+  margin:0 0 16px;font-family:"Press Start 2P";font-size:clamp(28px,5vw,54px);
+  line-height:1.25;letter-spacing:-2px;
 }
-
-.profile-text{
-  margin:0;
-  color:var(--muted);
-  line-height:1.6;
-  font-size:15px;
+.hero-text{max-width:700px;margin:0;color:var(--muted);font-size:17px;line-height:1.65}
+.system-status{min-width:210px;padding:20px;background:var(--cream);border:3px solid var(--line)}
+.status-line{display:flex;align-items:center;gap:9px;font-weight:800;margin-bottom:10px}
+.status-dot{
+  width:12px;height:12px;border-radius:50%;background:var(--green);border:2px solid var(--line);
+  animation:pulse 1.5s infinite;
 }
+@keyframes pulse{50%{opacity:.35}}
+.status-small{color:var(--muted);font-size:12px}
 
-.connect{
-  min-width:190px;
-  text-align:center;
-}
-
-.wallet-status{
-  margin-bottom:10px;
-  color:var(--muted);
-  font-size:11px;
-  font-weight:800;
-}
-
-/* =========================
-   DASHBOARD GRID
-========================= */
-
-.dashboard{
-  margin-top:24px;
-  display:grid;
-  grid-template-columns:1.4fr .8fr;
-  gap:20px;
-}
-
+/* HUB GRID */
+.hub-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
 .card{
-  background:#fff;
-  border:4px solid var(--line);
-  box-shadow:6px 6px 0 var(--line);
-  padding:22px;
+  position:relative;background:#fff;border:4px solid var(--line);box-shadow:6px 6px 0 var(--line);
+  padding:22px;transition:.2s ease;
 }
-
-.card-title{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  gap:15px;
-  margin-bottom:20px;
+.card:hover{transform:translate(-3px,-4px);box-shadow:10px 10px 0 var(--line)}
+.card-head{display:flex;justify-content:space-between;align-items:flex-start;gap:15px;margin-bottom:18px}
+.card-icon{
+  width:48px;height:48px;display:grid;place-items:center;border:3px solid var(--line);
+  background:#dff7ff;font-size:22px;
 }
-
-.card-title h2{
-  margin:0;
-  font-family:"Press Start 2P";
-  font-size:14px;
-  line-height:1.6;
+.card-tag{
+  padding:7px 8px;border:2px solid var(--line);background:var(--cream);
+  font-family:"Press Start 2P";font-size:7px;
 }
+.card h3{margin:0 0 9px;font-family:"Press Start 2P";font-size:13px;line-height:1.6}
+.card p{margin:0 0 18px;color:var(--muted);font-size:14px;line-height:1.55}
+.card .btn{width:100%}
 
-.tag{
-  border:2px solid var(--line);
-  padding:7px 9px;
-  background:var(--cream);
-  font-family:"Press Start 2P";
-  font-size:7px;
+/* DAILY MISSIONS */
+.mission-list{display:grid;gap:9px;margin:16px 0 18px}
+.mission{
+  display:flex;justify-content:space-between;align-items:center;gap:10px;padding:11px;
+  border:2px solid #b8c8d1;background:#f7fafb;
 }
+.mission-name{font-size:12px;font-weight:800}
+.mission-state{font-family:"Press Start 2P";font-size:7px;padding:6px;background:#e6edf1}
+.mission-state.done{background:#bff1d9;border:2px solid #21885d}
 
-/* =========================
-   BALANCE
-========================= */
-
-.balance{
-  background:
-    linear-gradient(135deg,#e5f9ff,#fff);
+/* STREAK */
+.streak-box{
+  display:flex;align-items:center;gap:16px;margin:18px 0;padding:16px;
+  background:#fff7d9;border:3px solid var(--line);
 }
+.fire{font-size:34px}
+.streak-number{font-family:"Press Start 2P";font-size:22px}
+.streak-label{display:block;margin-top:6px;color:var(--muted);font-size:11px;font-weight:800}
 
-.balance-label{
-  color:var(--muted);
-  font-size:12px;
-  font-weight:800;
-  margin-bottom:8px;
+/* SPIN */
+.spin-area{display:flex;flex-direction:column;align-items:center;gap:17px;padding:8px 0 10px}
+.wheel{
+  position:relative;width:150px;height:150px;border-radius:50%;border:5px solid var(--line);
+  background:conic-gradient(var(--blue) 0 16.66%,var(--yellow) 16.66% 33.33%,var(--cyan) 33.33% 50%,
+  #fff 50% 66.66%,var(--orange) 66.66% 83.33%,var(--green) 83.33% 100%);
+  box-shadow:5px 5px 0 var(--line);transition:transform 3s cubic-bezier(.15,.8,.15,1);
 }
-
-.balance-value{
-  font-family:"Press Start 2P";
-  color:var(--blue);
-  font-size:30px;
-  margin-bottom:20px;
+.wheel::after{
+  content:"SPIN";position:absolute;width:50px;height:50px;left:50%;top:50%;
+  transform:translate(-50%,-50%);display:grid;place-items:center;background:#fff;
+  border:4px solid var(--line);border-radius:50%;font-family:"Press Start 2P";font-size:8px;
 }
-
-.balance-note{
-  margin:0;
-  color:var(--muted);
-  font-size:12px;
-  line-height:1.6;
+.pointer{
+  width:0;height:0;border-left:9px solid transparent;border-right:9px solid transparent;
+  border-top:17px solid var(--line);margin-bottom:-7px;z-index:2;
 }
+.reward-text{min-height:20px;text-align:center;font-weight:800;color:var(--blue)}
 
-/* =========================
-   STATS
-========================= */
-
-.stats{
-  display:grid;
-  grid-template-columns:repeat(3,1fr);
-  gap:12px;
+/* MYSTERY */
+.mystery{text-align:center}
+.mystery-box{
+  width:120px;height:100px;margin:12px auto 20px;display:grid;place-items:center;
+  background:linear-gradient(135deg,#d9f7ff,#9ddfff);border:5px solid var(--line);
+  box-shadow:7px 7px 0 var(--line);font-size:42px;cursor:pointer;transition:.2s;
 }
+.mystery-box:hover{transform:translateY(-5px) rotate(-2deg)}
+.mystery-result{min-height:24px;color:var(--blue);font-weight:900}
 
-.stat{
-  padding:16px;
-  background:#f6f9fa;
-  border:3px solid var(--line);
-}
+/* ACHIEVEMENTS */
+.achievement-list{display:grid;grid-template-columns:repeat(2,1fr);gap:9px;margin-top:16px}
+.achievement{padding:12px 8px;text-align:center;background:#f4f7f9;border:2px solid #c2cdd4}
+.achievement.locked{opacity:.45;filter:grayscale(1)}
+.achievement-icon{font-size:22px;margin-bottom:6px}
+.achievement small{display:block;font-size:9px;font-weight:800}
 
-.stat-label{
-  color:var(--muted);
-  font-size:10px;
-  font-weight:800;
-  margin-bottom:8px;
-}
-
-.stat strong{
-  display:block;
-  font-family:"Press Start 2P";
-  font-size:15px;
-}
-
-/* =========================
-   ROVER OWNED
-========================= */
-
-.owned-list{
-  display:grid;
-  grid-template-columns:repeat(3,1fr);
-  gap:12px;
-}
-
-.rover{
-  border:3px solid var(--line);
-  background:#eefaff;
-  overflow:hidden;
-}
-
-.rover-art{
-  aspect-ratio:1;
-  display:grid;
-  place-items:center;
-  background:linear-gradient(135deg,#dff7ff,#b7eaff);
-  font-size:35px;
-  border-bottom:3px solid var(--line);
-}
-
-.rover-info{
-  padding:10px;
-}
-
-.rover-info strong{
-  display:block;
-  font-family:"Press Start 2P";
-  font-size:8px;
-  margin-bottom:5px;
-}
-
-.rover-info span{
-  color:var(--muted);
-  font-size:10px;
-}
-
-/* =========================
-   ACTIVITY
-========================= */
-
-.activity{
-  display:grid;
-  gap:10px;
-}
-
-.activity-row{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:15px;
-  padding:13px;
-  background:#f6f9fa;
-  border:2px solid #c4d0d7;
-}
-
-.activity-left{
-  display:flex;
-  align-items:center;
-  gap:10px;
-}
-
-.activity-icon{
-  width:34px;
-  height:34px;
-  display:grid;
-  place-items:center;
-  border:2px solid var(--line);
-  background:#fff;
-}
-
-.activity-name{
-  font-size:12px;
-  font-weight:800;
-}
-
-.activity-date{
-  display:block;
-  color:var(--muted);
-  font-size:9px;
-  margin-top:3px;
-}
-
-.activity-value{
-  font-family:"Press Start 2P";
-  font-size:8px;
-  color:var(--blue);
-}
-
-/* =========================
-   STREAK
-========================= */
-
-.streak{
-  display:flex;
-  align-items:center;
-  gap:18px;
-  padding:20px;
-  background:#fff7d9;
-  border:3px solid var(--line);
-}
-
-.fire{
-  font-size:40px;
-}
-
-.streak-number{
-  font-family:"Press Start 2P";
-  font-size:24px;
-}
-
-.streak-label{
-  color:var(--muted);
-  font-size:11px;
-  font-weight:800;
-  margin-top:6px;
-}
-
-/* =========================
-   ACHIEVEMENTS
-========================= */
-
-.achievements{
-  display:grid;
-  grid-template-columns:repeat(2,1fr);
-  gap:10px;
-}
-
-.achievement{
-  text-align:center;
-  padding:15px 8px;
-  background:#f5f8fa;
-  border:2px solid #c4d0d7;
-}
-
-.achievement-icon{
-  font-size:25px;
-  margin-bottom:8px;
-}
-
-.achievement strong{
-  display:block;
-  font-family:"Press Start 2P";
-  font-size:7px;
-  line-height:1.6;
-}
-
-.achievement small{
-  display:block;
-  color:var(--muted);
-  margin-top:5px;
-  font-size:9px;
-}
-
-.achievement.locked{
-  opacity:.4;
-  filter:grayscale(1);
-}
-
-/* =========================
-   PROGRESS
-========================= */
-
-.progress-row{
-  margin-bottom:16px;
-}
-
-.progress-top{
-  display:flex;
-  justify-content:space-between;
-  gap:10px;
-  font-size:11px;
-  font-weight:800;
-  margin-bottom:7px;
-}
-
-.progress-bar{
-  height:13px;
-  border:3px solid var(--line);
-  background:#e7edf0;
-}
-
-.progress-fill{
-  height:100%;
-  width:30%;
-  background:var(--blue);
-}
-
-/* =========================
-   QUICK LINKS
-========================= */
-
-.quick{
-  margin-top:22px;
-  display:grid;
-  grid-template-columns:repeat(3,1fr);
-  gap:16px;
-}
-
+/* QUICK ACCESS */
+.quick{margin-top:22px;display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
 .quick a{
-  background:#fff;
-  border:3px solid var(--line);
-  box-shadow:4px 4px 0 var(--line);
-  padding:17px;
-  font-weight:900;
-  transition:.15s;
+  background:#fff;border:3px solid var(--line);box-shadow:4px 4px 0 var(--line);
+  padding:17px;font-weight:900;transition:.15s;
 }
+.quick a:hover{transform:translate(2px,2px);box-shadow:2px 2px 0 var(--line)}
+.quick span{display:block;color:var(--muted);font-size:11px;margin-top:5px}
 
-.quick a:hover{
-  transform:translate(2px,2px);
-  box-shadow:2px 2px 0 var(--line);
+/* INFO BAR */
+.info{
+  margin-top:22px;background:#173044;color:#fff;border:4px solid var(--line);
+  padding:18px 20px;display:flex;align-items:center;justify-content:space-between;gap:20px;
 }
+.info strong{font-family:"Press Start 2P";font-size:10px}
+.info span{font-size:12px;opacity:.85}
 
-.quick span{
-  display:block;
-  color:var(--muted);
-  font-size:11px;
-  margin-top:5px;
+/* FOOTER */
+footer{border-top:4px solid var(--line);background:#fff;padding:28px 0 40px}
+.footer{display:flex;justify-content:space-between;gap:20px;color:var(--muted);font-size:13px;font-weight:700}
+
+/* ANIMATION */
+.reveal{opacity:0;transform:translateY(20px)}
+.reveal.visible{opacity:1;transform:none;transition:opacity .65s ease,transform .65s ease}
+
+/* WALLET DISCONNECT POPUP */
+.wallet-popup-overlay{
+  position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;
+  padding:20px;background:rgba(20,35,46,.72);backdrop-filter:blur(5px);
 }
-
-/* =========================
-   FOOTER
-========================= */
-
-footer{
-  border-top:4px solid var(--line);
-  background:#fff;
-  padding:28px 0 40px;
+.wallet-popup{
+  width:min(420px,100%);background:#fff;border:4px solid var(--line);
+  box-shadow:9px 9px 0 var(--line);padding:28px;text-align:center;
+  animation:popupIn .18s ease;
 }
-
-.footer{
-  display:flex;
-  justify-content:space-between;
-  gap:20px;
-  color:var(--muted);
-  font-size:13px;
-  font-weight:700;
+@keyframes popupIn{
+  from{opacity:0;transform:translateY(12px) scale(.97)}
+  to{opacity:1;transform:none}
 }
-
-/* =========================
-   REVEAL
-========================= */
-
-.reveal{
-  opacity:0;
-  transform:translateY(20px);
+.wallet-popup-icon{
+  width:58px;height:58px;margin:0 auto 16px;display:grid;place-items:center;
+  background:#dff7ff;border:3px solid var(--line);font-size:27px;
 }
-
-.reveal.visible{
-  opacity:1;
-  transform:none;
-  transition:
-    opacity .65s ease,
-    transform .65s ease;
+.wallet-popup-title{font-family:"Press Start 2P";font-size:11px;line-height:1.6}
+.wallet-popup-address{
+  margin-top:10px;padding:10px;background:var(--cream);border:2px solid var(--line);
+  font-family:"Press Start 2P";font-size:8px;overflow:hidden;
 }
+.wallet-popup p{color:var(--muted);font-size:14px;line-height:1.5;margin:18px 0}
+.wallet-popup-actions{display:flex;gap:10px}
+.wallet-popup-actions .btn{flex:1}
 
-/* =========================
-   TABLET
-========================= */
-
+/* TABLET */
 @media(max-width:1000px){
-
+  header{padding-left:16px;padding-right:16px}
   nav{
-    display:none;
-    position:absolute;
-    top:76px;
-    left:16px;
-    right:16px;
-    padding:8px;
-    background:#fff;
-    border:3px solid var(--line);
-    box-shadow:5px 5px 0 var(--line);
-    flex-direction:column;
-    align-items:stretch;
+    display:none;position:absolute;top:76px;left:16px;right:16px;padding:8px;background:#fff;
+    border:3px solid var(--line);box-shadow:5px 5px 0 var(--line);
+    flex-direction:column;align-items:stretch;
   }
-
-  nav.open{
-    display:flex;
-  }
-
-  nav a{
-    padding:13px;
-  }
-
-  header>.btn{
-    display:none;
-  }
-
-  .menu{
-    display:block;
-  }
-
-  .dashboard{
-    grid-template-columns:1fr;
-  }
-
-  .profile-head{
-    grid-template-columns:auto 1fr;
-  }
-
-  .connect{
-    grid-column:1/-1;
-    text-align:left;
-  }
+  nav.open{display:flex}
+  nav a{padding:13px}
+  .menu{display:block}
+  .hub-grid{grid-template-columns:repeat(2,1fr)}
+  .hero-content{grid-template-columns:1fr}
+  .system-status{width:100%}
 }
 
-/* =========================
-   MOBILE
-========================= */
-
-@media(max-width:650px){
-
-  .wrap{
-    width:calc(100% - 20px);
+/* MOBILE */
+@media(max-width:620px){
+  .wrap{width:calc(100% - 20px)}
+  main{padding-top:30px}
+  header{min-height:68px;gap:7px;padding:8px 10px}
+  .brand{font-size:8px;min-width:0;flex:1;gap:7px;overflow:hidden}
+  .brand .mark{width:34px;height:34px}
+  .menu{display:block;padding:7px 9px;font-size:17px;margin-left:0}
+  .wallet-button{
+    width:auto !important;min-width:0;padding:10px 9px;font-size:7px;
+    box-shadow:3px 3px 0 var(--line);
   }
-
-  main{
-    padding-top:30px;
-  }
-
-  .brand{
-    font-size:9px;
-  }
-
-  .mark{
-    width:34px;
-    height:34px;
-  }
-
-  .profile-head{
-    padding:22px 18px;
-    grid-template-columns:1fr;
-  }
-
-  .avatar{
-    width:100px;
-    height:100px;
-  }
-
-  h1{
-    font-size:25px;
-  }
-
-  .stats{
-    grid-template-columns:1fr;
-  }
-
-  .owned-list{
-    grid-template-columns:1fr;
-  }
-
-  .quick{
-    grid-template-columns:1fr;
-  }
-
-  .footer{
-    display:block;
-  }
-
-  .footer div+div{
-    margin-top:10px;
-  }
+  nav{top:68px;left:10px;right:10px;z-index:100}
+  .hero-content{padding:24px 20px}
+  h1{font-size:28px}
+  .hero-text{font-size:14px}
+  .hub-grid{grid-template-columns:1fr}
+  .quick{grid-template-columns:1fr}
+  .info{display:block}
+  .info span{display:block;margin-top:8px}
+  .footer{display:block}
+  .footer div+div{margin-top:10px}
+  .wallet-popup{padding:22px 16px}
+  .wallet-popup-actions{flex-direction:column}
 }
 </style>
 </head>
@@ -759,876 +292,1107 @@ footer{
 <body>
 
 <header>
-
   <a class="brand" href="../">
     <span class="mark">HR</span>
     THE HOOD ROVER
   </a>
 
-  <button class="menu" id="menu">
-    ☰
-  </button>
+  <button class="menu" id="menu" type="button" aria-label="Open menu">☰</button>
 
   <nav id="nav">
-
     <a href="../">HOME</a>
-
     <a href="../collection/">COLLECTION</a>
-
-    <a href="../rover/">ROVER HUB</a>
-
-    <a class="active" href="../my-rover/">MY ROVER</a>
-
+    <a class="active" href="../rover/">ROVER HUB</a>
+    <a href="../my-rover/">MY ROVER</a>
     <a href="../leaderboard/">LEADERBOARD</a>
-
     <a href="../referral/">REFERRAL</a>
-
     <a href="../roadmap/">ROADMAP</a>
-
     <a href="../faq/">FAQ</a>
-
   </nav>
 
-  <a class="btn" href="#" id="mintButton">
-    MINT ON OPENSEA
-  </a>
-
+  <button class="btn secondary wallet-button" id="connectWalletButton" type="button">
+    CONNECT WALLET
+  </button>
 </header>
 
-
 <main>
-
 <div class="wrap">
 
-<!-- =========================
-     PROFILE HEADER
-========================= -->
-
-<section class="window reveal visible">
-
-  <div class="window-bar">
-
-    <span>
-      MY_ROVER.EXE
-    </span>
-
-    <span class="window-lights">
-      <i class="light"></i>
-      <i class="light"></i>
-      <i class="light"></i>
-    </span>
-
-  </div>
-
-
-  <div class="profile-head">
-
-    <div class="avatar">
-      🧑‍🚀
-    </div>
-
-
-    <div>
-
-      <span class="eyebrow">
-        HOOD ROVER // PERSONAL TERMINAL
+<section class="hero reveal visible">
+  <div class="window">
+    <div class="window-bar">
+      <span>ROVER_HUB.EXE</span>
+      <span class="window-lights">
+        <i class="light"></i><i class="light"></i><i class="light"></i>
       </span>
-
-      <h1>
-        MY ROVER
-      </h1>
-
-      <p class="profile-text">
-        Your personal Rover dashboard.
-        Connect your wallet to access your collection,
-        rewards, activity, achievements and account progress.
-      </p>
-
     </div>
 
-
-    <div class="connect">
-
-      <div class="wallet-status" id="walletStatus">
-        WALLET NOT CONNECTED
-      </div>
-
-      <button class="btn" id="connectButton">
-        CONNECT WALLET
-      </button>
-
-    </div>
-
-  </div>
-
-</section>
-
-
-<!-- =========================
-     DASHBOARD
-========================= -->
-
-<section class="dashboard">
-
-
-<!-- LEFT COLUMN -->
-
-<div>
-
-
-  <!-- BALANCE -->
-
-  <article class="card balance reveal">
-
-    <div class="card-title">
-
-      <h2>
-        ROVER BALANCE
-      </h2>
-
-      <span class="tag">
-        PRIVATE
-      </span>
-
-    </div>
-
-    <div class="balance-label">
-      AVAILABLE ROVER
-    </div>
-
-    <div class="balance-value" id="balance">
-      0
-    </div>
-
-    <p class="balance-note">
-      Your personal reward balance will appear here
-      when your account is connected to the live Rover system.
-    </p>
-
-  </article>
-
-
-  <!-- ACCOUNT STATS -->
-
-  <article class="card reveal" style="margin-top:20px">
-
-    <div class="card-title">
-
-      <h2>
-        ACCOUNT STATS
-      </h2>
-
-      <span class="tag">
-        LIVE
-      </span>
-
-    </div>
-
-    <div class="stats">
-
-      <div class="stat">
-
-        <div class="stat-label">
-          OWNED
-        </div>
-
-        <strong id="ownedCount">
-          0
-        </strong>
-
-      </div>
-
-
-      <div class="stat">
-
-        <div class="stat-label">
-          REFERRALS
-        </div>
-
-        <strong id="referralCount">
-          0
-        </strong>
-
-      </div>
-
-
-      <div class="stat">
-
-        <div class="stat-label">
-          STREAK
-        </div>
-
-        <strong id="streak">
-          0
-        </strong>
-
-      </div>
-
-    </div>
-
-  </article>
-
-
-  <!-- OWNED ROVERS -->
-
-  <article class="card reveal" style="margin-top:20px">
-
-    <div class="card-title">
-
-      <h2>
-        MY HOOD ROVERS
-      </h2>
-
-      <span class="tag">
-        COLLECTION
-      </span>
-
-    </div>
-
-
-    <div class="owned-list">
-
-      <div class="rover">
-
-        <div class="rover-art">
-          ?
-        </div>
-
-        <div class="rover-info">
-
-          <strong>
-            NOT CONNECTED
-          </strong>
-
-          <span>
-            Wallet required
-          </span>
-
-        </div>
-
-      </div>
-
-
-      <div class="rover">
-
-        <div class="rover-art">
-          ?
-        </div>
-
-        <div class="rover-info">
-
-          <strong>
-            NOT CONNECTED
-          </strong>
-
-          <span>
-            Wallet required
-          </span>
-
-        </div>
-
-      </div>
-
-
-      <div class="rover">
-
-        <div class="rover-art">
-          ?
-        </div>
-
-        <div class="rover-info">
-
-          <strong>
-            NOT CONNECTED
-          </strong>
-
-          <span>
-            Wallet required
-          </span>
-
-        </div>
-
-      </div>
-
-    </div>
-
-  </article>
-
-
-  <!-- ACTIVITY -->
-
-  <article class="card reveal" style="margin-top:20px">
-
-    <div class="card-title">
-
-      <h2>
-        RECENT ACTIVITY
-      </h2>
-
-      <span class="tag">
-        HISTORY
-      </span>
-
-    </div>
-
-
-    <div class="activity">
-
-
-      <div class="activity-row">
-
-        <div class="activity-left">
-
-          <div class="activity-icon">
-            🎯
-          </div>
-
-          <div>
-
-            <div class="activity-name">
-              Daily Mission
-            </div>
-
-            <span class="activity-date">
-              No activity yet
-            </span>
-
-          </div>
-
-        </div>
-
-        <div class="activity-value">
-          —
-        </div>
-
-      </div>
-
-
-      <div class="activity-row">
-
-        <div class="activity-left">
-
-          <div class="activity-icon">
-            🎡
-          </div>
-
-          <div>
-
-            <div class="activity-name">
-              Spin Reward
-            </div>
-
-            <span class="activity-date">
-              No activity yet
-            </span>
-
-          </div>
-
-        </div>
-
-        <div class="activity-value">
-          —
-        </div>
-
-      </div>
-
-
-      <div class="activity-row">
-
-        <div class="activity-left">
-
-          <div class="activity-icon">
-            🎁
-          </div>
-
-          <div>
-
-            <div class="activity-name">
-              Mystery Reward
-            </div>
-
-            <span class="activity-date">
-              No activity yet
-            </span>
-
-          </div>
-
-        </div>
-
-        <div class="activity-value">
-          —
-        </div>
-
-      </div>
-
-
-    </div>
-
-  </article>
-
-</div>
-
-
-<!-- RIGHT COLUMN -->
-
-<div>
-
-
-  <!-- STREAK -->
-
-  <article class="card reveal">
-
-    <div class="card-title">
-
-      <h2>
-        STREAK
-      </h2>
-
-      <span class="tag">
-        DAILY
-      </span>
-
-    </div>
-
-
-    <div class="streak">
-
-      <div class="fire">
-        🔥
-      </div>
-
+    <div class="hero-content">
       <div>
+        <span class="eyebrow">HOOD ROVER // COMMAND CENTER</span>
+        <h1>ROVER HUB</h1>
+        <p class="hero-text">
+          Your central station for missions, quizzes, streaks,
+          spins, mystery rewards and achievements.
+          Connect your Rover identity and build your activity.
+        </p>
+      </div>
 
-        <div class="streak-number" id="sideStreak">
-          0
+      <div class="system-status">
+        <div class="status-line">
+          <span class="status-dot"></span>
+          SYSTEM ONLINE
         </div>
-
-        <div class="streak-label">
-          CURRENT DAY STREAK
-        </div>
-
+        <div class="status-small">HUB STATUS: READY</div>
+        <div class="status-small">COLLECTION: 1,111</div>
+        <div class="status-small" id="walletStatus">WALLET: NOT CONNECTED</div>
       </div>
-
     </div>
-
-  </article>
-
-
-  <!-- PROGRESS -->
-
-  <article class="card reveal" style="margin-top:20px">
-
-    <div class="card-title">
-
-      <h2>
-        PROGRESS
-      </h2>
-
-      <span class="tag">
-        PROFILE
-      </span>
-
-    </div>
-
-
-    <div class="progress-row">
-
-      <div class="progress-top">
-
-        <span>
-          MISSIONS
-        </span>
-
-        <span>
-          0%
-        </span>
-
-      </div>
-
-      <div class="progress-bar">
-        <div class="progress-fill" style="width:0%"></div>
-      </div>
-
-    </div>
-
-
-    <div class="progress-row">
-
-      <div class="progress-top">
-
-        <span>
-          REFERRALS
-        </span>
-
-        <span>
-          0 / 10
-        </span>
-
-      </div>
-
-      <div class="progress-bar">
-
-        <div
-          class="progress-fill"
-          style="width:0%">
-        </div>
-
-      </div>
-
-    </div>
-
-
-    <div class="progress-row">
-
-      <div class="progress-top">
-
-        <span>
-          ACHIEVEMENTS
-        </span>
-
-        <span>
-          1 / 8
-        </span>
-
-      </div>
-
-      <div class="progress-bar">
-
-        <div
-          class="progress-fill"
-          style="width:12.5%">
-        </div>
-
-      </div>
-
-    </div>
-
-  </article>
-
-
-  <!-- ACHIEVEMENTS -->
-
-  <article class="card reveal" style="margin-top:20px">
-
-    <div class="card-title">
-
-      <h2>
-        ACHIEVEMENTS
-      </h2>
-
-      <span class="tag">
-        BADGES
-      </span>
-
-    </div>
-
-
-    <div class="achievements">
-
-
-      <div class="achievement">
-
-        <div class="achievement-icon">
-          🚀
-        </div>
-
-        <strong>
-          FIRST STEP
-        </strong>
-
-        <small>
-          Unlocked
-        </small>
-
-      </div>
-
-
-      <div class="achievement locked">
-
-        <div class="achievement-icon">
-          🔥
-        </div>
-
-        <strong>
-          STREAK
-        </strong>
-
-        <small>
-          Locked
-        </small>
-
-      </div>
-
-
-      <div class="achievement locked">
-
-        <div class="achievement-icon">
-          🏆
-        </div>
-
-        <strong>
-          CHAMPION
-        </strong>
-
-        <small>
-          Locked
-        </small>
-
-      </div>
-
-
-      <div class="achievement locked">
-
-        <div class="achievement-icon">
-          👑
-        </div>
-
-        <strong>
-          ELITE
-        </strong>
-
-        <small>
-          Locked
-        </small>
-
-      </div>
-
-
-    </div>
-
-  </article>
-
-
-  <!-- REFERRAL -->
-
-  <article class="card reveal" style="margin-top:20px">
-
-    <div class="card-title">
-
-      <h2>
-        REFERRAL
-      </h2>
-
-      <span class="tag">
-        MAX 10
-      </span>
-
-    </div>
-
-    <p style="color:var(--muted);font-size:13px;line-height:1.6">
-      Invite genuine users and build your Rover network.
-      Referral progress will update automatically when the live system is connected.
-    </p>
-
-    <a class="btn secondary" href="../referral/">
-      OPEN REFERRAL
-    </a>
-
-  </article>
-
-</div>
-
+  </div>
 </section>
 
+<section class="hub-grid">
 
-<!-- =========================
-     QUICK LINKS
-========================= -->
+<article class="card reveal">
+  <div class="card-head">
+    <div class="card-icon">🎯</div>
+    <span class="card-tag">DAILY</span>
+  </div>
+  <h3>DAILY MISSIONS</h3>
+  <p>Complete selected activities and unlock today's available rewards.</p>
+  <div class="mission-list">
+    <div class="mission"><span class="mission-name">CHECK IN</span><span class="mission-state done">READY</span></div>
+    <div class="mission"><span class="mission-name">COMPLETE QUIZ</span><span class="mission-state">0/1</span></div>
+    <div class="mission"><span class="mission-name">HUB ACTIVITY</span><span class="mission-state">0/1</span></div>
+  </div>
+</article>
+
+<article class="card reveal">
+  <div class="card-head">
+    <div class="card-icon">🧠</div>
+    <span class="card-tag">DAILY</span>
+  </div>
+  <h3>ROVER QUIZ</h3>
+  <p>Test your knowledge of The Hood Rover universe. One daily quiz session.</p>
+  <div class="streak-box">
+    <div class="fire">🧠</div>
+    <div>
+      <div class="streak-number">READY</div>
+      <span class="streak-label">TODAY'S QUIZ</span>
+    </div>
+  </div>
+  <button class="btn secondary" id="quizButton">START QUIZ</button>
+</article>
+
+<article class="card reveal">
+  <div class="card-head">
+    <div class="card-icon">🔥</div>
+    <span class="card-tag">STREAK</span>
+  </div>
+  <h3>DAILY STREAK</h3>
+  <p>Keep checking in each day and maintain your Rover activity streak.</p>
+  <div class="streak-box">
+    <div class="fire">🔥</div>
+    <div>
+      <div class="streak-number" id="streakNumber">0</div>
+      <span class="streak-label">CURRENT STREAK</span>
+    </div>
+  </div>
+  <button class="btn yellow" id="checkinButton">DAILY CHECK-IN</button>
+</article>
+
+<article class="card reveal">
+  <div class="card-head">
+    <div class="card-icon">🎡</div>
+    <span class="card-tag">REWARD</span>
+  </div>
+  <h3>SPIN WHEEL</h3>
+  <p>One spin when available. See what the system generates.</p>
+  <div class="spin-area">
+    <div class="pointer"></div>
+    <div class="wheel" id="wheel"></div>
+    <div class="reward-text" id="spinResult">READY TO SPIN</div>
+  </div>
+  <button class="btn" id="spinButton">SPIN NOW</button>
+</article>
+
+<article class="card reveal">
+  <div class="card-head">
+    <div class="card-icon">🎁</div>
+    <span class="card-tag">MYSTERY</span>
+  </div>
+  <h3>MYSTERY REWARD</h3>
+  <p>Some rewards are hidden until you open the box.</p>
+  <div class="mystery">
+    <div class="mystery-box" id="mysteryBox">?</div>
+    <div class="mystery-result" id="mysteryResult">BOX LOCKED</div>
+  </div>
+  <button class="btn secondary" id="mysteryButton">OPEN BOX</button>
+</article>
+
+<article class="card reveal">
+  <div class="card-head">
+    <div class="card-icon">🏆</div>
+    <span class="card-tag">PROFILE</span>
+  </div>
+  <h3>ACHIEVEMENTS</h3>
+  <p>Your milestones will appear here as your Rover activity grows.</p>
+  <div class="achievement-list">
+    <div class="achievement"><div class="achievement-icon">🚀</div><small>FIRST STEP</small></div>
+    <div class="achievement locked"><div class="achievement-icon">🔥</div><small>STREAK</small></div>
+    <div class="achievement locked"><div class="achievement-icon">🏆</div><small>CHAMPION</small></div>
+    <div class="achievement locked"><div class="achievement-icon">👑</div><small>ELITE</small></div>
+  </div>
+</article>
+
+</section>
 
 <div class="quick reveal">
+  <a href="../my-rover/">MY ROVER<span>View your Rover activity</span></a>
+  <a href="../leaderboard/">LEADERBOARD<span>See community rankings</span></a>
+  <a href="../referral/">REFERRAL<span>Invite genuine Rover users</span></a>
+</div>
 
-  <a href="../rover/">
-
-    ROVER HUB
-
-    <span>
-      Missions, quiz, spin & rewards
-    </span>
-
-  </a>
-
-
-  <a href="../leaderboard/">
-
-    LEADERBOARD
-
-    <span>
-      View community rankings
-    </span>
-
-  </a>
-
-
-  <a href="../collection/">
-
-    COLLECTION
-
-    <span>
-      Explore the Hood Rovers
-    </span>
-
-  </a>
-
+<div class="info reveal">
+  <strong>ROVER HUB SYSTEM</strong>
+  <span>Reward availability and account state will be connected to the live backend when the platform launches.</span>
 </div>
 
 </div>
-
 </main>
 
-
 <footer>
-
   <div class="wrap footer">
-
-    <div>
-      <b>THE HOOD ROVER</b>
-    </div>
-
-    <div>
-      RETRO SYSTEM // 2026
-    </div>
-
+    <div><b>THE HOOD ROVER</b></div>
+    <div>RETRO SYSTEM // 2026</div>
   </div>
-
 </footer>
 
-
 <script>
-
 /* =========================
    MOBILE MENU
 ========================= */
 
-const menu =
-  document.getElementById("menu");
-
-const nav =
-  document.getElementById("nav");
+const menu = document.getElementById("menu");
+const nav = document.getElementById("nav");
 
 menu.addEventListener("click", () => {
-
   nav.classList.toggle("open");
+});
 
+/* Close mobile menu after selecting a page */
+nav.querySelectorAll("a").forEach(link => {
+  link.addEventListener("click", () => nav.classList.remove("open"));
 });
 
 
 /* =========================
-   STREAK
+   SUPABASE
 ========================= */
 
-const savedStreak =
-  Number(
-    localStorage.getItem("hoodRoverStreak") || 0
+const SUPABASE_URL =
+  "https://hyshlvuywbwhhjgqwfwi.supabase.co";
+
+const SUPABASE_PUBLISHABLE_KEY =
+  "sb_publishable_LWmPzfGLuzdjDZvnwKs0Ug_Gvs5yROF";
+
+const { createClient } = window.supabase;
+
+const supabaseClient =
+  createClient(
+    SUPABASE_URL,
+    SUPABASE_PUBLISHABLE_KEY
   );
-
-document.getElementById("streak").textContent =
-  savedStreak;
-
-document.getElementById("sideStreak").textContent =
-  savedStreak;
 
 
 /* =========================
-   CONNECT WALLET DEMO
+   WALLET + STREAK
 ========================= */
 
-const connectButton =
-  document.getElementById("connectButton");
+const connectWalletButton =
+  document.getElementById("connectWalletButton");
 
 const walletStatus =
   document.getElementById("walletStatus");
 
-connectButton.addEventListener("click", async () => {
+const checkinButton =
+  document.getElementById("checkinButton");
+
+const streakNumber =
+  document.getElementById("streakNumber");
+
+let walletAddress = null;
+
+const WALLET_STORAGE_KEY = "roverHubWallet";
+const WALLET_DISCONNECTED_KEY = "roverHubWalletDisconnected";
+
+
+/* =========================
+   WALLET HELPERS
+========================= */
+
+function shortAddress(address){
+  if(!address) return "";
+  return address.slice(0,6) + "..." + address.slice(-4);
+}
+
+function updateWalletUI(address){
+
+  if(!address){
+    walletAddress = null;
+
+    walletStatus.textContent =
+      "WALLET: NOT CONNECTED";
+
+    connectWalletButton.textContent =
+      "CONNECT WALLET";
+
+    connectWalletButton.classList.remove(
+      "wallet-connected"
+    );
+
+    return;
+  }
+
+  walletAddress =
+    address.toLowerCase();
+
+  walletStatus.textContent =
+    "WALLET: " +
+    shortAddress(walletAddress);
+
+  connectWalletButton.textContent =
+    shortAddress(walletAddress);
+
+  connectWalletButton.classList.add(
+    "wallet-connected"
+  );
+}
+
+function saveWallet(address){
+
+  localStorage.setItem(
+    WALLET_STORAGE_KEY,
+    address.toLowerCase()
+  );
+
+  localStorage.removeItem(
+    WALLET_DISCONNECTED_KEY
+  );
+}
+
+function clearWalletState(){
+
+  localStorage.removeItem(
+    WALLET_STORAGE_KEY
+  );
+
+  localStorage.setItem(
+    WALLET_DISCONNECTED_KEY,
+    "1"
+  );
+
+  walletAddress = null;
+
+  updateWalletUI(null);
+
+  streakNumber.textContent = "0";
+
+  checkinButton.disabled = false;
+
+  checkinButton.textContent =
+    "DAILY CHECK-IN";
+}
+
+
+/* =========================
+   DISCONNECT POPUP
+========================= */
+
+function showDisconnectPopup(){
+
+  const oldPopup =
+    document.getElementById(
+      "walletDisconnectPopup"
+    );
+
+  if(oldPopup) oldPopup.remove();
+
+  const popup =
+    document.createElement("div");
+
+  popup.id =
+    "walletDisconnectPopup";
+
+  popup.innerHTML = `
+
+    <div class="wallet-popup-overlay">
+
+      <div class="wallet-popup">
+
+        <div class="wallet-popup-icon">
+          🔌
+        </div>
+
+        <div class="wallet-popup-title">
+          WALLET CONNECTED
+        </div>
+
+        <div class="wallet-popup-address">
+          ${shortAddress(walletAddress)}
+        </div>
+
+        <p>
+          Do you want to disconnect this wallet
+          from Rover Hub?
+        </p>
+
+        <div class="wallet-popup-actions">
+
+          <button
+            class="btn secondary"
+            id="cancelDisconnect"
+            type="button">
+            CANCEL
+          </button>
+
+          <button
+            class="btn"
+            id="confirmDisconnect"
+            type="button">
+            DISCONNECT
+          </button>
+
+        </div>
+
+      </div>
+
+    </div>
+  `;
+
+  document.body.appendChild(popup);
+
+  document
+    .getElementById("cancelDisconnect")
+    .addEventListener("click", () => {
+      popup.remove();
+    });
+
+  document
+    .getElementById("confirmDisconnect")
+    .addEventListener("click", async () => {
+
+      const button =
+        document.getElementById(
+          "confirmDisconnect"
+        );
+
+      button.disabled = true;
+      button.textContent = "DISCONNECTING...";
+
+      await disconnectWallet();
+
+      popup.remove();
+
+    });
+}
+
+
+/* =========================
+   DISCONNECT
+========================= */
+
+async function disconnectWallet(){
+
+  try{
+
+    /*
+      Some wallet providers support permission
+      revocation. If unsupported, the Rover Hub
+      app-level disconnect still works through
+      localStorage.
+    */
+
+    if(window.ethereum){
+
+      try{
+
+        await window.ethereum.request({
+          method:"wallet_revokePermissions",
+          params:[
+            {
+              eth_accounts:{}
+            }
+          ]
+        });
+
+      }catch(error){
+
+        console.log(
+          "Provider revoke not supported:",
+          error
+        );
+
+      }
+
+    }
+
+  }finally{
+
+    clearWalletState();
+
+  }
+}
+
+
+/* =========================
+   CONNECT WALLET
+========================= */
+
+async function connectWallet(){
 
   if(!window.ethereum){
 
-    walletStatus.textContent =
-      "NO WEB3 WALLET DETECTED";
-
-    connectButton.textContent =
-      "WALLET NOT FOUND";
+    alert(
+      "NO WEB3 WALLET DETECTED.\n\n" +
+      "Please open Rover Hub inside your wallet browser."
+    );
 
     return;
-
   }
 
   try{
+
+    connectWalletButton.disabled = true;
+
+    connectWalletButton.textContent =
+      "CONNECTING...";
 
     const accounts =
       await window.ethereum.request({
         method:"eth_requestAccounts"
       });
 
-    if(accounts && accounts[0]){
+    if(
+      !accounts ||
+      accounts.length === 0
+    ){
+      throw new Error(
+        "No wallet account returned"
+      );
+    }
+
+    const address =
+      accounts[0].toLowerCase();
+
+    saveWallet(address);
+
+    updateWalletUI(address);
+
+    await loadStreak();
+
+  }catch(error){
+
+    console.error(
+      "Wallet connection failed:",
+      error
+    );
+
+    if(error.code === 4001){
+
+      updateWalletUI(
+        localStorage.getItem(
+          WALLET_STORAGE_KEY
+        )
+      );
+
+      alert(
+        "WALLET CONNECTION CANCELLED."
+      );
+
+    }else{
+
+      updateWalletUI(null);
+
+      alert(
+        "WALLET CONNECTION FAILED.\n\n" +
+        "Please try again."
+      );
+
+    }
+
+  }finally{
+
+    connectWalletButton.disabled =
+      false;
+
+  }
+}
+
+
+/* =========================
+   WALLET BUTTON
+========================= */
+
+connectWalletButton.addEventListener(
+  "click",
+  () => {
+
+    if(walletAddress){
+
+      showDisconnectPopup();
+
+    }else{
+
+      connectWallet();
+
+    }
+
+  }
+);
+
+
+/* =========================
+   RESTORE WALLET
+========================= */
+
+async function restoreWallet(){
+
+  const savedWallet =
+    localStorage.getItem(
+      WALLET_STORAGE_KEY
+    );
+
+  const manuallyDisconnected =
+    localStorage.getItem(
+      WALLET_DISCONNECTED_KEY
+    ) === "1";
+
+
+  /*
+    If the user disconnected from Rover Hub,
+    don't automatically restore the old app
+    session on another page.
+  */
+
+  if(manuallyDisconnected){
+
+    updateWalletUI(null);
+    return;
+  }
+
+
+  if(!window.ethereum){
+
+    if(savedWallet){
+
+      updateWalletUI(savedWallet);
+
+    }
+
+    return;
+  }
+
+
+  try{
+
+    const accounts =
+      await window.ethereum.request({
+        method:"eth_accounts"
+      });
+
+
+    if(
+      accounts &&
+      accounts.length > 0
+    ){
 
       const address =
-        accounts[0];
+        accounts[0].toLowerCase();
 
-      const shortAddress =
-        address.slice(0,6) +
-        "..." +
-        address.slice(-4);
+      saveWallet(address);
 
-      walletStatus.textContent =
-        shortAddress;
+      updateWalletUI(address);
 
-      connectButton.textContent =
-        "CONNECTED ✓";
+      await loadStreak();
 
-      connectButton.classList.add("yellow");
+      return;
+    }
+
+
+    /*
+      Provider has no authorized account.
+    */
+
+    updateWalletUI(null);
+
+  }catch(error){
+
+    console.error(
+      "Wallet restore failed:",
+      error
+    );
+
+    if(savedWallet){
+      updateWalletUI(savedWallet);
+    }
+
+  }
+}
+
+
+/* =========================
+   CROSS-PAGE / TAB SYNC
+========================= */
+
+window.addEventListener(
+  "storage",
+  async (event) => {
+
+    if(
+      event.key === WALLET_STORAGE_KEY ||
+      event.key === WALLET_DISCONNECTED_KEY
+    ){
+
+      const disconnected =
+        localStorage.getItem(
+          WALLET_DISCONNECTED_KEY
+        ) === "1";
+
+      if(disconnected){
+
+        updateWalletUI(null);
+
+        streakNumber.textContent = "0";
+
+        checkinButton.disabled = false;
+
+        checkinButton.textContent =
+          "DAILY CHECK-IN";
+
+        return;
+      }
+
+
+      const address =
+        localStorage.getItem(
+          WALLET_STORAGE_KEY
+        );
+
+      if(address){
+
+        updateWalletUI(address);
+
+        await loadStreak();
+
+      }else{
+
+        updateWalletUI(null);
+
+      }
+
+    }
+
+  }
+);
+
+
+/* =========================
+   ACCOUNT CHANGE
+========================= */
+
+if(window.ethereum){
+
+  window.ethereum.on(
+    "accountsChanged",
+    async (accounts) => {
+
+      if(
+        !accounts ||
+        accounts.length === 0
+      ){
+
+        clearWalletState();
+
+        return;
+
+      }
+
+      const address =
+        accounts[0].toLowerCase();
+
+      saveWallet(address);
+
+      updateWalletUI(address);
+
+      await loadStreak();
+
+    }
+  );
+
+}
+
+
+/* =========================
+   LOAD STREAK
+========================= */
+
+async function loadStreak(){
+
+  if(!walletAddress) return;
+
+  try{
+
+    const { data: profile, error } =
+      await supabaseClient
+        .from("profiles")
+        .select("id")
+        .eq(
+          "wallet_address",
+          walletAddress
+        )
+        .maybeSingle();
+
+    if(error){
+
+      console.error(
+        "Profile lookup failed:",
+        error
+      );
+
+      return;
+    }
+
+    if(!profile){
+
+      streakNumber.textContent = "0";
+
+      checkinButton.textContent =
+        "DAILY CHECK-IN";
+
+      checkinButton.disabled = false;
+
+      return;
+    }
+
+    const { data: streak, error: streakError } =
+      await supabaseClient
+        .from("daily_streaks")
+        .select(
+          "current_streak,last_checkin_date,total_checkins"
+        )
+        .eq(
+          "user_id",
+          profile.id
+        )
+        .maybeSingle();
+
+    if(streakError){
+
+      console.error(
+        "Streak lookup failed:",
+        streakError
+      );
+
+      return;
+    }
+
+    if(streak){
+
+      streakNumber.textContent =
+        streak.current_streak;
+
+      const today =
+        new Date().toLocaleDateString(
+          "en-CA"
+        );
+
+      if(
+        streak.last_checkin_date === today
+      ){
+
+        checkinButton.textContent =
+          "ALREADY CHECKED IN";
+
+        checkinButton.disabled = true;
+
+      }else{
+
+        checkinButton.textContent =
+          "DAILY CHECK-IN";
+
+        checkinButton.disabled = false;
+
+      }
 
     }
 
   }catch(error){
 
-    walletStatus.textContent =
-      "CONNECTION CANCELLED";
+    console.error(
+      "Streak loading failed:",
+      error
+    );
 
   }
+}
+
+
+/* =========================
+   DAILY CHECK-IN
+========================= */
+
+checkinButton.addEventListener(
+  "click",
+  async () => {
+
+    if(!walletAddress){
+
+      alert(
+        "CONNECT YOUR WALLET FIRST."
+      );
+
+      return;
+    }
+
+    checkinButton.disabled = true;
+
+    checkinButton.textContent =
+      "CHECKING...";
+
+    try{
+
+      const { data, error } =
+        await supabaseClient.rpc(
+          "daily_checkin",
+          {
+            p_wallet: walletAddress
+          }
+        );
+
+      if(error){
+
+        console.error(
+          "Check-in error:",
+          error
+        );
+
+        throw error;
+      }
+
+      if(!data){
+
+        throw new Error(
+          "No response from database."
+        );
+      }
+
+      streakNumber.textContent =
+        data.streak;
+
+      if(data.already_checked_in){
+
+        checkinButton.textContent =
+          "ALREADY CHECKED IN";
+
+      }else{
+
+        checkinButton.textContent =
+          "CHECKED IN ✓";
+
+      }
+
+    }catch(error){
+
+      console.error(
+        "Daily check-in failed:",
+        error
+      );
+
+      checkinButton.disabled = false;
+
+      checkinButton.textContent =
+        "DAILY CHECK-IN";
+
+      alert(
+        "DAILY CHECK-IN FAILED.\n\n" +
+        "Please try again."
+      );
+
+    }
+
+  }
+);
+
+
+/* =========================
+   SPIN WHEEL DEMO
+========================= */
+
+const spinButton =
+  document.getElementById("spinButton");
+
+const wheel =
+  document.getElementById("wheel");
+
+const spinResult =
+  document.getElementById("spinResult");
+
+let spinning = false;
+let rotation = 0;
+
+spinButton.addEventListener("click", () => {
+
+  if(spinning) return;
+
+  spinning = true;
+
+  spinButton.disabled = true;
+  spinButton.textContent = "SPINNING...";
+
+  rotation +=
+    1440 +
+    Math.floor(Math.random() * 360);
+
+  wheel.style.transform =
+    `rotate(${rotation}deg)`;
+
+  setTimeout(() => {
+
+    const rewards = [
+      "MYSTERY REWARD",
+      "ROVER REWARD",
+      "BONUS ACCESS",
+      "TRY AGAIN",
+      "SPECIAL ITEM",
+      "BONUS REWARD"
+    ];
+
+    const reward =
+      rewards[
+        Math.floor(
+          Math.random() * rewards.length
+        )
+      ];
+
+    spinResult.textContent =
+      reward;
+
+    spinButton.disabled = false;
+    spinButton.textContent =
+      "SPIN AGAIN";
+
+    spinning = false;
+
+  },3000);
 
 });
 
 
 /* =========================
-   OPENSEA BUTTON
+   MYSTERY BOX
 ========================= */
 
-document
-  .getElementById("mintButton")
-  .addEventListener("click", event => {
+const mysteryButton =
+  document.getElementById("mysteryButton");
 
-    event.preventDefault();
+const mysteryBox =
+  document.getElementById("mysteryBox");
 
-    alert(
-      "OpenSea mint link will be connected here."
-    );
+const mysteryResult =
+  document.getElementById("mysteryResult");
 
-  });
+mysteryButton.addEventListener(
+  "click",
+  () => {
+
+    mysteryBox.style.transform =
+      "scale(.85) rotate(8deg)";
+
+    mysteryResult.textContent =
+      "OPENING...";
+
+    setTimeout(() => {
+
+      const rewards = [
+        "REWARD FOUND",
+        "MYSTERY ITEM",
+        "BONUS UNLOCKED",
+        "SPECIAL DROP"
+      ];
+
+      mysteryResult.textContent =
+        rewards[
+          Math.floor(
+            Math.random() * rewards.length
+          )
+        ];
+
+      mysteryBox.textContent = "★";
+
+      mysteryBox.style.transform =
+        "scale(1) rotate(0deg)";
+
+      mysteryButton.textContent =
+        "OPENED";
+
+      mysteryButton.disabled = true;
+
+    },900);
+
+  }
+);
 
 
 /* =========================
-   SCROLL REVEAL
+   QUIZ DEMO
+========================= */
+
+const quizButton =
+  document.getElementById("quizButton");
+
+quizButton.addEventListener(
+  "click",
+  () => {
+
+    alert(
+      "ROVER QUIZ\n\n" +
+      "The live quiz system will be connected to the Rover Hub backend."
+    );
+
+  }
+);
+
+
+/* =========================
+   SCROLL ANIMATION
 ========================= */
 
 const observer =
   new IntersectionObserver(
     entries => {
 
-      entries.forEach((entry,index) => {
+      entries.forEach(
+        (entry,index) => {
 
-        if(entry.isIntersecting){
+          if(entry.isIntersecting){
 
-          setTimeout(() => {
+            setTimeout(
+              () => {
+                entry.target.classList.add(
+                  "visible"
+                );
+              },
+              index * 70
+            );
 
-            entry.target.classList.add("visible");
-
-          },index * 60);
-
-          observer.unobserve(entry.target);
+            observer.unobserve(
+              entry.target
+            );
+          }
 
         }
-
-      });
+      );
 
     },
     {
@@ -1636,10 +1400,18 @@ const observer =
     }
   );
 
-
 document
   .querySelectorAll(".reveal")
-  .forEach(el => observer.observe(el));
+  .forEach(
+    el => observer.observe(el)
+  );
+
+
+/* =========================
+   START WALLET STATE
+========================= */
+
+restoreWallet();
 
 </script>
 
