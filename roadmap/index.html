@@ -124,20 +124,23 @@ header{
   white-space:nowrap;
 }
 
-
 .mark{
   width:38px;
   height:38px;
-  display:grid;
-  place-items:center;
+  display:block;
+  overflow:hidden;
   background:var(--blue);
-  color:#fff;
   border:3px solid var(--line);
   box-shadow:3px 3px 0 var(--line);
-  font-family:"Press Start 2P";
-  font-size:10px;
+  flex-shrink:0;
 }
 
+.mark img{
+  width:100%;
+  height:100%;
+  display:block;
+  object-fit:cover;
+}
 
 nav{
   margin-left:auto;
