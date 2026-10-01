@@ -23,6 +23,7 @@
   --muted:#687985;
   --green:#42c98b;
   --orange:#ff9d42;
+  --red:#e95757;
 }
 
 *{
@@ -82,9 +83,9 @@ button{
 }
 
 
-/* =========================
-   TOP NAV
-========================= */
+/* =========================================================
+   NAV
+========================================================= */
 
 header{
   position:sticky;
@@ -162,9 +163,9 @@ nav a.active{
 }
 
 
-/* =========================
+/* =========================================================
    BUTTON
-========================= */
+========================================================= */
 
 .btn{
   display:inline-flex;
@@ -198,14 +199,14 @@ nav a.active{
 }
 
 .btn:disabled{
-  opacity:.65;
+  opacity:.6;
   cursor:not-allowed;
 }
 
 
-/* =========================
+/* =========================================================
    HERO
-========================= */
+========================================================= */
 
 main{
   padding:55px 0 90px;
@@ -319,9 +320,9 @@ h1{
 }
 
 
-/* =========================
-   ROVER BALANCE
-========================= */
+/* =========================================================
+   BALANCE
+========================================================= */
 
 .rover-balance{
   margin-bottom:22px;
@@ -367,9 +368,9 @@ h1{
 }
 
 
-/* =========================
-   HUB GRID
-========================= */
+/* =========================================================
+   GRID
+========================================================= */
 
 .hub-grid{
   display:grid;
@@ -436,9 +437,9 @@ h1{
 }
 
 
-/* =========================
-   DAILY MISSIONS
-========================= */
+/* =========================================================
+   MISSIONS
+========================================================= */
 
 .mission-list{
   display:grid;
@@ -474,9 +475,9 @@ h1{
 }
 
 
-/* =========================
+/* =========================================================
    STREAK
-========================= */
+========================================================= */
 
 .streak-box{
   display:flex;
@@ -506,16 +507,38 @@ h1{
 }
 
 
-/* =========================
+/* =========================================================
    SPIN
-========================= */
+========================================================= */
 
 .spin-area{
   display:flex;
   flex-direction:column;
   align-items:center;
-  gap:17px;
-  padding:8px 0 10px;
+  gap:14px;
+  padding:5px 0 10px;
+}
+
+.spin-counter{
+  width:100%;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:9px 11px;
+  border:2px solid var(--line);
+  background:#f3f7fa;
+  font-size:11px;
+  font-weight:900;
+}
+
+.spin-counter strong{
+  font-family:"Press Start 2P";
+  font-size:8px;
+}
+
+.wheel-wrap{
+  position:relative;
+  padding-top:9px;
 }
 
 .wheel{
@@ -526,15 +549,23 @@ h1{
   border:5px solid var(--line);
   background:
     conic-gradient(
-      var(--blue) 0 16.66%,
-      var(--yellow) 16.66% 33.33%,
-      var(--cyan) 33.33% 50%,
-      #fff 50% 66.66%,
-      var(--orange) 66.66% 83.33%,
-      var(--green) 83.33% 100%
+      var(--red) 0 18%,
+      var(--blue) 18% 34%,
+      var(--yellow) 34% 48%,
+      var(--red) 48% 66%,
+      var(--cyan) 66% 80%,
+      var(--red) 80% 100%
     );
   box-shadow:5px 5px 0 var(--line);
   transition:transform 3s cubic-bezier(.15,.8,.15,1);
+}
+
+.wheel::before{
+  content:"";
+  position:absolute;
+  inset:15px;
+  border-radius:50%;
+  border:2px dashed rgba(23,48,68,.5);
 }
 
 .wheel::after{
@@ -555,35 +586,82 @@ h1{
 }
 
 .pointer{
+  position:absolute;
+  top:-4px;
+  left:50%;
+  transform:translateX(-50%);
   width:0;
   height:0;
-  border-left:9px solid transparent;
-  border-right:9px solid transparent;
-  border-top:17px solid var(--line);
-  margin-bottom:-7px;
-  z-index:2;
+  border-left:10px solid transparent;
+  border-right:10px solid transparent;
+  border-top:20px solid var(--line);
+  z-index:4;
 }
 
-.reward-text{
-  min-height:20px;
+.reward-display{
+  width:100%;
+  min-height:65px;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
+  padding:9px;
+  border:3px solid var(--line);
+  background:#fffaf0;
   text-align:center;
-  font-weight:800;
+}
+
+.reward-display-title{
+  font-family:"Press Start 2P";
+  font-size:8px;
+  line-height:1.6;
+}
+
+.reward-display-sub{
+  margin-top:5px;
+  font-size:12px;
+  font-weight:900;
   color:var(--blue);
 }
 
+.reward-display.bad{
+  background:#fff0f0;
+}
 
-/* =========================
+.reward-display.bad .reward-display-sub{
+  color:var(--red);
+}
+
+
+/* =========================================================
    MYSTERY
-========================= */
+========================================================= */
 
 .mystery{
   text-align:center;
 }
 
+.key-counter{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:10px 12px;
+  margin-bottom:12px;
+  background:#f3f7fa;
+  border:2px solid var(--line);
+  font-size:12px;
+  font-weight:900;
+}
+
+.key-counter strong{
+  font-family:"Press Start 2P";
+  font-size:9px;
+}
+
 .mystery-box{
   width:120px;
   height:100px;
-  margin:12px auto 20px;
+  margin:12px auto 15px;
   display:grid;
   place-items:center;
   background:linear-gradient(135deg,#d9f7ff,#9ddfff);
@@ -594,6 +672,11 @@ h1{
   transition:.2s;
 }
 
+.mystery-box.locked{
+  filter:grayscale(.4);
+  opacity:.75;
+}
+
 .mystery-box:hover{
   transform:translateY(-5px) rotate(-2deg);
 }
@@ -602,12 +685,20 @@ h1{
   min-height:24px;
   color:var(--blue);
   font-weight:900;
+  margin-bottom:10px;
+}
+
+.mystery-help{
+  color:var(--muted);
+  font-size:11px;
+  line-height:1.5;
+  min-height:34px;
 }
 
 
-/* =========================
+/* =========================================================
    ACHIEVEMENTS
-========================= */
+========================================================= */
 
 .achievement-list{
   display:grid;
@@ -628,6 +719,13 @@ h1{
   filter:grayscale(1);
 }
 
+.achievement.unlocked{
+  opacity:1;
+  filter:none;
+  background:#fff7d9;
+  border-color:var(--yellow);
+}
+
 .achievement-icon{
   font-size:22px;
   margin-bottom:6px;
@@ -639,10 +737,16 @@ h1{
   font-weight:800;
 }
 
+.achievement-progress{
+  margin-top:5px;
+  color:var(--muted);
+  font-size:8px;
+}
 
-/* =========================
-   QUICK ACCESS
-========================= */
+
+/* =========================================================
+   QUICK
+========================================================= */
 
 .quick{
   margin-top:22px;
@@ -673,9 +777,9 @@ h1{
 }
 
 
-/* =========================
-   INFO BAR
-========================= */
+/* =========================================================
+   INFO
+========================================================= */
 
 .info{
   margin-top:22px;
@@ -700,9 +804,9 @@ h1{
 }
 
 
-/* =========================
+/* =========================================================
    FOOTER
-========================= */
+========================================================= */
 
 footer{
   border-top:4px solid var(--line);
@@ -720,9 +824,9 @@ footer{
 }
 
 
-/* =========================
+/* =========================================================
    ANIMATION
-========================= */
+========================================================= */
 
 .reveal{
   opacity:0;
@@ -738,20 +842,21 @@ footer{
 }
 
 
-/* =========================
-   WALLET DISCONNECT POPUP
-========================= */
+/* =========================================================
+   POPUP
+========================================================= */
 
-.wallet-popup-overlay{
+.wallet-popup-overlay,
+.quiz-overlay{
   position:fixed;
   inset:0;
-  z-index:9999;
+  z-index:10000;
   display:flex;
   align-items:center;
   justify-content:center;
-  padding:20px;
-  background:rgba(20,35,46,.72);
-  backdrop-filter:blur(5px);
+  padding:18px;
+  background:rgba(20,35,46,.78);
+  backdrop-filter:blur(6px);
 }
 
 .wallet-popup{
@@ -761,18 +866,6 @@ footer{
   box-shadow:9px 9px 0 var(--line);
   padding:28px;
   text-align:center;
-  animation:popupIn .18s ease;
-}
-
-@keyframes popupIn{
-  from{
-    opacity:0;
-    transform:translateY(12px) scale(.97);
-  }
-  to{
-    opacity:1;
-    transform:none;
-  }
 }
 
 .wallet-popup-icon{
@@ -819,21 +912,9 @@ footer{
 }
 
 
-/* =========================
-   QUIZ MODAL
-========================= */
-
-.quiz-overlay{
-  position:fixed;
-  inset:0;
-  z-index:10000;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  padding:18px;
-  background:rgba(20,35,46,.78);
-  backdrop-filter:blur(6px);
-}
+/* =========================================================
+   QUIZ
+========================================================= */
 
 .quiz-modal{
   width:min(650px,100%);
@@ -865,7 +946,6 @@ footer{
   background:var(--cream);
   border:2px solid var(--line);
   padding:8px;
-  white-space:nowrap;
 }
 
 .quiz-question{
@@ -894,17 +974,10 @@ footer{
   cursor:pointer;
   font-size:14px;
   font-weight:700;
-  transition:.12s;
 }
 
 .quiz-option:hover{
   background:#dff7ff;
-  transform:translate(2px,2px);
-  box-shadow:2px 2px 0 var(--line);
-}
-
-.quiz-option:disabled{
-  cursor:not-allowed;
 }
 
 .quiz-result{
@@ -952,9 +1025,9 @@ footer{
 }
 
 
-/* =========================
+/* =========================================================
    TABLET
-========================= */
+========================================================= */
 
 @media(max-width:1000px){
 
@@ -1004,9 +1077,9 @@ footer{
 }
 
 
-/* =========================
+/* =========================================================
    MOBILE
-========================= */
+========================================================= */
 
 @media(max-width:620px){
 
@@ -1056,7 +1129,6 @@ footer{
     top:68px;
     left:10px;
     right:10px;
-    z-index:100;
   }
 
   .hero-content{
@@ -1136,45 +1208,37 @@ footer{
 
 <header>
 
-  <a class="brand" href="../">
-    <span class="mark">HR</span>
-    THE HOOD ROVER
-  </a>
+<a class="brand" href="../">
+  <span class="mark">HR</span>
+  THE HOOD ROVER
+</a>
 
-  <button
-    class="menu"
-    id="menu"
-    type="button"
-    aria-label="Open menu">
-    ☰
-  </button>
+<button
+  class="menu"
+  id="menu"
+  type="button">
+  ☰
+</button>
 
-  <nav id="nav">
+<nav id="nav">
 
-    <a href="../">HOME</a>
+<a href="../">HOME</a>
+<a href="../collection/">COLLECTION</a>
+<a class="active" href="../rover/">ROVER HUB</a>
+<a href="../my-rover/">MY ROVER</a>
+<a href="../leaderboard/">LEADERBOARD</a>
+<a href="../referral/">REFERRAL</a>
+<a href="../roadmap/">ROADMAP</a>
+<a href="../faq/">FAQ</a>
 
-    <a href="../collection/">COLLECTION</a>
+</nav>
 
-    <a class="active" href="../rover/">ROVER HUB</a>
-
-    <a href="../my-rover/">MY ROVER</a>
-
-    <a href="../leaderboard/">LEADERBOARD</a>
-
-    <a href="../referral/">REFERRAL</a>
-
-    <a href="../roadmap/">ROADMAP</a>
-
-    <a href="../faq/">FAQ</a>
-
-  </nav>
-
-  <button
-    class="btn secondary wallet-button"
-    id="connectWalletButton"
-    type="button">
-    CONNECT WALLET
-  </button>
+<button
+  class="btn secondary wallet-button"
+  id="connectWalletButton"
+  type="button">
+  CONNECT WALLET
+</button>
 
 </header>
 
@@ -1186,104 +1250,100 @@ footer{
 
 <section class="hero reveal visible">
 
-  <div class="window">
+<div class="window">
 
-    <div class="window-bar">
+<div class="window-bar">
 
-      <span>
-        ROVER_HUB.EXE
-      </span>
+<span>ROVER_HUB.EXE</span>
 
-      <span class="window-lights">
-        <i class="light"></i>
-        <i class="light"></i>
-        <i class="light"></i>
-      </span>
+<span class="window-lights">
+<i class="light"></i>
+<i class="light"></i>
+<i class="light"></i>
+</span>
 
-    </div>
+</div>
 
 
-    <div class="hero-content">
+<div class="hero-content">
 
-      <div>
+<div>
 
-        <span class="eyebrow">
-          HOOD ROVER // COMMAND CENTER
-        </span>
+<span class="eyebrow">
+HOOD ROVER // COMMAND CENTER
+</span>
 
-        <h1>
-          ROVER HUB
-        </h1>
+<h1>
+ROVER HUB
+</h1>
 
-        <p class="hero-text">
-          Your central station for missions, quizzes,
-          streaks, spins, mystery rewards and achievements.
-          Connect your Rover identity and build your activity.
-        </p>
+<p class="hero-text">
+Your central station for missions, quizzes,
+streaks, spins, mystery rewards and achievements.
+Connect your Rover identity and build your activity.
+</p>
 
-      </div>
+</div>
 
 
-      <div class="system-status">
+<div class="system-status">
 
-        <div class="status-line">
+<div class="status-line">
 
-          <span class="status-dot"></span>
+<span class="status-dot"></span>
 
-          SYSTEM ONLINE
+SYSTEM ONLINE
 
-        </div>
+</div>
 
-        <div class="status-small">
-          HUB STATUS: READY
-        </div>
+<div class="status-small">
+HUB STATUS: READY
+</div>
 
-        <div class="status-small">
-          COLLECTION: 1,111
-        </div>
+<div class="status-small">
+COLLECTION: 1,111
+</div>
 
-        <div class="status-small" id="walletStatus">
-          WALLET: NOT CONNECTED
-        </div>
+<div class="status-small" id="walletStatus">
+WALLET: NOT CONNECTED
+</div>
 
-      </div>
+</div>
 
-    </div>
+</div>
 
-  </div>
+</div>
 
 </section>
 
 
-<!-- =========================
-     ROVER BALANCE
-========================= -->
+<!-- BALANCE -->
 
 <div class="rover-balance reveal">
 
-  <div>
+<div>
 
-    <div class="rover-balance-label">
-      ROVER BALANCE
-    </div>
+<div class="rover-balance-label">
+ROVER BALANCE
+</div>
 
-    <div
-      class="rover-balance-number"
-      id="roverBalance">
-      0 ROVER
-    </div>
+<div
+class="rover-balance-number"
+id="roverBalance">
+0 ROVER
+</div>
 
-    <div
-      class="rover-balance-today"
-      id="roverToday">
-      TODAY: +0 ROVER
-    </div>
+<div
+class="rover-balance-today"
+id="roverToday">
+TODAY: +0 ROVER
+</div>
 
-  </div>
+</div>
 
-  <div class="rover-balance-icon">
-    ◆
-  </div>
+<div class="rover-balance-icon">
+◆
+</div>
 
 </div>
 
@@ -1291,371 +1351,492 @@ footer{
 <section class="hub-grid">
 
 
-<!-- DAILY MISSIONS -->
+<!-- =====================================================
+     DAILY ASSIGNMENTS
+===================================================== -->
 
 <article class="card reveal">
 
-  <div class="card-head">
+<div class="card-head">
 
-    <div class="card-icon">
-      🎯
-    </div>
+<div class="card-icon">
+🎯
+</div>
 
-    <span class="card-tag">
-      DAILY
-    </span>
+<span class="card-tag">
+DAILY
+</span>
 
-  </div>
+</div>
 
-  <h3>
-    DAILY MISSIONS
-  </h3>
+<h3>
+DAILY ASSIGNMENTS
+</h3>
 
-  <p>
-    Complete selected activities and unlock today's available rewards.
-  </p>
-
-  <div class="mission-list">
-
-    <div class="mission">
-
-      <span class="mission-name">
-        CHECK IN
-      </span>
-
-      <span
-        class="mission-state"
-        id="missionCheckin">
-        READY
-      </span>
-
-    </div>
+<p>
+Complete today's activities and track your Rover progress.
+</p>
 
 
-    <div class="mission">
+<div class="mission-list">
 
-      <span class="mission-name">
-        COMPLETE QUIZ
-      </span>
+<div class="mission">
 
-      <span
-        class="mission-state"
-        id="missionQuiz">
-        0/1
-      </span>
+<span class="mission-name">
+CHECK IN
+</span>
 
-    </div>
+<span
+class="mission-state"
+id="missionCheckin">
+READY
+</span>
+
+</div>
 
 
-    <div class="mission">
+<div class="mission">
 
-      <span class="mission-name">
-        HUB ACTIVITY
-      </span>
+<span class="mission-name">
+QUIZ
+</span>
 
-      <span class="mission-state">
-        ACTIVE
-      </span>
+<span
+class="mission-state"
+id="missionQuiz">
+0/1
+</span>
 
-    </div>
+</div>
 
-  </div>
+
+<div class="mission">
+
+<span class="mission-name">
+3 SPINS
+</span>
+
+<span
+class="mission-state"
+id="missionSpin">
+0/3
+</span>
+
+</div>
+
+
+<div class="mission">
+
+<span class="mission-name">
+MYSTERY BOX
+</span>
+
+<span
+class="mission-state"
+id="missionMystery">
+0/1
+</span>
+
+</div>
+
+</div>
 
 </article>
 
 
-<!-- QUIZ -->
+<!-- =====================================================
+     QUIZ
+===================================================== -->
 
 <article class="card reveal">
 
-  <div class="card-head">
+<div class="card-head">
 
-    <div class="card-icon">
-      🧠
-    </div>
+<div class="card-icon">
+🧠
+</div>
 
-    <span class="card-tag">
-      +2 ROVER
-    </span>
+<span class="card-tag">
++2 ROVER
+</span>
 
-  </div>
+</div>
 
-  <h3>
-    ROVER QUIZ
-  </h3>
+<h3>
+ROVER QUIZ
+</h3>
 
-  <p>
-    Answer all five questions correctly.
-    One wrong answer ends today's attempt.
-  </p>
+<p>
+Answer all five questions correctly.
+One wrong answer ends today's attempt.
+</p>
 
-  <div class="streak-box">
 
-    <div class="fire">
-      🧠
-    </div>
+<div class="streak-box">
 
-    <div>
+<div class="fire">
+🧠
+</div>
 
-      <div
-        class="streak-number"
-        id="quizStatus">
-        READY
-      </div>
+<div>
 
-      <span class="streak-label">
-        TODAY'S QUIZ
-      </span>
+<div
+class="streak-number"
+id="quizStatus">
+READY
+</div>
 
-    </div>
+<span class="streak-label">
+TODAY'S QUIZ
+</span>
 
-  </div>
+</div>
 
-  <button
-    class="btn secondary"
-    id="quizButton"
-    type="button">
-    START QUIZ
-  </button>
+</div>
+
+
+<button
+class="btn secondary"
+id="quizButton"
+type="button">
+START QUIZ
+</button>
 
 </article>
 
 
-<!-- STREAK -->
+<!-- =====================================================
+     STREAK
+===================================================== -->
 
 <article class="card reveal">
 
-  <div class="card-head">
+<div class="card-head">
 
-    <div class="card-icon">
-      🔥
-    </div>
+<div class="card-icon">
+🔥
+</div>
 
-    <span class="card-tag">
-      +1 ROVER
-    </span>
+<span class="card-tag">
++1 ROVER
+</span>
 
-  </div>
+</div>
 
-  <h3>
-    DAILY STREAK
-  </h3>
+<h3>
+DAILY STREAK
+</h3>
 
-  <p>
-    Keep checking in each day and maintain your Rover activity streak.
-  </p>
+<p>
+Keep checking in each day and maintain your Rover activity streak.
+</p>
 
-  <div class="streak-box">
 
-    <div class="fire">
-      🔥
-    </div>
+<div class="streak-box">
 
-    <div>
+<div class="fire">
+🔥
+</div>
 
-      <div
-        class="streak-number"
-        id="streakNumber">
-        0
-      </div>
+<div>
 
-      <span class="streak-label">
-        CURRENT STREAK
-      </span>
+<div
+class="streak-number"
+id="streakNumber">
+0
+</div>
 
-    </div>
+<span class="streak-label">
+CURRENT STREAK
+</span>
 
-  </div>
+</div>
 
-  <button
-    class="btn yellow"
-    id="checkinButton"
-    type="button">
-    DAILY CHECK-IN
-  </button>
+</div>
+
+
+<button
+class="btn yellow"
+id="checkinButton"
+type="button">
+DAILY CHECK-IN
+</button>
 
 </article>
 
 
-<!-- SPIN -->
+<!-- =====================================================
+     SPIN
+===================================================== -->
 
 <article class="card reveal">
 
-  <div class="card-head">
+<div class="card-head">
 
-    <div class="card-icon">
-      🎡
-    </div>
+<div class="card-icon">
+🎡
+</div>
 
-    <span class="card-tag">
-      REWARD
-    </span>
+<span class="card-tag">
+3 / DAY
+</span>
 
-  </div>
+</div>
 
-  <h3>
-    SPIN WHEEL
-  </h3>
+<h3>
+SPIN WHEEL
+</h3>
 
-  <p>
-    One spin when available. See what the system generates.
-  </p>
+<p>
+Spin up to three times every day.
+Most spins are unlucky, but rare rewards can appear.
+</p>
 
-  <div class="spin-area">
 
-    <div class="pointer"></div>
+<div class="spin-area">
 
-    <div
-      class="wheel"
-      id="wheel">
-    </div>
+<div class="spin-counter">
 
-    <div
-      class="reward-text"
-      id="spinResult">
-      READY TO SPIN
-    </div>
+<span>
+SPINS LEFT
+</span>
 
-  </div>
+<strong id="spinCount">
+3 / 3
+</strong>
 
-  <button
-    class="btn"
-    id="spinButton"
-    type="button">
-    SPIN NOW
-  </button>
+</div>
+
+
+<div class="wheel-wrap">
+
+<div class="pointer"></div>
+
+<div
+class="wheel"
+id="wheel">
+</div>
+
+</div>
+
+
+<div
+class="reward-display"
+id="spinRewardDisplay">
+
+<div class="reward-display-title">
+READY TO SPIN
+</div>
+
+<div class="reward-display-sub">
+3 CHANCES TODAY
+</div>
+
+</div>
+
+</div>
+
+
+<button
+class="btn"
+id="spinButton"
+type="button">
+SPIN NOW
+</button>
 
 </article>
 
 
-<!-- MYSTERY -->
+<!-- =====================================================
+     MYSTERY BOX
+===================================================== -->
 
 <article class="card reveal">
 
-  <div class="card-head">
+<div class="card-head">
 
-    <div class="card-icon">
-      🎁
-    </div>
+<div class="card-icon">
+🎁
+</div>
 
-    <span class="card-tag">
-      MYSTERY
-    </span>
+<span class="card-tag">
+KEY REQUIRED
+</span>
 
-  </div>
+</div>
 
-  <h3>
-    MYSTERY REWARD
-  </h3>
+<h3>
+MYSTERY BOX
+</h3>
 
-  <p>
-    Some rewards are hidden until you open the box.
-  </p>
+<p>
+Find a Mystery Reward from the wheel to receive a key.
+Use that key to unlock this box.
+</p>
 
-  <div class="mystery">
 
-    <div
-      class="mystery-box"
-      id="mysteryBox">
-      ?
-    </div>
+<div class="mystery">
 
-    <div
-      class="mystery-result"
-      id="mysteryResult">
-      BOX LOCKED
-    </div>
+<div class="key-counter">
 
-  </div>
+<span>
+MYSTERY KEYS
+</span>
 
-  <button
-    class="btn secondary"
-    id="mysteryButton"
-    type="button">
-    OPEN BOX
-  </button>
+<strong id="mysteryKeys">
+0
+</strong>
+
+</div>
+
+
+<div
+class="mystery-box locked"
+id="mysteryBox">
+🔒
+</div>
+
+
+<div
+class="mystery-result"
+id="mysteryResult">
+BOX LOCKED
+</div>
+
+
+<div
+class="mystery-help"
+id="mysteryHelp">
+Spin the wheel and find a Mystery Reward first.
+</div>
+
+</div>
+
+
+<button
+class="btn secondary"
+id="mysteryButton"
+type="button"
+disabled>
+NO KEY
+</button>
 
 </article>
 
 
-<!-- ACHIEVEMENTS -->
+<!-- =====================================================
+     ACHIEVEMENTS
+===================================================== -->
 
 <article class="card reveal">
 
-  <div class="card-head">
+<div class="card-head">
 
-    <div class="card-icon">
-      🏆
-    </div>
+<div class="card-icon">
+🏆
+</div>
 
-    <span class="card-tag">
-      PROFILE
-    </span>
+<span class="card-tag">
+PROFILE
+</span>
 
-  </div>
+</div>
 
-  <h3>
-    ACHIEVEMENTS
-  </h3>
+<h3>
+ACHIEVEMENTS
+</h3>
 
-  <p>
-    Your milestones will appear here as your Rover activity grows.
-  </p>
-
-  <div class="achievement-list">
-
-    <div class="achievement">
-
-      <div class="achievement-icon">
-        🚀
-      </div>
-
-      <small>
-        FIRST STEP
-      </small>
-
-    </div>
+<p>
+Build your activity and unlock Rover milestones.
+</p>
 
 
-    <div class="achievement locked">
+<div class="achievement-list">
 
-      <div class="achievement-icon">
-        🔥
-      </div>
+<div
+class="achievement"
+id="achievementFirst">
 
-      <small>
-        STREAK
-      </small>
+<div class="achievement-icon">
+🚀
+</div>
 
-    </div>
+<small>
+FIRST STEP
+</small>
 
+<div
+class="achievement-progress"
+id="achievementFirstText">
+0 / 1
+</div>
 
-    <div class="achievement locked">
-
-      <div class="achievement-icon">
-        🏆
-      </div>
-
-      <small>
-        CHAMPION
-      </small>
-
-    </div>
+</div>
 
 
-    <div class="achievement locked">
+<div
+class="achievement locked"
+id="achievementStreak">
 
-      <div class="achievement-icon">
-        👑
-      </div>
+<div class="achievement-icon">
+🔥
+</div>
 
-      <small>
-        ELITE
-      </small>
+<small>
+STREAK
+</small>
 
-    </div>
+<div
+class="achievement-progress"
+id="achievementStreakText">
+0 / 7
+</div>
 
-  </div>
+</div>
+
+
+<div
+class="achievement locked"
+id="achievementSpinner">
+
+<div class="achievement-icon">
+🎡
+</div>
+
+<small>
+SPINNER
+</small>
+
+<div
+class="achievement-progress"
+id="achievementSpinnerText">
+0 / 10
+</div>
+
+</div>
+
+
+<div
+class="achievement locked"
+id="achievementMystery">
+
+<div class="achievement-icon">
+🎁
+</div>
+
+<small>
+MYSTERY HUNTER
+</small>
+
+<div
+class="achievement-progress"
+id="achievementMysteryText">
+0 / 5
+</div>
+
+</div>
+
+</div>
 
 </article>
 
@@ -1667,50 +1848,50 @@ footer{
 
 <div class="quick reveal">
 
-  <a href="../my-rover/">
+<a href="../my-rover/">
 
-    MY ROVER
+MY ROVER
 
-    <span>
-      View your Rover activity
-    </span>
+<span>
+View your Rover activity
+</span>
 
-  </a>
-
-
-  <a href="../leaderboard/">
-
-    LEADERBOARD
-
-    <span>
-      See community rankings
-    </span>
-
-  </a>
+</a>
 
 
-  <a href="../referral/">
+<a href="../leaderboard/">
 
-    REFERRAL
+LEADERBOARD
 
-    <span>
-      Invite genuine Rover users
-    </span>
+<span>
+See community rankings
+</span>
 
-  </a>
+</a>
+
+
+<a href="../referral/">
+
+REFERRAL
+
+<span>
+Invite genuine Rover users
+</span>
+
+</a>
 
 </div>
 
 
 <div class="info reveal">
 
-  <strong>
-    ROVER HUB SYSTEM
-  </strong>
+<strong>
+ROVER HUB SYSTEM
+</strong>
 
-  <span>
-    Complete activities to build your Rover balance.
-  </span>
+<span>
+Complete activities, collect rewards and build your Rover profile.
+</span>
 
 </div>
 
@@ -1721,1792 +1902,2350 @@ footer{
 
 <footer>
 
-  <div class="wrap footer">
+<div class="wrap footer">
 
-    <div>
-      <b>THE HOOD ROVER</b>
-    </div>
+<div>
+<b>THE HOOD ROVER</b>
+</div>
 
-    <div>
-      RETRO SYSTEM // 2026
-    </div>
+<div>
+RETRO SYSTEM // 2026
+</div>
 
-  </div>
+</div>
 
 </footer>
 
 
 <script>
 
-
-/* =========================
+/* =========================================================
    MOBILE MENU
-========================= */
+========================================================= */
 
 const menu =
-  document.getElementById("menu");
+document.getElementById("menu");
 
 const nav =
-  document.getElementById("nav");
+document.getElementById("nav");
 
 
-menu.addEventListener(
-  "click",
-  () => {
+menu.addEventListener("click",() => {
 
-    nav.classList.toggle("open");
+nav.classList.toggle("open");
 
-  }
-);
+});
 
 
 nav.querySelectorAll("a")
-  .forEach(link => {
+.forEach(link => {
 
-    link.addEventListener(
-      "click",
-      () => {
+link.addEventListener("click",() => {
 
-        nav.classList.remove("open");
+nav.classList.remove("open");
 
-      }
-    );
+});
 
-  });
+});
 
 
-/* =========================
-   SUPABASE
-========================= */
+/* =========================================================
+   SUPABASE CLIENT
+   Not used for rewards yet.
+   Backend connection will come after UI testing.
+========================================================= */
 
 const SUPABASE_URL =
-  "https://hyshlvuywbwhhjgqwfwi.supabase.co";
+"https://hyshlvuywbwhhjgqwfwi.supabase.co";
 
 const SUPABASE_PUBLISHABLE_KEY =
-  "sb_publishable_LWmPzfGLuzdjDZvnwKs0Ug_Gvs5yROF";
+"sb_publishable_LWmPzfGLuzdjDZvnwKs0Ug_Gvs5yROF";
 
-const { createClient } =
-  window.supabase;
+const {createClient} =
+window.supabase;
 
 const supabaseClient =
-  createClient(
-    SUPABASE_URL,
-    SUPABASE_PUBLISHABLE_KEY
-  );
+createClient(
+SUPABASE_URL,
+SUPABASE_PUBLISHABLE_KEY
+);
 
 
-/* =========================
+/* =========================================================
    ELEMENTS
-========================= */
+========================================================= */
 
 const connectWalletButton =
-  document.getElementById(
-    "connectWalletButton"
-  );
+document.getElementById(
+"connectWalletButton"
+);
 
 const walletStatus =
-  document.getElementById(
-    "walletStatus"
-  );
+document.getElementById(
+"walletStatus"
+);
 
 const checkinButton =
-  document.getElementById(
-    "checkinButton"
-  );
+document.getElementById(
+"checkinButton"
+);
 
 const streakNumber =
-  document.getElementById(
-    "streakNumber"
-  );
+document.getElementById(
+"streakNumber"
+);
 
 const missionCheckin =
-  document.getElementById(
-    "missionCheckin"
-  );
+document.getElementById(
+"missionCheckin"
+);
 
 const missionQuiz =
-  document.getElementById(
-    "missionQuiz"
-  );
+document.getElementById(
+"missionQuiz"
+);
+
+const missionSpin =
+document.getElementById(
+"missionSpin"
+);
+
+const missionMystery =
+document.getElementById(
+"missionMystery"
+);
 
 const roverBalance =
-  document.getElementById(
-    "roverBalance"
-  );
+document.getElementById(
+"roverBalance"
+);
 
 const roverToday =
-  document.getElementById(
-    "roverToday"
-  );
+document.getElementById(
+"roverToday"
+);
 
 const quizButton =
-  document.getElementById(
-    "quizButton"
-  );
+document.getElementById(
+"quizButton"
+);
 
 const quizStatus =
-  document.getElementById(
-    "quizStatus"
-  );
+document.getElementById(
+"quizStatus"
+);
+
+const spinButton =
+document.getElementById(
+"spinButton"
+);
+
+const spinCount =
+document.getElementById(
+"spinCount"
+);
+
+const wheel =
+document.getElementById(
+"wheel"
+);
+
+const spinRewardDisplay =
+document.getElementById(
+"spinRewardDisplay"
+);
+
+const mysteryKeys =
+document.getElementById(
+"mysteryKeys"
+);
+
+const mysteryBox =
+document.getElementById(
+"mysteryBox"
+);
+
+const mysteryButton =
+document.getElementById(
+"mysteryButton"
+);
+
+const mysteryResult =
+document.getElementById(
+"mysteryResult"
+);
+
+const mysteryHelp =
+document.getElementById(
+"mysteryHelp"
+);
 
 
-/* =========================
+/* =========================================================
    WALLET
-========================= */
+========================================================= */
 
 let walletAddress = null;
 
 const WALLET_STORAGE_KEY =
-  "roverHubWallet";
+"roverHubWallet";
 
 const WALLET_DISCONNECTED_KEY =
-  "roverHubWalletDisconnected";
+"roverHubWalletDisconnected";
 
 
 function shortAddress(address){
 
-  if(!address) return "";
+if(!address) return "";
 
-  return (
-    address.slice(0,6) +
-    "..." +
-    address.slice(-4)
-  );
+return (
+address.slice(0,6) +
+"..." +
+address.slice(-4)
+);
 
 }
 
 
 function updateWalletUI(address){
 
-  if(!address){
+if(!address){
 
-    walletAddress = null;
+walletAddress = null;
 
-    walletStatus.textContent =
-      "WALLET: NOT CONNECTED";
+walletStatus.textContent =
+"WALLET: NOT CONNECTED";
 
-    connectWalletButton.textContent =
-      "CONNECT WALLET";
+connectWalletButton.textContent =
+"CONNECT WALLET";
 
-    return;
+return;
 
-  }
-
-
-  walletAddress =
-    address.toLowerCase();
+}
 
 
-  walletStatus.textContent =
-    "WALLET: " +
-    shortAddress(
-      walletAddress
-    );
+walletAddress =
+address.toLowerCase();
 
 
-  connectWalletButton.textContent =
-    shortAddress(
-      walletAddress
-    );
+walletStatus.textContent =
+"WALLET: " +
+shortAddress(walletAddress);
+
+
+connectWalletButton.textContent =
+shortAddress(walletAddress);
 
 }
 
 
 function saveWallet(address){
 
-  localStorage.setItem(
-    WALLET_STORAGE_KEY,
-    address.toLowerCase()
-  );
+localStorage.setItem(
+WALLET_STORAGE_KEY,
+address.toLowerCase()
+);
 
-  localStorage.removeItem(
-    WALLET_DISCONNECTED_KEY
-  );
+localStorage.removeItem(
+WALLET_DISCONNECTED_KEY
+);
 
 }
 
 
 function clearWalletState(){
 
-  localStorage.removeItem(
-    WALLET_STORAGE_KEY
-  );
+localStorage.removeItem(
+WALLET_STORAGE_KEY
+);
 
-  localStorage.setItem(
-    WALLET_DISCONNECTED_KEY,
-    "1"
-  );
+localStorage.setItem(
+WALLET_DISCONNECTED_KEY,
+"1"
+);
 
-  walletAddress = null;
+walletAddress = null;
 
-  updateWalletUI(null);
+updateWalletUI(null);
 
-  streakNumber.textContent =
-    "0";
-
-  checkinButton.disabled =
-    false;
-
-  checkinButton.textContent =
-    "DAILY CHECK-IN";
+resetWalletUI();
 
 }
 
 
-/* =========================
-   DISCONNECT POPUP
-========================= */
+/* =========================================================
+   WALLET POPUP
+========================================================= */
 
 function showDisconnectPopup(){
 
-  const popup =
-    document.createElement(
-      "div"
-    );
+const popup =
+document.createElement("div");
 
-  popup.id =
-    "walletDisconnectPopup";
+popup.innerHTML = `
 
+<div class="wallet-popup-overlay">
 
-  popup.innerHTML = `
+<div class="wallet-popup">
 
-    <div class="wallet-popup-overlay">
+<div class="wallet-popup-icon">
+🔌
+</div>
 
-      <div class="wallet-popup">
+<div class="wallet-popup-title">
+WALLET CONNECTED
+</div>
 
-        <div class="wallet-popup-icon">
-          🔌
-        </div>
+<div class="wallet-popup-address">
+${shortAddress(walletAddress)}
+</div>
 
-        <div class="wallet-popup-title">
-          WALLET CONNECTED
-        </div>
+<p>
+Do you want to disconnect this wallet
+from Rover Hub?
+</p>
 
-        <div class="wallet-popup-address">
-          ${shortAddress(walletAddress)}
-        </div>
+<div class="wallet-popup-actions">
 
-        <p>
-          Do you want to disconnect this wallet
-          from Rover Hub?
-        </p>
+<button
+class="btn secondary"
+id="cancelDisconnect">
+CANCEL
+</button>
 
-        <div class="wallet-popup-actions">
+<button
+class="btn"
+id="confirmDisconnect">
+DISCONNECT
+</button>
 
-          <button
-            class="btn secondary"
-            id="cancelDisconnect"
-            type="button">
-            CANCEL
-          </button>
+</div>
 
-          <button
-            class="btn"
-            id="confirmDisconnect"
-            type="button">
-            DISCONNECT
-          </button>
+</div>
 
-        </div>
+</div>
 
-      </div>
-
-    </div>
-
-  `;
+`;
 
 
-  document.body.appendChild(
-    popup
-  );
+document.body.appendChild(popup);
 
 
-  document
-    .getElementById(
-      "cancelDisconnect"
-    )
-    .addEventListener(
-      "click",
-      () => popup.remove()
-    );
+document
+.getElementById("cancelDisconnect")
+.addEventListener(
+"click",
+() => popup.remove()
+);
 
 
-  document
-    .getElementById(
-      "confirmDisconnect"
-    )
-    .addEventListener(
-      "click",
-      async () => {
+document
+.getElementById("confirmDisconnect")
+.addEventListener(
+"click",
+async () => {
 
-        await disconnectWallet();
+await disconnectWallet();
 
-        popup.remove();
+popup.remove();
 
-      }
-    );
+}
+);
 
 }
 
 
-/* =========================
+/* =========================================================
    DISCONNECT
-========================= */
+========================================================= */
 
 async function disconnectWallet(){
 
-  try{
+try{
 
-    if(window.ethereum){
+if(window.ethereum){
 
-      try{
+try{
 
-        await window.ethereum.request({
+await window.ethereum.request({
 
-          method:
-            "wallet_revokePermissions",
+method:
+"wallet_revokePermissions",
 
-          params:[
-            {
-              eth_accounts:{}
-            }
-          ]
+params:[
+{
+eth_accounts:{}
+}
+]
 
-        });
+});
 
-      }catch(error){
+}catch(error){
 
-        console.log(
-          "Provider revoke not supported:",
-          error
-        );
+console.log(
+"Provider revoke not supported:",
+error
+);
 
-      }
+}
 
-    }
+}
 
-  }finally{
+}finally{
 
-    clearWalletState();
+clearWalletState();
 
-  }
+}
 
 }
 
 
-/* =========================
-   CONNECT WALLET
-========================= */
+/* =========================================================
+   CONNECT
+========================================================= */
 
 async function connectWallet(){
 
-  if(!window.ethereum){
+if(!window.ethereum){
 
-    alert(
-      "NO WEB3 WALLET DETECTED.\n\n" +
-      "Please open Rover Hub inside your wallet browser."
-    );
+alert(
+"NO WEB3 WALLET DETECTED.\n\n" +
+"Please open Rover Hub inside your wallet browser."
+);
 
-    return;
+return;
 
-  }
-
-
-  try{
-
-    connectWalletButton.disabled =
-      true;
-
-    connectWalletButton.textContent =
-      "CONNECTING...";
+}
 
 
-    const accounts =
-      await window.ethereum.request({
+try{
 
-        method:
-          "eth_requestAccounts"
+connectWalletButton.disabled =
+true;
 
-      });
-
-
-    if(
-      !accounts ||
-      accounts.length === 0
-    ){
-
-      throw new Error(
-        "No wallet account returned"
-      );
-
-    }
+connectWalletButton.textContent =
+"CONNECTING...";
 
 
-    const address =
-      accounts[0].toLowerCase();
+const accounts =
+await window.ethereum.request({
+
+method:
+"eth_requestAccounts"
+
+});
 
 
-    saveWallet(address);
+if(
+!accounts ||
+accounts.length === 0
+){
 
-    updateWalletUI(address);
+throw new Error(
+"No wallet account returned"
+);
 
-    await loadStreak();
-
-  }catch(error){
-
-    console.error(
-      "Wallet connection failed:",
-      error
-    );
+}
 
 
-    if(error.code === 4001){
+const address =
+accounts[0].toLowerCase();
 
-      alert(
-        "WALLET CONNECTION CANCELLED."
-      );
 
-    }else{
+saveWallet(address);
 
-      alert(
-        "WALLET CONNECTION FAILED.\n\n" +
-        "Please try again."
-      );
+updateWalletUI(address);
 
-    }
+loadWalletGame();
 
-  }finally{
+}catch(error){
 
-    connectWalletButton.disabled =
-      false;
+console.error(
+"Wallet connection failed:",
+error
+);
 
-  }
+
+if(error.code === 4001){
+
+alert(
+"WALLET CONNECTION CANCELLED."
+);
+
+}else{
+
+alert(
+"WALLET CONNECTION FAILED.\n\n" +
+"Please try again."
+);
+
+}
+
+}finally{
+
+connectWalletButton.disabled =
+false;
+
+}
 
 }
 
 
 connectWalletButton.addEventListener(
-  "click",
-  () => {
+"click",
+() => {
 
-    if(walletAddress){
+if(walletAddress){
 
-      showDisconnectPopup();
+showDisconnectPopup();
 
-    }else{
+}else{
 
-      connectWallet();
+connectWallet();
 
-    }
+}
 
-  }
+}
 );
 
 
-/* =========================
+/* =========================================================
    RESTORE WALLET
-========================= */
+========================================================= */
 
 async function restoreWallet(){
 
-  const savedWallet =
-    localStorage.getItem(
-      WALLET_STORAGE_KEY
-    );
+const savedWallet =
+localStorage.getItem(
+WALLET_STORAGE_KEY
+);
+
+const disconnected =
+localStorage.getItem(
+WALLET_DISCONNECTED_KEY
+) === "1";
 
 
-  const disconnected =
-    localStorage.getItem(
-      WALLET_DISCONNECTED_KEY
-    ) === "1";
+if(disconnected){
+
+updateWalletUI(null);
+
+return;
+
+}
 
 
-  if(disconnected){
+if(!window.ethereum){
 
-    updateWalletUI(null);
+if(savedWallet){
 
-    return;
+updateWalletUI(
+savedWallet
+);
 
-  }
+loadWalletGame();
 
+}
 
-  if(!window.ethereum){
+return;
 
-    if(savedWallet){
-
-      updateWalletUI(
-        savedWallet
-      );
-
-    }
-
-    return;
-
-  }
+}
 
 
-  try{
+try{
 
-    const accounts =
-      await window.ethereum.request({
+const accounts =
+await window.ethereum.request({
 
-        method:
-          "eth_accounts"
+method:
+"eth_accounts"
 
-      });
-
-
-    if(
-      accounts &&
-      accounts.length > 0
-    ){
-
-      const address =
-        accounts[0].toLowerCase();
+});
 
 
-      saveWallet(address);
+if(
+accounts &&
+accounts.length > 0
+){
 
-      updateWalletUI(address);
+const address =
+accounts[0].toLowerCase();
 
-      await loadStreak();
+saveWallet(address);
 
-      return;
+updateWalletUI(address);
 
-    }
+loadWalletGame();
+
+return;
+
+}
 
 
-    updateWalletUI(null);
+updateWalletUI(null);
 
-  }catch(error){
+}catch(error){
 
-    console.error(
-      "Wallet restore failed:",
-      error
-    );
+console.error(
+"Wallet restore failed:",
+error
+);
 
-  }
+}
 
 }
 
 
 if(window.ethereum){
 
-  window.ethereum.on(
-    "accountsChanged",
-    async accounts => {
+window.ethereum.on(
+"accountsChanged",
+accounts => {
 
-      if(
-        !accounts ||
-        accounts.length === 0
-      ){
+if(
+!accounts ||
+accounts.length === 0
+){
 
-        clearWalletState();
+clearWalletState();
 
-        return;
-
-      }
-
-
-      const address =
-        accounts[0].toLowerCase();
-
-
-      saveWallet(address);
-
-      updateWalletUI(address);
-
-      await loadStreak();
-
-    }
-  );
+return;
 
 }
 
 
-window.addEventListener(
-  "storage",
-  async event => {
+const address =
+accounts[0].toLowerCase();
 
-    if(
-      event.key === WALLET_STORAGE_KEY ||
-      event.key === WALLET_DISCONNECTED_KEY
-    ){
+saveWallet(address);
 
-      const disconnected =
-        localStorage.getItem(
-          WALLET_DISCONNECTED_KEY
-        ) === "1";
+updateWalletUI(address);
 
+loadWalletGame();
 
-      if(disconnected){
-
-        updateWalletUI(null);
-
-        return;
-
-      }
-
-
-      const address =
-        localStorage.getItem(
-          WALLET_STORAGE_KEY
-        );
-
-
-      if(address){
-
-        updateWalletUI(
-          address
-        );
-
-        await loadStreak();
-
-      }
-
-    }
-
-  }
+}
 );
 
+}
 
-/* =========================
+
+/* =========================================================
+   GAME STORAGE
+========================================================= */
+
+function getWalletKey(){
+
+if(!walletAddress){
+
+return "guest";
+
+}
+
+return walletAddress.toLowerCase();
+
+}
+
+
+function todayKey(){
+
+return new Date()
+.toLocaleDateString(
+"en-CA"
+);
+
+}
+
+
+function gameStorageKey(name){
+
+return (
+"hoodRover_" +
+name +
+"_" +
+getWalletKey()
+);
+
+}
+
+
+/* =========================================================
    ROVER BALANCE
-========================= */
-
-const ROVER_BALANCE_KEY =
-  "roverHubBalance";
-
-const ROVER_TODAY_KEY =
-  "roverHubToday";
-
-const ROVER_TODAY_DATE_KEY =
-  "roverHubTodayDate";
-
+========================================================= */
 
 let roverAmount = 0;
 
 let roverTodayAmount = 0;
 
 
-function todayKey(){
+function loadRoverBalance(){
 
-  return new Date()
-    .toISOString()
-    .slice(0,10);
+const saved =
+localStorage.getItem(
+gameStorageKey("balance")
+);
+
+const savedToday =
+localStorage.getItem(
+gameStorageKey("today")
+);
+
+const savedDate =
+localStorage.getItem(
+gameStorageKey("todayDate")
+);
+
+
+roverAmount =
+Number(saved || 0);
+
+
+if(savedDate !== todayKey()){
+
+roverTodayAmount = 0;
+
+localStorage.setItem(
+gameStorageKey("today"),
+"0"
+);
+
+localStorage.setItem(
+gameStorageKey("todayDate"),
+todayKey()
+);
+
+}else{
+
+roverTodayAmount =
+Number(savedToday || 0);
+
+}
+
+
+updateRoverUI();
 
 }
 
 
 function updateRoverUI(){
 
-  roverBalance.textContent =
-    roverAmount +
-    " ROVER";
+roverBalance.textContent =
+roverAmount +
+" ROVER";
 
-
-  roverToday.textContent =
-    "TODAY: +" +
-    roverTodayAmount +
-    " ROVER";
-
-}
-
-
-function loadRoverBalance(){
-
-  roverAmount =
-    Number(
-      localStorage.getItem(
-        ROVER_BALANCE_KEY
-      ) || 0
-    );
-
-
-  const savedDate =
-    localStorage.getItem(
-      ROVER_TODAY_DATE_KEY
-    );
-
-
-  if(
-    savedDate !== todayKey()
-  ){
-
-    roverTodayAmount = 0;
-
-    localStorage.setItem(
-      ROVER_TODAY_KEY,
-      "0"
-    );
-
-    localStorage.setItem(
-      ROVER_TODAY_DATE_KEY,
-      todayKey()
-    );
-
-  }else{
-
-    roverTodayAmount =
-      Number(
-        localStorage.getItem(
-          ROVER_TODAY_KEY
-        ) || 0
-      );
-
-  }
-
-
-  updateRoverUI();
+roverToday.textContent =
+"TODAY: +" +
+roverTodayAmount +
+" ROVER";
 
 }
 
 
 function addRover(amount){
 
-  roverAmount +=
-    amount;
-
-  roverTodayAmount +=
-    amount;
+if(amount <= 0)
+return;
 
 
-  localStorage.setItem(
-    ROVER_BALANCE_KEY,
-    String(roverAmount)
-  );
+roverAmount += amount;
+
+roverTodayAmount += amount;
 
 
-  localStorage.setItem(
-    ROVER_TODAY_KEY,
-    String(roverTodayAmount)
-  );
+localStorage.setItem(
+gameStorageKey("balance"),
+String(roverAmount)
+);
+
+localStorage.setItem(
+gameStorageKey("today"),
+String(roverTodayAmount)
+);
+
+localStorage.setItem(
+gameStorageKey("todayDate"),
+todayKey()
+);
 
 
-  localStorage.setItem(
-    ROVER_TODAY_DATE_KEY,
-    todayKey()
-  );
+updateRoverUI();
 
-
-  updateRoverUI();
+updateAchievements();
 
 }
 
 
-loadRoverBalance();
+/* =========================================================
+   DAILY CHECK-IN
+========================================================= */
+
+function loadCheckin(){
+
+const date =
+localStorage.getItem(
+gameStorageKey("checkinDate")
+);
 
 
-/* =========================
+if(date === todayKey()){
+
+checkinButton.disabled =
+true;
+
+checkinButton.textContent =
+"ALREADY CHECKED IN";
+
+missionCheckin.textContent =
+"DONE";
+
+missionCheckin.classList.add(
+"done"
+);
+
+return;
+
+}
+
+
+checkinButton.disabled =
+false;
+
+checkinButton.textContent =
+"DAILY CHECK-IN";
+
+missionCheckin.textContent =
+"READY";
+
+missionCheckin.classList.remove(
+"done"
+);
+
+}
+
+
+checkinButton.addEventListener(
+"click",
+() => {
+
+if(!walletAddress){
+
+alert(
+"CONNECT YOUR WALLET FIRST."
+);
+
+return;
+
+}
+
+
+const already =
+localStorage.getItem(
+gameStorageKey("checkinDate")
+) === todayKey();
+
+
+if(already){
+
+loadCheckin();
+
+return;
+
+}
+
+
+checkinButton.disabled =
+true;
+
+checkinButton.textContent =
+"CHECKING...";
+
+
+setTimeout(() => {
+
+localStorage.setItem(
+gameStorageKey("checkinDate"),
+todayKey()
+);
+
+addRover(1);
+
+
+let streak =
+Number(
+localStorage.getItem(
+gameStorageKey("streak")
+) || 0
+);
+
+
+const previous =
+localStorage.getItem(
+gameStorageKey("previousCheckin")
+);
+
+
+if(previous){
+
+const yesterday =
+new Date();
+
+yesterday.setDate(
+yesterday.getDate() - 1
+);
+
+const y =
+yesterday.toLocaleDateString(
+"en-CA"
+);
+
+
+if(previous === y){
+
+streak++;
+
+}else{
+
+streak = 1;
+
+}
+
+}else{
+
+streak = 1;
+
+}
+
+
+localStorage.setItem(
+gameStorageKey("streak"),
+String(streak)
+);
+
+localStorage.setItem(
+gameStorageKey("previousCheckin"),
+todayKey()
+);
+
+
+streakNumber.textContent =
+streak;
+
+checkinButton.textContent =
+"CHECKED IN ✓";
+
+missionCheckin.textContent =
+"DONE";
+
+missionCheckin.classList.add(
+"done"
+);
+
+updateAchievements();
+
+},600);
+
+}
+);
+
+
+/* =========================================================
    QUIZ
-========================= */
-
-const QUIZ_DATE_KEY =
-  "roverQuizDate";
-
-const QUIZ_RESULT_KEY =
-  "roverQuizResult";
-
+========================================================= */
 
 const quizQuestions = [
 
-  {
-    question:
-      "What is The Hood Rover?",
+{
+question:
+"What is The Hood Rover?",
 
-    options:[
-      "A Rover NFT ecosystem",
-      "A music platform",
-      "A payment app",
-      "A news website"
-    ],
+options:[
+"A Rover NFT ecosystem",
+"A music platform",
+"A payment app",
+"A news website"
+],
 
-    answer:0
-  },
+answer:0
+},
 
+{
+question:
+"What is the main purpose of Rover Hub?",
 
-  {
-    question:
-      "What is the main purpose of Rover Hub?",
+options:[
+"Watch movies",
+"Complete activities and earn Rover",
+"Buy groceries",
+"Create emails"
+],
 
-    options:[
-      "Watch movies",
-      "Complete activities and earn Rover",
-      "Buy groceries",
-      "Create emails"
-    ],
+answer:1
+},
 
-    answer:1
-  },
+{
+question:
+"How many NFTs are planned in The Hood Rover collection?",
 
+options:[
+"404",
+"555",
+"1,111",
+"10,000"
+],
 
-  {
-    question:
-      "How many NFTs are planned in The Hood Rover collection?",
+answer:2
+},
 
-    options:[
-      "404",
-      "555",
-      "1,111",
-      "10,000"
-    ],
+{
+question:
+"How many times can a user attempt the daily quiz?",
 
-    answer:2
-  },
+options:[
+"Unlimited",
+"Three times",
+"Two times",
+"One time"
+],
 
+answer:3
+},
 
-  {
-    question:
-      "How many times can a user attempt the daily quiz?",
+{
+question:
+"What happens if a quiz answer is wrong?",
 
-    options:[
-      "Unlimited",
-      "Three times",
-      "Two times",
-      "One time"
-    ],
+options:[
+"The user gets bonus Rover",
+"The quiz is failed",
+"The user gets another attempt",
+"Nothing happens"
+],
 
-    answer:3
-  },
-
-
-  {
-    question:
-      "What happens if a quiz answer is wrong?",
-
-    options:[
-      "The user gets bonus Rover",
-      "The quiz is failed",
-      "The user gets another attempt",
-      "Nothing happens"
-    ],
-
-    answer:1
-  }
+answer:1
+}
 
 ];
 
 
-function getQuizResult(){
+function quizStatusLoad(){
 
-  const date =
-    localStorage.getItem(
-      QUIZ_DATE_KEY
-    );
+const date =
+localStorage.getItem(
+gameStorageKey("quizDate")
+);
 
-
-  if(
-    date !== todayKey()
-  ){
-
-    return null;
-
-  }
+const result =
+localStorage.getItem(
+gameStorageKey("quizResult")
+);
 
 
-  return localStorage.getItem(
-    QUIZ_RESULT_KEY
-  );
+if(date !== todayKey()){
 
-}
+quizStatus.textContent =
+"READY";
 
+quizButton.textContent =
+"START QUIZ";
 
-function updateQuizStatus(){
+quizButton.disabled =
+false;
 
-  const result =
-    getQuizResult();
+missionQuiz.textContent =
+"0/1";
 
+missionQuiz.classList.remove(
+"done"
+);
 
-  if(result === "passed"){
-
-    quizStatus.textContent =
-      "COMPLETED";
-
-    quizButton.textContent =
-      "QUIZ COMPLETED";
-
-    quizButton.disabled =
-      true;
-
-    missionQuiz.textContent =
-      "DONE";
-
-    missionQuiz.classList.add(
-      "done"
-    );
-
-    return;
-
-  }
-
-
-  if(result === "failed"){
-
-    quizStatus.textContent =
-      "FAILED";
-
-    quizButton.textContent =
-      "TRY AGAIN TOMORROW";
-
-    quizButton.disabled =
-      true;
-
-    missionQuiz.textContent =
-      "FAILED";
-
-    return;
-
-  }
-
-
-  quizStatus.textContent =
-    "READY";
-
-  quizButton.textContent =
-    "START QUIZ";
-
-  quizButton.disabled =
-    false;
+return;
 
 }
 
 
-function saveQuizResult(result){
+if(result === "passed"){
 
-  localStorage.setItem(
-    QUIZ_DATE_KEY,
-    todayKey()
-  );
+quizStatus.textContent =
+"COMPLETED";
+
+quizButton.textContent =
+"QUIZ COMPLETED";
+
+quizButton.disabled =
+true;
+
+missionQuiz.textContent =
+"DONE";
+
+missionQuiz.classList.add(
+"done"
+);
+
+return;
+
+}
 
 
-  localStorage.setItem(
-    QUIZ_RESULT_KEY,
-    result
-  );
+if(result === "failed"){
 
+quizStatus.textContent =
+"FAILED";
 
-  updateQuizStatus();
+quizButton.textContent =
+"TRY AGAIN TOMORROW";
+
+quizButton.disabled =
+true;
+
+missionQuiz.textContent =
+"FAILED";
+
+return;
+
+}
 
 }
 
 
 function openQuiz(){
 
-  if(!walletAddress){
+if(!walletAddress){
 
-    alert(
-      "CONNECT YOUR WALLET FIRST."
-    );
+alert(
+"CONNECT YOUR WALLET FIRST."
+);
 
-    return;
+return;
 
-  }
+}
 
 
-  const previous =
-    getQuizResult();
+const date =
+localStorage.getItem(
+gameStorageKey("quizDate")
+);
 
 
-  if(previous){
+const result =
+localStorage.getItem(
+gameStorageKey("quizResult")
+);
 
-    alert(
-      previous === "passed"
-        ? "TODAY'S QUIZ IS ALREADY COMPLETED."
-        : "TODAY'S QUIZ IS ALREADY FAILED.\n\nTRY AGAIN TOMORROW."
-    );
 
-    return;
+if(
+date === todayKey() &&
+result
+){
 
-  }
+alert(
+result === "passed"
+?
+"TODAY'S QUIZ IS ALREADY COMPLETED."
+:
+"TODAY'S QUIZ IS ALREADY FAILED.\n\nTRY AGAIN TOMORROW."
+);
 
+return;
 
-  let questionIndex = 0;
+}
 
-  let score = 0;
 
-  let finished = false;
+let questionIndex = 0;
 
+let score = 0;
 
-  const overlay =
-    document.createElement(
-      "div"
-    );
+let finished = false;
 
 
-  overlay.className =
-    "quiz-overlay";
+const overlay =
+document.createElement(
+"div"
+);
 
+overlay.className =
+"quiz-overlay";
 
-  document.body.appendChild(
-    overlay
-  );
+document.body.appendChild(
+overlay
+);
 
 
-  function renderQuestion(){
+function renderQuestion(){
 
-    const q =
-      quizQuestions[
-        questionIndex
-      ];
+const q =
+quizQuestions[
+questionIndex
+];
 
 
-    overlay.innerHTML = `
+overlay.innerHTML = `
 
-      <div class="quiz-modal">
+<div class="quiz-modal">
 
-        <div class="quiz-top">
+<div class="quiz-top">
 
-          <div class="quiz-title">
-            ROVER QUIZ
-          </div>
+<div class="quiz-title">
+ROVER QUIZ
+</div>
 
-          <div class="quiz-progress">
-            ${questionIndex + 1}
-            /
-            ${quizQuestions.length}
-          </div>
+<div class="quiz-progress">
+${questionIndex + 1}
+/
+${quizQuestions.length}
+</div>
 
-        </div>
+</div>
 
+<div class="quiz-question">
+${q.question}
+</div>
 
-        <div class="quiz-question">
-          ${q.question}
-        </div>
+<div class="quiz-options">
 
+${q.options.map(
+(option,index) => `
 
-        <div class="quiz-options">
+<button
+class="quiz-option"
+data-answer="${index}"
+type="button">
 
-          ${q.options.map(
-            (option,index) => `
+${String.fromCharCode(65 + index)}.
+${option}
 
-              <button
-                class="quiz-option"
-                data-answer="${index}"
-                type="button">
+</button>
 
-                ${String.fromCharCode(65 + index)}.
-                ${option}
+`
+).join("")}
 
-              </button>
+</div>
 
-            `
-          ).join("")}
+<div class="quiz-warning">
 
-        </div>
+ONE WRONG ANSWER =
+TODAY'S QUIZ FAILED.
 
+</div>
 
-        <div class="quiz-warning">
-          ONE ATTEMPT ONLY — ONE WRONG ANSWER
-          FAILS TODAY'S QUIZ.
-        </div>
+</div>
 
-      </div>
+`;
 
-    `;
 
+overlay
+.querySelectorAll(
+".quiz-option"
+)
+.forEach(button => {
 
-    overlay
-      .querySelectorAll(
-        ".quiz-option"
-      )
-      .forEach(button => {
+button.addEventListener(
+"click",
+() => {
 
-        button.addEventListener(
-          "click",
-          () => {
+const answer =
+Number(
+button.dataset.answer
+);
 
-            answerQuestion(
-              Number(
-                button.dataset.answer
-              )
-            );
 
-          }
-        );
+if(answer !== q.answer){
 
-      });
+finishQuiz(false);
 
-  }
+return;
 
+}
 
-  function answerQuestion(answer){
 
-    if(finished) return;
+score++;
 
+questionIndex++;
 
-    const correct =
-      quizQuestions[
-        questionIndex
-      ].answer;
 
+if(
+questionIndex >=
+quizQuestions.length
+){
 
-    if(
-      answer !== correct
-    ){
+finishQuiz(true);
 
-      finishQuiz(false);
+return;
 
-      return;
+}
 
-    }
 
+renderQuestion();
 
-    score++;
+}
+);
 
-    questionIndex++;
+});
 
+}
 
-    if(
-      questionIndex >=
-      quizQuestions.length
-    ){
 
-      finishQuiz(true);
+function finishQuiz(passed){
 
-      return;
+if(finished)
+return;
 
-    }
+finished = true;
 
 
-    renderQuestion();
+localStorage.setItem(
+gameStorageKey("quizDate"),
+todayKey()
+);
 
-  }
+localStorage.setItem(
+gameStorageKey("quizResult"),
+passed
+?
+"passed"
+:
+"failed"
+);
 
 
-  function finishQuiz(passed){
+if(passed){
 
-    if(finished) return;
+addRover(2);
 
-    finished = true;
+overlay.innerHTML = `
 
+<div class="quiz-modal">
 
-    saveQuizResult(
-      passed
-        ? "passed"
-        : "failed"
-    );
+<div class="quiz-result">
 
+<div class="quiz-result-icon">
+🎉
+</div>
 
-    if(passed){
+<div class="quiz-result-title">
+QUIZ COMPLETE
+</div>
 
-      addRover(2);
+<div class="quiz-result-score">
+5 / 5 CORRECT
+</div>
 
+<div class="quiz-result-reward">
++2 ROVER
+</div>
 
-      overlay.innerHTML = `
+<button
+class="btn quiz-close"
+id="closeQuiz">
 
-        <div class="quiz-modal">
+DONE
 
-          <div class="quiz-result">
+</button>
 
-            <div class="quiz-result-icon">
-              🎉
-            </div>
+</div>
 
-            <div class="quiz-result-title">
-              QUIZ COMPLETE
-            </div>
+</div>
 
-            <div class="quiz-result-score">
-              5 / 5 CORRECT
-            </div>
+`;
 
-            <div class="quiz-result-reward">
-              +2 ROVER
-            </div>
+}else{
 
-            <button
-              class="btn quiz-close"
-              id="closeQuiz"
-              type="button">
-              DONE
-            </button>
+overlay.innerHTML = `
 
-          </div>
+<div class="quiz-modal">
 
-        </div>
+<div class="quiz-result">
 
-      `;
+<div class="quiz-result-icon">
+❌
+</div>
 
-    }else{
+<div class="quiz-result-title">
+QUIZ FAILED
+</div>
 
-      overlay.innerHTML = `
+<div class="quiz-result-score">
+${score} / 5 CORRECT
+</div>
 
-        <div class="quiz-modal">
+<div class="quiz-result-reward">
+0 ROVER
+</div>
 
-          <div class="quiz-result">
+<p>
+One wrong answer ends today's quiz.
+Try again tomorrow.
+</p>
 
-            <div class="quiz-result-icon">
-              ❌
-            </div>
+<button
+class="btn secondary quiz-close"
+id="closeQuiz">
 
-            <div class="quiz-result-title">
-              QUIZ FAILED
-            </div>
+CLOSE
 
-            <div class="quiz-result-score">
-              ${score} / 5 CORRECT
-            </div>
+</button>
 
-            <div class="quiz-result-reward">
-              0 ROVER
-            </div>
+</div>
 
-            <p>
-              One wrong answer ends today's quiz.
-              You can try again tomorrow.
-            </p>
+</div>
 
-            <button
-              class="btn secondary quiz-close"
-              id="closeQuiz"
-              type="button">
-              CLOSE
-            </button>
+`;
 
-          </div>
+}
 
-        </div>
 
-      `;
+quizStatusLoad();
 
-    }
 
+document
+.getElementById("closeQuiz")
+.addEventListener(
+"click",
+() => {
 
-    document
-      .getElementById(
-        "closeQuiz"
-      )
-      .addEventListener(
-        "click",
-        () => {
+overlay.remove();
 
-          overlay.remove();
+}
+);
 
-        }
-      );
+}
 
-  }
 
-
-  renderQuestion();
+renderQuestion();
 
 }
 
 
 quizButton.addEventListener(
-  "click",
-  openQuiz
+"click",
+openQuiz
 );
 
 
-updateQuizStatus();
-
-
-/* =========================
-   LOAD STREAK
-========================= */
-
-async function loadStreak(){
-
-  if(!walletAddress)
-    return;
-
-
-  try{
-
-    const {
-      data: profile,
-      error
-    } =
-      await supabaseClient
-        .from("profiles")
-        .select("id")
-        .eq(
-          "wallet_address",
-          walletAddress
-        )
-        .maybeSingle();
-
-
-    if(error){
-
-      console.error(
-        "Profile lookup failed:",
-        error
-      );
-
-      return;
-
-    }
-
-
-    if(!profile){
-
-      streakNumber.textContent =
-        "0";
-
-      checkinButton.textContent =
-        "DAILY CHECK-IN";
-
-      checkinButton.disabled =
-        false;
-
-      missionCheckin.textContent =
-        "READY";
-
-      return;
-
-    }
-
-
-    const {
-      data: streak,
-      error: streakError
-    } =
-      await supabaseClient
-        .from("daily_streaks")
-        .select(
-          "current_streak,last_checkin_date,total_checkins"
-        )
-        .eq(
-          "user_id",
-          profile.id
-        )
-        .maybeSingle();
-
-
-    if(streakError){
-
-      console.error(
-        "Streak lookup failed:",
-        streakError
-      );
-
-      return;
-
-    }
-
-
-    if(streak){
-
-      streakNumber.textContent =
-        streak.current_streak;
-
-
-      const today =
-        new Date()
-          .toLocaleDateString(
-            "en-CA"
-          );
-
-
-      if(
-        streak.last_checkin_date ===
-        today
-      ){
-
-        checkinButton.textContent =
-          "ALREADY CHECKED IN";
-
-        checkinButton.disabled =
-          true;
-
-        missionCheckin.textContent =
-          "DONE";
-
-        missionCheckin.classList.add(
-          "done"
-        );
-
-      }else{
-
-        checkinButton.textContent =
-          "DAILY CHECK-IN";
-
-        checkinButton.disabled =
-          false;
-
-        missionCheckin.textContent =
-          "READY";
-
-      }
-
-    }
-
-  }catch(error){
-
-    console.error(
-      "Streak loading failed:",
-      error
-    );
-
-  }
-
-}
-
-
-/* =========================
-   DAILY CHECK-IN
-========================= */
-
-checkinButton.addEventListener(
-  "click",
-  async () => {
-
-    if(!walletAddress){
-
-      alert(
-        "CONNECT YOUR WALLET FIRST."
-      );
-
-      return;
-
-    }
-
-
-    checkinButton.disabled =
-      true;
-
-    checkinButton.textContent =
-      "CHECKING...";
-
-
-    try{
-
-      const {
-        data,
-        error
-      } =
-        await supabaseClient.rpc(
-          "daily_checkin",
-          {
-            p_wallet:
-              walletAddress
-          }
-        );
-
-
-      if(error){
-
-        console.error(
-          "Check-in error:",
-          error
-        );
-
-        throw error;
-
-      }
-
-
-      if(!data){
-
-        throw new Error(
-          "No response from database."
-        );
-
-      }
-
-
-      streakNumber.textContent =
-        data.streak;
-
-
-      if(
-        data.already_checked_in
-      ){
-
-        checkinButton.textContent =
-          "ALREADY CHECKED IN";
-
-      }else{
-
-        checkinButton.textContent =
-          "CHECKED IN ✓";
-
-        /*
-          +1 Rover for today's
-          successful check-in.
-        */
-
-        addRover(1);
-
-        missionCheckin.textContent =
-          "DONE";
-
-        missionCheckin.classList.add(
-          "done"
-        );
-
-      }
-
-
-    }catch(error){
-
-      console.error(
-        "Daily check-in failed:",
-        error
-      );
-
-
-      checkinButton.disabled =
-        false;
-
-      checkinButton.textContent =
-        "DAILY CHECK-IN";
-
-
-      alert(
-        "DAILY CHECK-IN FAILED.\n\n" +
-        "Please try again."
-      );
-
-    }
-
-  }
-);
-
-
-/* =========================
-   SPIN WHEEL
-========================= */
-
-const spinButton =
-  document.getElementById(
-    "spinButton"
-  );
-
-const wheel =
-  document.getElementById(
-    "wheel"
-  );
-
-const spinResult =
-  document.getElementById(
-    "spinResult"
-  );
-
+/* =========================================================
+   SPIN SYSTEM
+========================================================= */
 
 let spinning = false;
 
 let rotation = 0;
 
 
-spinButton.addEventListener(
-  "click",
-  () => {
+/*
+  Daily maximum:
+  3 spins.
 
-    if(spinning)
-      return;
+  Probability:
 
-
-    spinning = true;
-
-    spinButton.disabled =
-      true;
-
-    spinButton.textContent =
-      "SPINNING...";
+  BAD LUCK       65%
+  +2 ROVER       12%
+  +4 ROVER        8%
+  +5 ROVER        6%
+  +6 ROVER        5%
+  MYSTERY         4%
+*/
 
 
-    rotation +=
-      1440 +
-      Math.floor(
-        Math.random() * 360
-      );
+const spinRewards = [
+
+{
+name:"BAD LUCK",
+type:"bad",
+value:0,
+weight:65
+},
+
+{
+name:"+2 ROVER",
+type:"rover",
+value:2,
+weight:12
+},
+
+{
+name:"+4 ROVER",
+type:"rover",
+value:4,
+weight:8
+},
+
+{
+name:"+5 ROVER",
+type:"rover",
+value:5,
+weight:6
+},
+
+{
+name:"+6 ROVER",
+type:"rover",
+value:6,
+weight:5
+},
+
+{
+name:"MYSTERY REWARD",
+type:"mystery",
+value:1,
+weight:4
+}
+
+];
 
 
-    wheel.style.transform =
-      `rotate(${rotation}deg)`;
+function getSpinCount(){
 
-
-    setTimeout(
-      () => {
-
-        const rewards = [
-
-          "MYSTERY REWARD",
-
-          "ROVER REWARD",
-
-          "BONUS ACCESS",
-
-          "TRY AGAIN",
-
-          "SPECIAL ITEM",
-
-          "BONUS REWARD"
-
-        ];
-
-
-        const reward =
-          rewards[
-            Math.floor(
-              Math.random() *
-              rewards.length
-            )
-          ];
-
-
-        spinResult.textContent =
-          reward;
-
-
-        spinButton.disabled =
-          false;
-
-        spinButton.textContent =
-          "SPIN AGAIN";
-
-
-        spinning = false;
-
-      },
-      3000
-    );
-
-  }
+const date =
+localStorage.getItem(
+gameStorageKey("spinDate")
 );
 
 
-/* =========================
+if(date !== todayKey()){
+
+return 0;
+
+}
+
+
+return Number(
+localStorage.getItem(
+gameStorageKey("spinCount")
+) || 0
+);
+
+}
+
+
+function setSpinCount(count){
+
+localStorage.setItem(
+gameStorageKey("spinDate"),
+todayKey()
+);
+
+localStorage.setItem(
+gameStorageKey("spinCount"),
+String(count)
+);
+
+}
+
+
+function updateSpinUI(){
+
+const used =
+getSpinCount();
+
+const left =
+Math.max(
+0,
+3 - used
+);
+
+
+spinCount.textContent =
+left +
+" / 3";
+
+
+missionSpin.textContent =
+used +
+"/3";
+
+
+if(used >= 3){
+
+spinButton.disabled =
+true;
+
+spinButton.textContent =
+"COME BACK TOMORROW";
+
+}else{
+
+spinButton.disabled =
+false;
+
+spinButton.textContent =
+"SPIN NOW";
+
+}
+
+
+if(used >= 3){
+
+missionSpin.textContent =
+"DONE";
+
+missionSpin.classList.add(
+"done"
+);
+
+}else{
+
+missionSpin.classList.remove(
+"done"
+);
+
+}
+
+}
+
+
+function randomSpinReward(){
+
+const total =
+spinRewards.reduce(
+(sum,item) =>
+sum + item.weight,
+0
+);
+
+
+let random =
+Math.random() * total;
+
+
+for(
+const reward of spinRewards
+){
+
+random -=
+reward.weight;
+
+
+if(random <= 0){
+
+return reward;
+
+}
+
+}
+
+
+return spinRewards[0];
+
+}
+
+
+function showSpinReward(reward){
+
+spinRewardDisplay.className =
+"reward-display";
+
+
+if(reward.type === "bad"){
+
+spinRewardDisplay.classList.add(
+"bad"
+);
+
+spinRewardDisplay.innerHTML = `
+
+<div class="reward-display-title">
+❌ BAD LUCK
+</div>
+
+<div class="reward-display-sub">
+NO REWARD THIS TIME
+</div>
+
+`;
+
+return;
+
+}
+
+
+if(reward.type === "rover"){
+
+spinRewardDisplay.innerHTML = `
+
+<div class="reward-display-title">
+🎉 ROVER REWARD
+</div>
+
+<div class="reward-display-sub">
+${reward.name}
+</div>
+
+`;
+
+return;
+
+}
+
+
+if(reward.type === "mystery"){
+
+spinRewardDisplay.innerHTML = `
+
+<div class="reward-display-title">
+🎁 MYSTERY REWARD
+</div>
+
+<div class="reward-display-sub">
++1 MYSTERY KEY
+</div>
+
+`;
+
+}
+
+}
+
+
+spinButton.addEventListener(
+"click",
+() => {
+
+if(spinning)
+return;
+
+if(!walletAddress){
+
+alert(
+"CONNECT YOUR WALLET FIRST."
+);
+
+return;
+
+}
+
+
+const used =
+getSpinCount();
+
+
+if(used >= 3){
+
+alert(
+"YOU HAVE USED ALL 3 SPINS TODAY.\n\nCOME BACK TOMORROW."
+);
+
+updateSpinUI();
+
+return;
+
+}
+
+
+spinning = true;
+
+spinButton.disabled =
+true;
+
+spinButton.textContent =
+"SPINNING...";
+
+
+const nextCount =
+used + 1;
+
+setSpinCount(
+nextCount
+);
+
+
+rotation +=
+1440 +
+Math.floor(
+Math.random() * 360
+);
+
+
+wheel.style.transform =
+`rotate(${rotation}deg)`;
+
+
+setTimeout(
+() => {
+
+const reward =
+randomSpinReward();
+
+
+showSpinReward(
+reward
+);
+
+
+if(reward.type === "rover"){
+
+addRover(
+reward.value
+);
+
+}
+
+
+if(reward.type === "mystery"){
+
+let keys =
+Number(
+localStorage.getItem(
+gameStorageKey("mysteryKeys")
+) || 0
+);
+
+keys++;
+
+localStorage.setItem(
+gameStorageKey("mysteryKeys"),
+String(keys)
+);
+
+updateMysteryUI();
+
+}
+
+
+let totalSpins =
+Number(
+localStorage.getItem(
+gameStorageKey("totalSpins")
+) || 0
+);
+
+totalSpins++;
+
+localStorage.setItem(
+gameStorageKey("totalSpins"),
+String(totalSpins)
+);
+
+
+updateSpinUI();
+
+updateAchievements();
+
+
+spinning = false;
+
+},
+3000
+);
+
+}
+);
+
+
+/* =========================================================
    MYSTERY BOX
-========================= */
+========================================================= */
 
-const mysteryButton =
-  document.getElementById(
-    "mysteryButton"
-  );
+function getMysteryKeys(){
 
-const mysteryBox =
-  document.getElementById(
-    "mysteryBox"
-  );
+return Number(
+localStorage.getItem(
+gameStorageKey("mysteryKeys")
+) || 0
+);
 
-const mysteryResult =
-  document.getElementById(
-    "mysteryResult"
-  );
+}
+
+
+function setMysteryKeys(keys){
+
+localStorage.setItem(
+gameStorageKey("mysteryKeys"),
+String(
+Math.max(0,keys)
+)
+);
+
+}
+
+
+function updateMysteryUI(){
+
+const keys =
+getMysteryKeys();
+
+
+mysteryKeys.textContent =
+keys;
+
+
+if(keys > 0){
+
+mysteryBox.classList.remove(
+"locked"
+);
+
+mysteryBox.textContent =
+"🎁";
+
+mysteryButton.disabled =
+false;
+
+mysteryButton.textContent =
+"OPEN MYSTERY BOX";
+
+mysteryResult.textContent =
+"KEY READY";
+
+mysteryHelp.textContent =
+"Use 1 Mystery Key to reveal your hidden reward.";
+
+}else{
+
+mysteryBox.classList.add(
+"locked"
+);
+
+mysteryBox.textContent =
+"🔒";
+
+mysteryButton.disabled =
+true;
+
+mysteryButton.textContent =
+"NO KEY";
+
+mysteryResult.textContent =
+"BOX LOCKED";
+
+mysteryHelp.textContent =
+"Spin the wheel and find a Mystery Reward first.";
+
+}
+
+}
+
+
+const mysteryRewards = [
+
+{
+name:"+2 ROVER",
+type:"rover",
+value:2
+},
+
+{
+name:"+5 ROVER",
+type:"rover",
+value:5
+},
+
+{
+name:"+10 ROVER",
+type:"rover",
+value:10
+},
+
+{
+name:"BONUS ROVER",
+type:"rover",
+value:4
+},
+
+{
+name:"SPECIAL DROP",
+type:"special",
+value:0
+}
+
+];
 
 
 mysteryButton.addEventListener(
-  "click",
-  () => {
+"click",
+() => {
 
-    mysteryBox.style.transform =
-      "scale(.85) rotate(8deg)";
+if(!walletAddress){
 
+alert(
+"CONNECT YOUR WALLET FIRST."
+);
 
-    mysteryResult.textContent =
-      "OPENING...";
+return;
 
-
-    setTimeout(
-      () => {
-
-        const rewards = [
-
-          "REWARD FOUND",
-
-          "MYSTERY ITEM",
-
-          "BONUS UNLOCKED",
-
-          "SPECIAL DROP"
-
-        ];
+}
 
 
-        mysteryResult.textContent =
-          rewards[
-            Math.floor(
-              Math.random() *
-              rewards.length
-            )
-          ];
+const keys =
+getMysteryKeys();
 
 
-        mysteryBox.textContent =
-          "★";
+if(keys <= 0){
+
+updateMysteryUI();
+
+return;
+
+}
 
 
-        mysteryBox.style.transform =
-          "scale(1) rotate(0deg)";
+mysteryButton.disabled =
+true;
+
+mysteryBox.style.transform =
+"scale(.82) rotate(8deg)";
+
+mysteryResult.textContent =
+"OPENING...";
+
+mysteryHelp.textContent =
+"Unlocking your hidden reward...";
 
 
-        mysteryButton.textContent =
-          "OPENED";
+setTimeout(
+() => {
 
-
-        mysteryButton.disabled =
-          true;
-
-      },
-      900
-    );
-
-  }
+setMysteryKeys(
+keys - 1
 );
 
 
-/* =========================
+const reward =
+mysteryRewards[
+Math.floor(
+Math.random() *
+mysteryRewards.length
+)
+];
+
+
+if(reward.type === "rover"){
+
+addRover(
+reward.value
+);
+
+mysteryResult.textContent =
+"🎉 " +
+reward.name;
+
+}else{
+
+mysteryResult.textContent =
+"⭐ SPECIAL DROP";
+
+}
+
+
+mysteryBox.textContent =
+"★";
+
+mysteryBox.style.transform =
+"scale(1) rotate(0deg)";
+
+mysteryHelp.textContent =
+"Your Mystery Key was consumed.";
+
+let opened =
+Number(
+localStorage.getItem(
+gameStorageKey("mysteryOpened")
+) || 0
+);
+
+opened++;
+
+localStorage.setItem(
+gameStorageKey("mysteryOpened"),
+String(opened)
+);
+
+
+updateMysteryUI();
+
+updateAchievements();
+
+},
+1000
+);
+
+}
+);
+
+
+/* =========================================================
+   ACHIEVEMENTS
+========================================================= */
+
+function unlockAchievement(
+element,
+textElement,
+current,
+target
+){
+
+const text =
+document.getElementById(
+textElement
+);
+
+const elementBox =
+document.getElementById(
+element
+);
+
+
+text.textContent =
+current +
+" / " +
+target;
+
+
+if(current >= target){
+
+elementBox.classList.remove(
+"locked"
+);
+
+elementBox.classList.add(
+"unlocked"
+);
+
+text.textContent =
+"✓ UNLOCKED";
+
+}
+
+}
+
+
+function updateAchievements(){
+
+const checkin =
+localStorage.getItem(
+gameStorageKey("checkinDate")
+) === todayKey();
+
+
+const streak =
+Number(
+localStorage.getItem(
+gameStorageKey("streak")
+) || 0
+);
+
+
+const spins =
+Number(
+localStorage.getItem(
+gameStorageKey("totalSpins")
+) || 0
+);
+
+
+const mystery =
+Number(
+localStorage.getItem(
+gameStorageKey("mysteryOpened")
+) || 0
+);
+
+
+unlockAchievement(
+"achievementFirst",
+"achievementFirstText",
+checkin ? 1 : 0,
+1
+);
+
+
+unlockAchievement(
+"achievementStreak",
+"achievementStreakText",
+Math.min(streak,7),
+7
+);
+
+
+unlockAchievement(
+"achievementSpinner",
+"achievementSpinnerText",
+Math.min(spins,10),
+10
+);
+
+
+unlockAchievement(
+"achievementMystery",
+"achievementMysteryText",
+Math.min(mystery,5),
+5
+);
+
+}
+
+
+/* =========================================================
+   LOAD GAME
+========================================================= */
+
+function loadWalletGame(){
+
+if(!walletAddress)
+return;
+
+
+loadRoverBalance();
+
+loadCheckin();
+
+quizStatusLoad();
+
+updateSpinUI();
+
+updateMysteryUI();
+
+updateAchievements();
+
+
+streakNumber.textContent =
+Number(
+localStorage.getItem(
+gameStorageKey("streak")
+) || 0
+);
+
+}
+
+
+/* =========================================================
+   RESET UI WHEN WALLET DISCONNECTED
+========================================================= */
+
+function resetWalletUI(){
+
+roverAmount = 0;
+
+roverTodayAmount = 0;
+
+updateRoverUI();
+
+
+streakNumber.textContent =
+"0";
+
+
+checkinButton.disabled =
+false;
+
+checkinButton.textContent =
+"DAILY CHECK-IN";
+
+
+missionCheckin.textContent =
+"READY";
+
+missionCheckin.classList.remove(
+"done"
+);
+
+
+quizStatus.textContent =
+"CONNECT WALLET";
+
+quizButton.textContent =
+"CONNECT WALLET";
+
+quizButton.disabled =
+false;
+
+missionQuiz.textContent =
+"0/1";
+
+
+spinCount.textContent =
+"3 / 3";
+
+missionSpin.textContent =
+"0/3";
+
+missionSpin.classList.remove(
+"done"
+);
+
+spinButton.disabled =
+false;
+
+spinButton.textContent =
+"SPIN NOW";
+
+
+mysteryKeys.textContent =
+"0";
+
+mysteryBox.textContent =
+"🔒";
+
+mysteryBox.classList.add(
+"locked"
+);
+
+mysteryButton.disabled =
+true;
+
+mysteryButton.textContent =
+"NO KEY";
+
+mysteryResult.textContent =
+"BOX LOCKED";
+
+mysteryHelp.textContent =
+"Connect your wallet to start earning.";
+
+}
+
+
+/* =========================================================
    SCROLL ANIMATION
-========================= */
+========================================================= */
 
 const observer =
-  new IntersectionObserver(
-    entries => {
+new IntersectionObserver(
+entries => {
 
-      entries.forEach(
-        (entry,index) => {
+entries.forEach(
+(entry,index) => {
 
-          if(
-            entry.isIntersecting
-          ){
+if(entry.isIntersecting){
 
-            setTimeout(
-              () => {
+setTimeout(
+() => {
 
-                entry.target.classList.add(
-                  "visible"
-                );
+entry.target.classList.add(
+"visible"
+);
 
-              },
-              index * 70
-            );
+},
+index * 70
+);
 
 
-            observer.unobserve(
-              entry.target
-            );
+observer.unobserve(
+entry.target
+);
 
-          }
+}
 
-        }
-      );
+}
 
-    },
-    {
-      threshold:.08
-    }
-  );
+);
+},
+{
+threshold:.08
+}
+);
 
 
 document
-  .querySelectorAll(
-    ".reveal"
-  )
-  .forEach(
-    el =>
-      observer.observe(el)
-  );
+.querySelectorAll(".reveal")
+.forEach(
+el =>
+observer.observe(el)
+);
 
 
-/* =========================
+/* =========================================================
    START
-========================= */
+========================================================= */
 
-loadRoverBalance();
+resetWalletUI();
 
 restoreWallet();
 
