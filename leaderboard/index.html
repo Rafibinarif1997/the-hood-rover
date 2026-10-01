@@ -24,7 +24,6 @@
 }
 
 *{box-sizing:border-box}
-
 html{scroll-behavior:smooth}
 
 body{
@@ -61,14 +60,8 @@ body::after{
   );
 }
 
-a{
-  color:inherit;
-  text-decoration:none;
-}
-
-button{
-  font-family:inherit;
-}
+a{color:inherit;text-decoration:none}
+button{font-family:inherit}
 
 .wrap{
   width:min(1160px,calc(100% - 32px));
@@ -177,23 +170,14 @@ nav a.active{
   box-shadow:3px 3px 0 var(--line);
 }
 
-.btn.secondary{
-  background:#fff;
-  color:var(--ink);
-}
-
-.btn.yellow{
-  background:var(--yellow);
-  color:var(--ink);
-}
+.btn.secondary{background:#fff;color:var(--ink)}
+.btn.yellow{background:var(--yellow);color:var(--ink)}
 
 /* =========================
    MAIN
 ========================= */
 
-main{
-  padding:55px 0 90px;
-}
+main{padding:55px 0 90px}
 
 /* =========================
    HERO WINDOW
@@ -217,10 +201,7 @@ main{
   font-size:9px;
 }
 
-.window-lights{
-  display:flex;
-  gap:6px;
-}
+.window-lights{display:flex;gap:6px}
 
 .light{
   width:12px;
@@ -229,13 +210,8 @@ main{
   background:#fff;
 }
 
-.light:nth-child(2){
-  background:var(--yellow);
-}
-
-.light:nth-child(3){
-  background:var(--cyan);
-}
+.light:nth-child(2){background:var(--yellow)}
+.light:nth-child(3){background:var(--cyan)}
 
 .hero{
   padding:34px;
@@ -293,13 +269,8 @@ h1{
   animation:pulse 1.5s infinite;
 }
 
-@keyframes pulse{
-  50%{opacity:.35}
-}
-
-.live small{
-  color:var(--muted);
-}
+@keyframes pulse{50%{opacity:.35}}
+.live small{color:var(--muted)}
 
 /* =========================
    TABS
@@ -328,10 +299,7 @@ h1{
   box-shadow:2px 2px 0 var(--line);
 }
 
-.tab.active{
-  background:var(--blue);
-  color:#fff;
-}
+.tab.active{background:var(--blue);color:#fff}
 
 /* =========================
    LEADERBOARD PANEL
@@ -346,7 +314,7 @@ h1{
 
 .board-head{
   display:grid;
-  grid-template-columns:80px 1fr 180px;
+  grid-template-columns:80px 1fr 120px 150px;
   gap:15px;
   padding:14px 18px;
   background:#173044;
@@ -357,7 +325,7 @@ h1{
 
 .row{
   display:grid;
-  grid-template-columns:80px 1fr 180px;
+  grid-template-columns:80px 1fr 120px 150px;
   gap:15px;
   align-items:center;
   padding:17px 18px;
@@ -365,30 +333,17 @@ h1{
   transition:.18s;
 }
 
-.row:last-child{
-  border-bottom:0;
-}
-
-.row:hover{
-  background:#eefaff;
-}
+.row:last-child{border-bottom:0}
+.row:hover{background:#eefaff}
 
 .rank{
   font-family:"Press Start 2P";
   font-size:13px;
 }
 
-.rank.gold{
-  color:#d99c00;
-}
-
-.rank.silver{
-  color:#75838d;
-}
-
-.rank.bronze{
-  color:#a76536;
-}
+.rank.gold{color:#d99c00}
+.rank.silver{color:#75838d}
+.rank.bronze{color:#a76536}
 
 .user{
   display:flex;
@@ -408,9 +363,7 @@ h1{
   font-size:21px;
 }
 
-.wallet{
-  min-width:0;
-}
+.wallet{min-width:0}
 
 .wallet strong{
   display:block;
@@ -459,10 +412,7 @@ h1{
   padding-top:28px;
 }
 
-.podium-icon{
-  font-size:35px;
-  margin-bottom:10px;
-}
+.podium-icon{font-size:35px;margin-bottom:10px}
 
 .podium-place{
   font-family:"Press Start 2P";
@@ -474,6 +424,9 @@ h1{
   font-weight:900;
   font-size:12px;
   margin-bottom:7px;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
 }
 
 .podium-score{
@@ -513,9 +466,7 @@ h1{
   color:var(--blue);
 }
 
-.your-user{
-  font-weight:900;
-}
+.your-user{font-weight:900}
 
 .your-user small{
   display:block;
@@ -585,17 +536,12 @@ footer{
    REVEAL
 ========================= */
 
-.reveal{
-  opacity:0;
-  transform:translateY(20px);
-}
+.reveal{opacity:0;transform:translateY(20px)}
 
 .reveal.visible{
   opacity:1;
   transform:none;
-  transition:
-    opacity .65s ease,
-    transform .65s ease;
+  transition:opacity .65s ease,transform .65s ease;
 }
 
 /* =========================
@@ -618,33 +564,14 @@ footer{
     align-items:stretch;
   }
 
-  nav.open{
-    display:flex;
-  }
+  nav.open{display:flex}
+  nav a{padding:13px}
+  header>.btn{display:none}
+  .menu{display:block}
 
-  nav a{
-    padding:13px;
-  }
-
-  header>.btn{
-    display:none;
-  }
-
-  .menu{
-    display:block;
-  }
-
-  .hero{
-    grid-template-columns:1fr;
-  }
-
-  .live{
-    width:100%;
-  }
-
-  .info-grid{
-    grid-template-columns:1fr;
-  }
+  .hero{grid-template-columns:1fr}
+  .live{width:100%}
+  .info-grid{grid-template-columns:1fr}
 }
 
 /* =========================
@@ -653,82 +580,55 @@ footer{
 
 @media(max-width:650px){
 
-  .wrap{
-    width:calc(100% - 20px);
-  }
+  .wrap{width:calc(100% - 20px)}
+  main{padding-top:30px}
 
-  main{
-    padding-top:30px;
-  }
-
-  .brand{
-    font-size:9px;
-  }
+  .brand{font-size:9px}
 
   .mark{
     width:34px;
     height:34px;
   }
 
-  .hero{
-    padding:24px 20px;
-  }
+  .hero{padding:24px 20px}
+  h1{font-size:27px}
+  .hero p{font-size:14px}
 
-  h1{
-    font-size:27px;
-  }
-
-  .hero p{
-    font-size:14px;
+  .board{
+    overflow-x:auto;
   }
 
   .board-head{
-    grid-template-columns:55px 1fr 100px;
+    min-width:590px;
+    grid-template-columns:50px 1fr 80px 100px;
     font-size:7px;
   }
 
   .row{
-    grid-template-columns:55px 1fr 100px;
+    min-width:590px;
+    grid-template-columns:50px 1fr 80px 100px;
     padding:13px 10px;
   }
 
-  .rank{
-    font-size:10px;
-  }
+  .rank{font-size:10px}
+  .value{font-size:7px}
+  .wallet strong{font-size:11px}
 
-  .value{
-    font-size:7px;
-  }
-
-  .wallet strong{
-    font-size:11px;
-  }
-
-  .podium{
-    grid-template-columns:1fr;
-  }
-
-  .podium-card.first{
-    order:-1;
-  }
+  .podium{grid-template-columns:1fr}
+  .podium-card.first{order:-1}
 
   .your-row{
     grid-template-columns:55px 1fr 100px;
   }
 
-  .your-value{
-    font-size:7px;
-  }
+  .your-value{font-size:7px}
 
-  .footer{
-    display:block;
-  }
-
-  .footer div+div{
-    margin-top:10px;
-  }
+  .footer{display:block}
+  .footer div+div{margin-top:10px}
 }
 </style>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 
 <body>
@@ -737,31 +637,22 @@ footer{
 
   <a class="brand" href="../">
     <span class="mark">
-  <img src="../assets/rovers/rover-01.png" alt="Hood Rover">
-</span>
+      <img src="../assets/rovers/rover-01.png" alt="Hood Rover">
+    </span>
     THE HOOD ROVER
   </a>
 
-  <button class="menu" id="menu">
-    ☰
-  </button>
+  <button class="menu" id="menu" type="button">☰</button>
 
   <nav id="nav">
 
     <a href="../">HOME</a>
-
     <a href="../collection/">COLLECTION</a>
-
     <a href="../rover/">ROVER HUB</a>
-
     <a href="../my-rover/">MY ROVER</a>
-
     <a class="active" href="../leaderboard/">LEADERBOARD</a>
-
     <a href="../referral/">REFERRAL</a>
-
     <a href="../roadmap/">ROADMAP</a>
-
     <a href="../faq/">FAQ</a>
 
   </nav>
@@ -772,31 +663,21 @@ footer{
 
 </header>
 
-
 <main>
 
 <div class="wrap">
 
-<!-- =========================
-     HERO
-========================= -->
-
 <section class="window reveal visible">
 
   <div class="window-bar">
-
-    <span>
-      LEADERBOARD.EXE
-    </span>
+    <span>LEADERBOARD.EXE</span>
 
     <span class="window-lights">
       <i class="light"></i>
       <i class="light"></i>
       <i class="light"></i>
     </span>
-
   </div>
-
 
   <div class="hero">
 
@@ -806,32 +687,24 @@ footer{
         HOOD ROVER // COMMUNITY TERMINAL
       </span>
 
-      <h1>
-        LEADERBOARD
-      </h1>
+      <h1>LEADERBOARD</h1>
 
       <p>
         Track community activity across Rover rewards,
-        successful referrals and special events.
+        successful referrals and total earnings.
         Rankings update from the live account system.
       </p>
 
     </div>
 
-
     <div class="live">
 
       <div class="live-line">
-
         <span class="live-dot"></span>
-
         SYSTEM READY
-
       </div>
 
-      <small>
-        LIVE RANKINGS
-      </small>
+      <small id="liveStatus">LOADING LIVE RANKINGS</small>
 
     </div>
 
@@ -839,463 +712,89 @@ footer{
 
 </section>
 
-
-<!-- =========================
-     RANKING TABS
-========================= -->
-
 <div class="tabs reveal">
 
   <button class="tab active" data-board="rover">
-    ROVER EARNED
+    ROVER BALANCE
   </button>
 
   <button class="tab" data-board="referrals">
     REFERRALS
   </button>
 
-  <button class="tab" data-board="events">
-    EVENTS
+  <button class="tab" data-board="earned">
+    TOTAL EARNED
   </button>
 
 </div>
-
-
-<!-- =========================
-     PODIUM
-========================= -->
 
 <section class="podium reveal">
 
   <div class="podium-card">
 
-    <div class="podium-icon">
-      🥈
-    </div>
+    <div class="podium-icon">🥈</div>
 
-    <div class="podium-place">
-      #02
-    </div>
+    <div class="podium-place">#02</div>
 
-    <div class="podium-name">
-      ROVER_02
-    </div>
+    <div class="podium-name">—</div>
 
-    <div class="podium-score">
-      0000
-    </div>
+    <div class="podium-score">—</div>
 
   </div>
-
 
   <div class="podium-card first">
 
-    <div class="podium-icon">
-      🥇
-    </div>
+    <div class="podium-icon">🥇</div>
 
-    <div class="podium-place">
-      #01
-    </div>
+    <div class="podium-place">#01</div>
 
-    <div class="podium-name">
-      ROVER_01
-    </div>
+    <div class="podium-name">—</div>
 
-    <div class="podium-score">
-      0000
-    </div>
+    <div class="podium-score">—</div>
 
   </div>
 
-
   <div class="podium-card">
 
-    <div class="podium-icon">
-      🥉
-    </div>
+    <div class="podium-icon">🥉</div>
 
-    <div class="podium-place">
-      #03
-    </div>
+    <div class="podium-place">#03</div>
 
-    <div class="podium-name">
-      ROVER_03
-    </div>
+    <div class="podium-name">—</div>
 
-    <div class="podium-score">
-      0000
-    </div>
+    <div class="podium-score">—</div>
 
   </div>
 
 </section>
-
-
-<!-- =========================
-     LEADERBOARD TABLE
-========================= -->
 
 <section class="board reveal">
 
   <div class="board-head">
 
-    <span>
-      RANK
-    </span>
+    <span>RANK</span>
 
-    <span>
-      ROVER
-    </span>
+    <span>ROVER</span>
 
-    <span style="text-align:right">
-      ROVER EARNED
-    </span>
+    <span style="text-align:right">REFERRALS</span>
+
+    <span style="text-align:right">TOTAL EARNED</span>
 
   </div>
 
-
   <div id="leaderRows">
 
-
     <div class="row">
 
-      <div class="rank gold">
-        #01
-      </div>
-
-      <div class="user">
-
-        <div class="avatar">
-          🧑‍🚀
-        </div>
-
-        <div class="wallet">
-
-          <strong>
-            ROVER_01
-          </strong>
-
-          <span>
-            WALLET NOT CONNECTED
-          </span>
-
-        </div>
-
-      </div>
-
-      <div class="value">
-        0000
+      <div style="grid-column:1/-1;text-align:center;padding:25px;">
+        LOADING LIVE RANKINGS...
       </div>
 
     </div>
-
-
-    <div class="row">
-
-      <div class="rank silver">
-        #02
-      </div>
-
-      <div class="user">
-
-        <div class="avatar">
-          🧑‍🚀
-        </div>
-
-        <div class="wallet">
-
-          <strong>
-            ROVER_02
-          </strong>
-
-          <span>
-            WALLET NOT CONNECTED
-          </span>
-
-        </div>
-
-      </div>
-
-      <div class="value">
-        0000
-      </div>
-
-    </div>
-
-
-    <div class="row">
-
-      <div class="rank bronze">
-        #03
-      </div>
-
-      <div class="user">
-
-        <div class="avatar">
-          🧑‍🚀
-        </div>
-
-        <div class="wallet">
-
-          <strong>
-            ROVER_03
-          </strong>
-
-          <span>
-            WALLET NOT CONNECTED
-          </span>
-
-        </div>
-
-      </div>
-
-      <div class="value">
-        0000
-      </div>
-
-    </div>
-
-
-    <div class="row">
-
-      <div class="rank">
-        #04
-      </div>
-
-      <div class="user">
-
-        <div class="avatar">
-          🧑‍🚀
-        </div>
-
-        <div class="wallet">
-
-          <strong>
-            ROVER_04
-          </strong>
-
-          <span>
-            WALLET NOT CONNECTED
-          </span>
-
-        </div>
-
-      </div>
-
-      <div class="value">
-        0000
-      </div>
-
-    </div>
-
-
-    <div class="row">
-
-      <div class="rank">
-        #05
-      </div>
-
-      <div class="user">
-
-        <div class="avatar">
-          🧑‍🚀
-        </div>
-
-        <div class="wallet">
-
-          <strong>
-            ROVER_05
-          </strong>
-
-          <span>
-            WALLET NOT CONNECTED
-          </span>
-
-        </div>
-
-      </div>
-
-      <div class="value">
-        0000
-      </div>
-
-    </div>
-
-
-    <div class="row">
-
-      <div class="rank">
-        #06
-      </div>
-
-      <div class="user">
-
-        <div class="avatar">
-          🧑‍🚀
-        </div>
-
-        <div class="wallet">
-
-          <strong>
-            ROVER_06
-          </strong>
-
-          <span>
-            WALLET NOT CONNECTED
-          </span>
-
-        </div>
-
-      </div>
-
-      <div class="value">
-        0000
-      </div>
-
-    </div>
-
-
-    <div class="row">
-
-      <div class="rank">
-        #07
-      </div>
-
-      <div class="user">
-
-        <div class="avatar">
-          🧑‍🚀
-        </div>
-
-        <div class="wallet">
-
-          <strong>
-            ROVER_07
-          </strong>
-
-          <span>
-            WALLET NOT CONNECTED
-          </span>
-
-        </div>
-
-      </div>
-
-      <div class="value">
-        0000
-      </div>
-
-    </div>
-
-
-    <div class="row">
-
-      <div class="rank">
-        #08
-      </div>
-
-      <div class="user">
-
-        <div class="avatar">
-          🧑‍🚀
-        </div>
-
-        <div class="wallet">
-
-          <strong>
-            ROVER_08
-          </strong>
-
-          <span>
-            WALLET NOT CONNECTED
-          </span>
-
-        </div>
-
-      </div>
-
-      <div class="value">
-        0000
-      </div>
-
-    </div>
-
-
-    <div class="row">
-
-      <div class="rank">
-        #09
-      </div>
-
-      <div class="user">
-
-        <div class="avatar">
-          🧑‍🚀
-        </div>
-
-        <div class="wallet">
-
-          <strong>
-            ROVER_09
-          </strong>
-
-          <span>
-            WALLET NOT CONNECTED
-          </span>
-
-        </div>
-
-      </div>
-
-      <div class="value">
-        0000
-      </div>
-
-    </div>
-
-
-    <div class="row">
-
-      <div class="rank">
-        #10
-      </div>
-
-      <div class="user">
-
-        <div class="avatar">
-          🧑‍🚀
-        </div>
-
-        <div class="wallet">
-
-          <strong>
-            ROVER_10
-          </strong>
-
-          <span>
-            WALLET NOT CONNECTED
-          </span>
-
-        </div>
-
-      </div>
-
-      <div class="value">
-        0000
-      </div>
-
-    </div>
-
 
   </div>
 
 </section>
-
-
-<!-- =========================
-     YOUR POSITION
-========================= -->
 
 <section class="your-position reveal">
 
@@ -1305,83 +804,64 @@ footer{
 
   <div class="your-row">
 
-    <div class="your-rank">
-      —
-    </div>
+    <div class="your-rank">—</div>
 
     <div class="your-user">
 
       CONNECT WALLET
 
       <small>
-        Connect your wallet to see your live position.
+        Connect your wallet from ROVER HUB to see your live position.
       </small>
 
     </div>
 
-    <div class="your-value">
-      —
-    </div>
+    <div class="your-value">—</div>
 
   </div>
 
 </section>
 
-
-<!-- =========================
-     INFO
-========================= -->
-
 <section class="info-grid reveal">
 
   <article class="info-card">
 
-    <h3>
-      ROVER EARNED
-    </h3>
+    <h3>ROVER BALANCE</h3>
 
     <p>
-      Ranking based on the total Rover earned through
-      eligible platform activity.
+      Ranking based on the current ROVER balance
+      stored in the live account system.
     </p>
 
   </article>
 
-
   <article class="info-card">
 
-    <h3>
-      REFERRALS
-    </h3>
+    <h3>REFERRALS</h3>
 
     <p>
-      Ranking based on successful referrals.
-      The system is designed around genuine user activity.
+      Shows the number of successful referrals recorded
+      for each Rover.
     </p>
 
   </article>
 
-
   <article class="info-card">
 
-    <h3>
-      EVENTS
-    </h3>
+    <h3>TOTAL EARNED</h3>
 
     <p>
-      Temporary event rankings can appear here when
-      official Hood Rover events are active.
+      Includes rewards recorded in the live rewards system,
+      including check-ins, streak bonuses, referrals and NFT rewards.
     </p>
 
   </article>
 
 </section>
 
-
 </div>
 
 </main>
-
 
 <footer>
 
@@ -1399,7 +879,6 @@ footer{
 
 </footer>
 
-
 <script>
 
 /* =========================
@@ -1412,11 +891,481 @@ const menu =
 const nav =
   document.getElementById("nav");
 
-menu.addEventListener("click", () => {
+if(menu && nav){
 
-  nav.classList.toggle("open");
+  menu.addEventListener("click", () => {
+    nav.classList.toggle("open");
+  });
 
-});
+  nav.querySelectorAll("a").forEach(link => {
+    link.addEventListener("click", () => {
+      nav.classList.remove("open");
+    });
+  });
+
+}
+
+
+/* =========================
+   SUPABASE
+========================= */
+
+const SUPABASE_URL =
+  "https://hyshlvuywbwhhjgqwfwi.supabase.co";
+
+const SUPABASE_PUBLISHABLE_KEY =
+  "sb_publishable_LWmPzfGLuzdjDZvnwKs0Ug_Gvs5yROF";
+
+const { createClient } = window.supabase;
+
+const supabaseClient =
+  createClient(
+    SUPABASE_URL,
+    SUPABASE_PUBLISHABLE_KEY
+  );
+
+
+/* =========================
+   DATA
+========================= */
+
+let leaderboardData = [];
+let currentBoard = "rover";
+
+
+function formatNumber(value){
+
+  return Number(value || 0)
+    .toLocaleString("en-US");
+
+}
+
+
+function maskWallet(address){
+
+  if(!address){
+    return "WALLET UNKNOWN";
+  }
+
+  const clean =
+    String(address).toLowerCase();
+
+  if(clean.length <= 12){
+    return clean;
+  }
+
+  return (
+    clean.slice(0,6) +
+    "..." +
+    clean.slice(-4)
+  );
+
+}
+
+
+function rankClass(rank){
+
+  if(rank === 1) return "gold";
+  if(rank === 2) return "silver";
+  if(rank === 3) return "bronze";
+
+  return "";
+
+}
+
+
+/* =========================
+   SORT
+========================= */
+
+function sortedData(type){
+
+  const data =
+    [...leaderboardData];
+
+  if(type === "referrals"){
+
+    return data.sort((a,b) =>
+      Number(b.referral_count || 0) -
+      Number(a.referral_count || 0)
+    );
+
+  }
+
+  if(type === "earned"){
+
+    return data.sort((a,b) =>
+      Number(b.total_earned || 0) -
+      Number(a.total_earned || 0)
+    );
+
+  }
+
+  return data.sort((a,b) =>
+    Number(b.balance || 0) -
+    Number(a.balance || 0)
+  );
+
+}
+
+
+/* =========================
+   TABLE
+========================= */
+
+function renderLeaderboard(){
+
+  const rows =
+    document.getElementById("leaderRows");
+
+  const data =
+    sortedData(currentBoard);
+
+  if(!data.length){
+
+    rows.innerHTML = `
+      <div class="row">
+        <div style="grid-column:1/-1;text-align:center;padding:25px;">
+          NO ROVER DATA YET
+        </div>
+      </div>
+    `;
+
+    renderPodium([]);
+
+    return;
+
+  }
+
+
+  rows.innerHTML =
+    data.map((user,index) => {
+
+      const rank =
+        index + 1;
+
+      let primaryValue;
+
+      if(currentBoard === "referrals"){
+
+        primaryValue =
+          formatNumber(user.referral_count);
+
+      }else if(currentBoard === "earned"){
+
+        primaryValue =
+          formatNumber(user.total_earned);
+
+      }else{
+
+        primaryValue =
+          formatNumber(user.balance);
+
+      }
+
+
+      return `
+
+        <div class="row">
+
+          <div class="rank ${rankClass(rank)}">
+            #${String(rank).padStart(2,"0")}
+          </div>
+
+          <div class="user">
+
+            <div class="avatar">
+              🧑‍🚀
+            </div>
+
+            <div class="wallet">
+
+              <strong>
+                ${maskWallet(user.wallet_address)}
+              </strong>
+
+              <span>
+                ${formatNumber(user.balance)} ROVER BALANCE
+                · ${formatNumber(user.referral_count)} REFERRALS
+              </span>
+
+            </div>
+
+          </div>
+
+          <div class="value">
+            ${formatNumber(user.referral_count)}
+          </div>
+
+          <div class="value">
+            ${formatNumber(user.total_earned)}
+          </div>
+
+        </div>
+
+      `;
+
+    }).join("");
+
+  renderPodium(data);
+
+}
+
+
+/* =========================
+   PODIUM
+========================= */
+
+function renderPodium(data){
+
+  const cards =
+    document.querySelectorAll(".podium-card");
+
+  if(!cards.length) return;
+
+
+  const positions = [
+    data[1],
+    data[0],
+    data[2]
+  ];
+
+
+  positions.forEach((user,index) => {
+
+    const card =
+      cards[index];
+
+    const name =
+      card.querySelector(".podium-name");
+
+    const score =
+      card.querySelector(".podium-score");
+
+
+    if(!user){
+
+      name.textContent = "—";
+      score.textContent = "—";
+
+      return;
+
+    }
+
+
+    name.textContent =
+      maskWallet(user.wallet_address);
+
+
+    if(currentBoard === "referrals"){
+
+      score.textContent =
+        formatNumber(user.referral_count) +
+        " REFERRALS";
+
+    }else if(currentBoard === "earned"){
+
+      score.textContent =
+        formatNumber(user.total_earned) +
+        " ROVER";
+
+    }else{
+
+      score.textContent =
+        formatNumber(user.balance) +
+        " ROVER";
+
+    }
+
+  });
+
+}
+
+
+/* =========================
+   YOUR POSITION
+========================= */
+
+function renderYourPosition(){
+
+  const wallet =
+    localStorage.getItem("roverHubWallet");
+
+  const rankEl =
+    document.querySelector(".your-rank");
+
+  const userEl =
+    document.querySelector(".your-user");
+
+  const valueEl =
+    document.querySelector(".your-value");
+
+
+  if(!wallet){
+
+    rankEl.textContent = "—";
+
+    userEl.innerHTML = `
+      CONNECT WALLET
+
+      <small>
+        Connect your wallet from ROVER HUB to see your live position.
+      </small>
+    `;
+
+    valueEl.textContent = "—";
+
+    return;
+
+  }
+
+
+  const normalized =
+    wallet.toLowerCase();
+
+
+  const data =
+    sortedData(currentBoard);
+
+
+  const index =
+    data.findIndex(user =>
+      String(user.wallet_address)
+        .toLowerCase() === normalized
+    );
+
+
+  if(index === -1){
+
+    rankEl.textContent = "—";
+
+    userEl.innerHTML = `
+      ${maskWallet(wallet)}
+
+      <small>
+        Your wallet is not ranked yet.
+      </small>
+    `;
+
+    valueEl.textContent = "0";
+
+    return;
+
+  }
+
+
+  const user =
+    data[index];
+
+
+  rankEl.textContent =
+    "#" +
+    String(index + 1).padStart(2,"0");
+
+
+  userEl.innerHTML = `
+    ${maskWallet(user.wallet_address)}
+
+    <small>
+      ${formatNumber(user.referral_count)} referrals
+      · ${formatNumber(user.total_earned)} total earned
+    </small>
+  `;
+
+
+  if(currentBoard === "referrals"){
+
+    valueEl.textContent =
+      formatNumber(user.referral_count) +
+      " REF";
+
+  }else if(currentBoard === "earned"){
+
+    valueEl.textContent =
+      formatNumber(user.total_earned) +
+      " ROVER";
+
+  }else{
+
+    valueEl.textContent =
+      formatNumber(user.balance) +
+      " ROVER";
+
+  }
+
+}
+
+
+/* =========================
+   LOAD LIVE DATA
+========================= */
+
+async function loadLeaderboard(){
+
+  const rows =
+    document.getElementById("leaderRows");
+
+  const status =
+    document.getElementById("liveStatus");
+
+
+  try{
+
+    status.textContent =
+      "LOADING LIVE RANKINGS";
+
+
+    const {
+      data,
+      error
+    } =
+      await supabaseClient
+        .rpc("get_leaderboard_data");
+
+
+    if(error){
+      throw error;
+    }
+
+
+    leaderboardData =
+      Array.isArray(data)
+        ? data
+        : [];
+
+
+    status.textContent =
+      leaderboardData.length +
+      " ROVERS ONLINE";
+
+
+    renderLeaderboard();
+    renderYourPosition();
+
+
+  }catch(error){
+
+    console.error(
+      "Leaderboard error:",
+      error
+    );
+
+
+    status.textContent =
+      "LIVE DATA ERROR";
+
+
+    rows.innerHTML = `
+      <div class="row">
+        <div style="grid-column:1/-1;text-align:center;padding:25px;">
+          LIVE DATA COULD NOT BE LOADED
+        </div>
+      </div>
+    `;
+
+  }
+
+}
 
 
 /* =========================
@@ -1426,11 +1375,6 @@ menu.addEventListener("click", () => {
 const tabs =
   document.querySelectorAll(".tab");
 
-const boardHead =
-  document.querySelector(".board-head");
-
-const values =
-  document.querySelectorAll(".value");
 
 tabs.forEach(tab => {
 
@@ -1442,41 +1386,12 @@ tabs.forEach(tab => {
 
     tab.classList.add("active");
 
-    const type =
+    currentBoard =
       tab.dataset.board;
 
-    if(type === "rover"){
 
-      boardHead.children[2].textContent =
-        "ROVER EARNED";
-
-      values.forEach(v =>
-        v.textContent = "0000"
-      );
-
-    }
-
-    if(type === "referrals"){
-
-      boardHead.children[2].textContent =
-        "REFERRALS";
-
-      values.forEach((v,i) =>
-        v.textContent = "0"
-      );
-
-    }
-
-    if(type === "events"){
-
-      boardHead.children[2].textContent =
-        "EVENT SCORE";
-
-      values.forEach(v =>
-        v.textContent = "0000"
-      );
-
-    }
+    renderLeaderboard();
+    renderYourPosition();
 
   });
 
@@ -1534,6 +1449,13 @@ const observer =
 document
   .querySelectorAll(".reveal")
   .forEach(el => observer.observe(el));
+
+
+/* =========================
+   START
+========================= */
+
+loadLeaderboard();
 
 </script>
 
