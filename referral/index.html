@@ -3,765 +3,101 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-
 <title>REFERRAL — The Hood Rover</title>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Space+Grotesk:wght@400;500;600;700&display=swap');
 
 :root{
-  --ink:#14232e;
-  --line:#173044;
-  --blue:#2f8cff;
-  --cyan:#16c8e8;
-  --yellow:#ffd84d;
-  --cream:#fffaf0;
-  --paper:#f3f7fa;
-  --white:#fff;
-  --muted:#687985;
-  --green:#42c98b;
-  --orange:#ff9d42;
-}
-
-*{
-  box-sizing:border-box;
-}
-
-html{
-  scroll-behavior:smooth;
-}
-
-body{
-  margin:0;
-  color:var(--ink);
-  background:var(--paper);
-  font-family:"Space Grotesk",sans-serif;
-  overflow-x:hidden;
-}
-
-body::before{
-  content:"";
-  position:fixed;
-  inset:0;
-  pointer-events:none;
-  z-index:-2;
-  opacity:.13;
-  background-image:
-    linear-gradient(rgba(20,50,70,.16) 1px,transparent 1px),
-    linear-gradient(90deg,rgba(20,50,70,.16) 1px,transparent 1px);
-  background-size:24px 24px;
-}
-
-body::after{
-  content:"";
-  position:fixed;
-  inset:0;
-  pointer-events:none;
-  z-index:50;
-  background:repeating-linear-gradient(
-    0deg,
-    transparent 0 3px,
-    rgba(20,40,55,.035) 3px 4px
-  );
-}
-
-a{
-  color:inherit;
-  text-decoration:none;
-}
-
-button{
-  font-family:inherit;
-}
-
-.wrap{
-  width:min(1160px,calc(100% - 32px));
-  margin:auto;
-}
-
-/* =========================
-   LOCKED TOP NAV
-========================= */
-
-header{
-  position:sticky;
-  top:0;
-  z-index:30;
-  min-height:76px;
-  display:flex;
-  align-items:center;
-  gap:18px;
-  padding:10px max(16px,calc((100% - 1160px)/2));
-  background:rgba(255,250,240,.95);
-  backdrop-filter:blur(12px);
-  border-bottom:3px solid var(--line);
-}
-
-.brand{
-  display:flex;
-  align-items:center;
-  gap:10px;
-  font-family:"Press Start 2P";
-  font-size:11px;
-  line-height:1.5;
-  white-space:nowrap;
-}
-
-.mark{
-  width:38px;
-  height:38px;
-  display:grid;
-  place-items:center;
-  background:var(--blue);
-  color:#fff;
-  border:3px solid var(--line);
-  box-shadow:3px 3px 0 var(--line);
-  font-family:"Press Start 2P";
-  font-size:10px;
-}
-
-nav{
-  margin-left:auto;
-  display:flex;
-  align-items:center;
-  gap:4px;
-}
-
-nav a{
-  padding:9px 10px;
-  border:2px solid transparent;
-  font-size:12px;
-  font-weight:800;
-}
-
-nav a:hover,
-nav a.active{
-  background:#fff;
-  border-color:var(--line);
-  box-shadow:3px 3px 0 var(--line);
-}
-
-.menu{
-  display:none;
-  margin-left:auto;
-  background:#fff;
-  border:3px solid var(--line);
-  padding:9px 12px;
-  cursor:pointer;
-  font-size:18px;
-}
-
-/* =========================
-   BUTTON
-========================= */
-
-.btn{
-  display:inline-flex;
-  justify-content:center;
-  align-items:center;
-  gap:8px;
-  border:3px solid var(--line);
-  background:var(--blue);
-  color:#fff;
-  padding:13px 16px;
-  font-family:"Press Start 2P";
-  font-size:9px;
-  box-shadow:5px 5px 0 var(--line);
-  cursor:pointer;
-  transition:.15s ease;
-}
-
-.btn:hover{
-  transform:translate(2px,2px);
-  box-shadow:3px 3px 0 var(--line);
-}
-
-.btn.secondary{
-  background:#fff;
-  color:var(--ink);
-}
-
-.btn.yellow{
-  background:var(--yellow);
-  color:var(--ink);
-}
-
-/* =========================
-   MAIN
-========================= */
-
-main{
-  padding:55px 0 90px;
-}
-
-/* =========================
-   REFERRAL HERO
-========================= */
-
-.hero{
-  margin-bottom:28px;
-}
-
-.window{
-  background:#fff;
-  border:4px solid var(--line);
-  box-shadow:8px 8px 0 var(--line);
-}
-
-.window-bar{
-  min-height:42px;
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  padding:9px 13px;
-  background:#dceaf2;
-  border-bottom:4px solid var(--line);
-  font-family:"Press Start 2P";
-  font-size:9px;
-}
-
-.window-lights{
-  display:flex;
-  gap:6px;
-}
-
-.light{
-  width:12px;
-  height:12px;
-  border:2px solid var(--line);
-  background:#fff;
-}
-
-.light:nth-child(2){
-  background:var(--yellow);
-}
-
-.light:nth-child(3){
-  background:var(--cyan);
-}
-
-.hero-content{
-  padding:34px;
-  display:grid;
-  grid-template-columns:1fr auto;
-  gap:30px;
-  align-items:end;
-}
-
-.eyebrow{
-  display:inline-block;
-  margin-bottom:16px;
-  color:var(--blue);
-  font-family:"Press Start 2P";
-  font-size:10px;
-}
-
-h1{
-  margin:0 0 16px;
-  font-family:"Press Start 2P";
-  font-size:clamp(28px,5vw,54px);
-  line-height:1.25;
-  letter-spacing:-2px;
-}
-
-.hero-text{
-  max-width:700px;
-  margin:0;
-  color:var(--muted);
-  font-size:17px;
-  line-height:1.65;
-}
-
-.system-status{
-  min-width:210px;
-  padding:20px;
-  background:var(--cream);
-  border:3px solid var(--line);
-}
-
-.status-line{
-  display:flex;
-  align-items:center;
-  gap:9px;
-  font-weight:800;
-  margin-bottom:10px;
-}
-
-.status-dot{
-  width:12px;
-  height:12px;
-  border-radius:50%;
-  background:var(--green);
-  border:2px solid var(--line);
-  animation:pulse 1.5s infinite;
-}
-
-@keyframes pulse{
-  50%{opacity:.35}
-}
-
-.status-small{
-  color:var(--muted);
-  font-size:12px;
-}
-
-/* =========================
-   REFERRAL PANEL
-========================= */
-
-.referral-window{
-  background:#fff;
-  border:4px solid var(--line);
-  box-shadow:8px 8px 0 var(--line);
-}
-
-.referral-bar{
-  min-height:42px;
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  padding:9px 13px;
-  background:#dceaf2;
-  border-bottom:4px solid var(--line);
-  font-family:"Press Start 2P";
-  font-size:9px;
-}
-
-.referral-content{
-  padding:32px;
-}
-
-.status{
-  display:inline-flex;
-  align-items:center;
-  gap:9px;
-  padding:10px 14px;
-  background:#eef9fc;
-  border:3px solid var(--line);
-  font-size:10px;
-  font-weight:900;
-}
-
-.status-dot-small{
-  width:10px;
-  height:10px;
-  background:var(--green);
-  border:2px solid var(--line);
-  animation:blink 1s steps(2) infinite;
-}
-
-@keyframes blink{
-  50%{opacity:.25}
-}
-
-.intro{
-  max-width:760px;
-  margin:25px 0 0;
-  font-size:17px;
-  line-height:1.7;
-  font-weight:700;
-}
-
-/* =========================
-   INVITE BOX
-========================= */
-
-.invite-box{
-  margin-top:25px;
-  padding:22px;
-  background:var(--cream);
-  border:4px solid var(--line);
-  box-shadow:5px 5px 0 var(--line);
-}
-
-.invite-title{
-  margin-bottom:12px;
-  color:var(--blue);
-  font-family:"Press Start 2P";
-  font-size:9px;
-}
-
-.invite-text{
-  margin:0 0 18px;
-  font-size:15px;
-  line-height:1.7;
-  font-weight:800;
-}
-
-.invite-status{
-  margin-top:14px;
-  color:var(--muted);
-  font-size:11px;
-  font-weight:800;
-  line-height:1.6;
-}
-
-/* =========================
-   REFERRAL LINK
-========================= */
-
-.ref-box{
-  margin-top:32px;
-  padding:24px;
-  background:#eaf7fb;
-  border:4px solid var(--line);
-}
-
-.ref-label{
-  display:block;
-  margin-bottom:12px;
-  font-family:"Press Start 2P";
-  font-size:8px;
-}
-
-.link-row{
-  display:flex;
-  gap:10px;
-}
-
-.link-input{
-  flex:1;
-  min-width:0;
-  height:50px;
-  padding:12px;
-  background:#fff;
-  border:4px solid var(--line);
-  color:var(--ink);
-  font-family:monospace;
-  font-size:11px;
-  font-weight:900;
-  outline:none;
-}
-
-.copy-btn{
-  min-width:125px;
-  background:var(--blue);
-  color:white;
-  border:3px solid var(--line);
-  box-shadow:5px 5px 0 var(--line);
-  font-family:"Press Start 2P";
-  font-size:8px;
-  cursor:pointer;
-}
-
-.copy-btn:active{
-  transform:translate(4px,4px);
-  box-shadow:1px 1px 0 var(--line);
-}
-
-/* =========================
-   STATS
-========================= */
-
-.stats{
-  display:grid;
-  grid-template-columns:repeat(3,1fr);
-  gap:16px;
-  margin-top:32px;
-}
-
-.stat{
-  min-height:125px;
-  padding:20px;
-  background:#fff;
-  border:4px solid var(--line);
-  box-shadow:5px 5px 0 var(--line);
-  font-size:10px;
-  font-weight:900;
-}
-
-.stat strong{
-  display:block;
-  margin-top:14px;
-  font-family:"Press Start 2P";
-  font-size:17px;
-  line-height:1.5;
-}
-
-/* =========================
-   PROGRESS
-========================= */
-
-.progress-wrap{
-  margin-top:32px;
-}
-
-.progress-head{
-  display:flex;
-  justify-content:space-between;
-  margin-bottom:10px;
-  font-size:10px;
-  font-weight:900;
-}
-
-.progress{
-  height:27px;
-  padding:3px;
-  background:#fff;
-  border:4px solid var(--line);
-}
-
-.progress-bar{
-  height:100%;
-  width:0%;
-  background:var(--blue);
-  transition:width .8s steps(10);
-}
-
-/* =========================
-   RULES
-========================= */
-
-.rules{
-  display:grid;
-  grid-template-columns:repeat(2,1fr);
-  gap:18px;
-  margin-top:32px;
-}
-
-.rule{
-  padding:21px;
-  background:#f8fcfd;
-  border:4px solid var(--line);
-  box-shadow:4px 4px 0 #c7d5dc;
-}
-
-.rule b{
-  display:block;
-  margin-bottom:10px;
-  font-family:"Press Start 2P";
-  font-size:8px;
-  line-height:1.7;
-}
-
-.rule p{
-  margin:0;
-  font-size:12px;
-  line-height:1.7;
-  color:var(--muted);
-}
-
-/* =========================
-   ACTIVITY
-========================= */
-
-.activity{
-  margin-top:32px;
-  padding:22px;
-  background:#f5fbfd;
-  border:4px dashed #6d9daa;
-}
-
-.activity-title{
-  margin-bottom:15px;
-  font-family:"Press Start 2P";
-  font-size:8px;
-}
-
-.activity-row{
-  display:flex;
-  justify-content:space-between;
-  padding:11px 0;
-  border-bottom:1px dotted #8daeb9;
-  font-size:11px;
-  font-weight:800;
-}
-
-.activity-row:last-child{
-  border-bottom:0;
-}
-
-/* =========================
-   NOTE
-========================= */
-
-.note{
-  margin-top:25px;
-  color:var(--muted);
-  font-size:11px;
-  line-height:1.8;
-}
-
-/* =========================
-   CTA
-========================= */
-
-.cta{
-  display:flex;
-  flex-wrap:wrap;
-  gap:14px;
-  margin-top:32px;
-}
-
-/* =========================
-   LOCKED FOOTER
-========================= */
-
-footer{
-  border-top:4px solid var(--line);
-  background:#fff;
-  padding:28px 0 40px;
-}
-
-.footer{
-  display:flex;
-  justify-content:space-between;
-  gap:20px;
-  color:var(--muted);
-  font-size:13px;
-  font-weight:700;
-}
-
-/* =========================
-   REVEAL
-========================= */
-
-.reveal{
-  opacity:0;
-  transform:translateY(20px);
-}
-
-.reveal.visible{
-  opacity:1;
-  transform:none;
-  transition:
-    opacity .65s ease,
-    transform .65s ease;
-}
-
-/* =========================
-   TABLET
-========================= */
+  --ink:#14232e;--line:#173044;--blue:#2f8cff;--cyan:#16c8e8;
+  --yellow:#ffd84d;--cream:#fffaf0;--paper:#f3f7fa;--white:#fff;
+  --muted:#687985;--green:#42c98b;--orange:#ff9d42;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;color:var(--ink);background:var(--paper);font-family:"Space Grotesk",sans-serif;overflow-x:hidden}
+body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:-2;opacity:.13;background-image:linear-gradient(rgba(20,50,70,.16) 1px,transparent 1px),linear-gradient(90deg,rgba(20,50,70,.16) 1px,transparent 1px);background-size:24px 24px}
+body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:50;background:repeating-linear-gradient(0deg,transparent 0 3px,rgba(20,40,55,.035) 3px 4px)}
+a{color:inherit;text-decoration:none}button{font-family:inherit}.wrap{width:min(1160px,calc(100% - 32px));margin:auto}
+
+header{position:sticky;top:0;z-index:30;min-height:76px;display:flex;align-items:center;gap:18px;padding:10px max(16px,calc((100% - 1160px)/2));background:rgba(255,250,240,.95);backdrop-filter:blur(12px);border-bottom:3px solid var(--line)}
+.brand{display:flex;align-items:center;gap:10px;font-family:"Press Start 2P";font-size:11px;line-height:1.5;white-space:nowrap}
+.mark{width:38px;height:38px;display:grid;place-items:center;background:var(--blue);color:#fff;border:3px solid var(--line);box-shadow:3px 3px 0 var(--line);font-family:"Press Start 2P";font-size:10px}
+nav{margin-left:auto;display:flex;align-items:center;gap:4px}
+nav a{padding:9px 10px;border:2px solid transparent;font-size:12px;font-weight:800}
+nav a:hover,nav a.active{background:#fff;border-color:var(--line);box-shadow:3px 3px 0 var(--line)}
+.menu{display:none;margin-left:auto;background:#fff;border:3px solid var(--line);padding:9px 12px;cursor:pointer;font-size:18px}
+
+.btn{display:inline-flex;justify-content:center;align-items:center;gap:8px;border:3px solid var(--line);background:var(--blue);color:#fff;padding:13px 16px;font-family:"Press Start 2P";font-size:9px;box-shadow:5px 5px 0 var(--line);cursor:pointer;transition:.15s ease}
+.btn:hover{transform:translate(2px,2px);box-shadow:3px 3px 0 var(--line)}
+.btn.secondary{background:#fff;color:var(--ink)}.btn.yellow{background:var(--yellow);color:var(--ink)}
+main{padding:55px 0 90px}.hero{margin-bottom:28px}
+.window,.referral-window{background:#fff;border:4px solid var(--line);box-shadow:8px 8px 0 var(--line)}
+.window-bar,.referral-bar{min-height:42px;display:flex;justify-content:space-between;align-items:center;padding:9px 13px;background:#dceaf2;border-bottom:4px solid var(--line);font-family:"Press Start 2P";font-size:9px}
+.window-lights{display:flex;gap:6px}.light{width:12px;height:12px;border:2px solid var(--line);background:#fff}.light:nth-child(2){background:var(--yellow)}.light:nth-child(3){background:var(--cyan)}
+.hero-content{padding:34px;display:grid;grid-template-columns:1fr auto;gap:30px;align-items:end}
+.eyebrow{display:inline-block;margin-bottom:16px;color:var(--blue);font-family:"Press Start 2P";font-size:10px}
+h1{margin:0 0 16px;font-family:"Press Start 2P";font-size:clamp(28px,5vw,54px);line-height:1.25;letter-spacing:-2px}
+.hero-text{max-width:700px;margin:0;color:var(--muted);font-size:17px;line-height:1.65}
+.system-status{min-width:210px;padding:20px;background:var(--cream);border:3px solid var(--line)}
+.status-line{display:flex;align-items:center;gap:9px;font-weight:800;margin-bottom:10px}.status-dot{width:12px;height:12px;border-radius:50%;background:var(--green);border:2px solid var(--line);animation:pulse 1.5s infinite}
+@keyframes pulse{50%{opacity:.35}}.status-small{color:var(--muted);font-size:12px}
+
+.referral-content{padding:32px}.status{display:inline-flex;align-items:center;gap:9px;padding:10px 14px;background:#eef9fc;border:3px solid var(--line);font-size:10px;font-weight:900}
+.status-dot-small{width:10px;height:10px;background:var(--green);border:2px solid var(--line);animation:blink 1s steps(2) infinite}
+@keyframes blink{50%{opacity:.25}}
+.intro{max-width:760px;margin:25px 0 0;font-size:17px;line-height:1.7;font-weight:700}
+
+.invite-box{margin-top:25px;padding:22px;background:var(--cream);border:4px solid var(--line);box-shadow:5px 5px 0 var(--line)}
+.invite-title{margin-bottom:12px;color:var(--blue);font-family:"Press Start 2P";font-size:9px}
+.invite-text{margin:0 0 18px;font-size:15px;line-height:1.7;font-weight:800}
+.invite-status{margin-top:14px;color:var(--muted);font-size:11px;font-weight:800;line-height:1.6}
+
+.ref-box{margin-top:32px;padding:24px;background:#eaf7fb;border:4px solid var(--line)}
+.ref-label{display:block;margin-bottom:12px;font-family:"Press Start 2P";font-size:8px}
+.link-row{display:flex;gap:10px}
+.link-input{flex:1;min-width:0;height:50px;padding:12px;background:#fff;border:4px solid var(--line);color:var(--ink);font-family:monospace;font-size:11px;font-weight:900;outline:none}
+.copy-btn{min-width:125px;background:var(--blue);color:white;border:3px solid var(--line);box-shadow:5px 5px 0 var(--line);font-family:"Press Start 2P";font-size:8px;cursor:pointer}
+.copy-btn:active{transform:translate(4px,4px);box-shadow:1px 1px 0 var(--line)}
+
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:32px}
+.stat{min-height:125px;padding:20px;background:#fff;border:4px solid var(--line);box-shadow:5px 5px 0 var(--line);font-size:10px;font-weight:900}
+.stat strong{display:block;margin-top:14px;font-family:"Press Start 2P";font-size:17px;line-height:1.5}
+
+.progress-wrap{margin-top:32px}.progress-head{display:flex;justify-content:space-between;margin-bottom:10px;font-size:10px;font-weight:900}
+.progress{height:27px;padding:3px;background:#fff;border:4px solid var(--line)}.progress-bar{height:100%;width:0%;background:var(--blue);transition:width .8s steps(10)}
+
+.rules{display:grid;grid-template-columns:repeat(2,1fr);gap:18px;margin-top:32px}
+.rule{padding:21px;background:#f8fcfd;border:4px solid var(--line);box-shadow:4px 4px 0 #c7d5dc}
+.rule b{display:block;margin-bottom:10px;font-family:"Press Start 2P";font-size:8px;line-height:1.7}
+.rule p{margin:0;font-size:12px;line-height:1.7;color:var(--muted)}
+
+.activity{margin-top:32px;padding:22px;background:#f5fbfd;border:4px dashed #6d9daa}
+.activity-title{margin-bottom:15px;font-family:"Press Start 2P";font-size:8px}
+.activity-row{display:flex;justify-content:space-between;padding:11px 0;border-bottom:1px dotted #8daeb9;font-size:11px;font-weight:800}
+.activity-row:last-child{border-bottom:0}
+.note{margin-top:25px;color:var(--muted);font-size:11px;line-height:1.8}
+.cta{display:flex;flex-wrap:wrap;gap:14px;margin-top:32px}
+
+footer{border-top:4px solid var(--line);background:#fff;padding:28px 0 40px}
+.footer{display:flex;justify-content:space-between;gap:20px;color:var(--muted);font-size:13px;font-weight:700}
+
+/* Important: content stays visible even if a backend script fails */
+.reveal{opacity:1;transform:none}.reveal.visible{opacity:1;transform:none;transition:opacity .65s ease,transform .65s ease}
 
 @media(max-width:1000px){
-
-  header{
-    padding-left:16px;
-    padding-right:16px;
-  }
-
-  nav{
-    display:none;
-    position:absolute;
-    top:76px;
-    left:16px;
-    right:16px;
-    padding:8px;
-    background:#fff;
-    border:3px solid var(--line);
-    box-shadow:5px 5px 0 var(--line);
-    flex-direction:column;
-    align-items:stretch;
-  }
-
-  nav.open{
-    display:flex;
-  }
-
-  nav a{
-    padding:13px;
-  }
-
-  header>.btn{
-    display:none;
-  }
-
-  .menu{
-    display:block;
-  }
-
-  .hero-content{
-    grid-template-columns:1fr;
-  }
-
-  .system-status{
-    width:100%;
-  }
-
-  .stats{
-    grid-template-columns:1fr;
-  }
+  header{padding-left:16px;padding-right:16px}
+  nav{display:none;position:absolute;top:76px;left:16px;right:16px;padding:8px;background:#fff;border:3px solid var(--line);box-shadow:5px 5px 0 var(--line);flex-direction:column;align-items:stretch}
+  nav.open{display:flex}nav a{padding:13px}header>.btn{display:none}.menu{display:block}
+  .hero-content{grid-template-columns:1fr}.system-status{width:100%}.stats{grid-template-columns:1fr}
 }
-
-/* =========================
-   MOBILE
-========================= */
-
 @media(max-width:620px){
-
-  .wrap{
-    width:calc(100% - 20px);
-  }
-
-  main{
-    padding-top:30px;
-  }
-
-  .brand{
-    font-size:9px;
-  }
-
-  .mark{
-    width:34px;
-    height:34px;
-  }
-
-  .hero-content{
-    padding:24px 20px;
-  }
-
-  h1{
-    font-size:28px;
-  }
-
-  .hero-text{
-    font-size:14px;
-  }
-
-  .referral-content{
-    padding:22px 18px;
-  }
-
-  .intro{
-    font-size:14px;
-  }
-
-  .invite-text{
-    font-size:14px;
-  }
-
-  .link-row{
-    flex-direction:column;
-  }
-
-  .copy-btn{
-    min-height:50px;
-  }
-
-  .rules{
-    grid-template-columns:1fr;
-  }
-
-  .activity-row{
-    flex-direction:column;
-    gap:5px;
-  }
-
-  .cta{
-    flex-direction:column;
-  }
-
-  .cta .btn{
-    width:100%;
-  }
-
-  .footer{
-    display:block;
-  }
-
-  .footer div+div{
-    margin-top:10px;
-  }
+  .wrap{width:calc(100% - 20px)}main{padding-top:30px}.brand{font-size:9px}.mark{width:34px;height:34px}
+  .hero-content{padding:24px 20px}h1{font-size:28px}.hero-text{font-size:14px}.referral-content{padding:22px 18px}.intro{font-size:14px}
+  .invite-text{font-size:14px}.link-row{flex-direction:column}.copy-btn{min-height:50px}.rules{grid-template-columns:1fr}
+  .activity-row{flex-direction:column;gap:5px}.cta{flex-direction:column}.cta .btn{width:100%}.footer{display:block}.footer div+div{margin-top:10px}
 }
 </style>
 </head>
@@ -769,1507 +105,550 @@ footer{
 <body>
 
 <header>
-
-  <a class="brand" href="../">
-    <span class="mark">HR</span>
-    THE HOOD ROVER
-  </a>
-
-  <button class="menu" id="menu">
-    ☰
-  </button>
+  <a class="brand" href="../"><span class="mark">HR</span>THE HOOD ROVER</a>
+  <button class="menu" id="menu">☰</button>
 
   <nav id="nav">
-
     <a href="../">HOME</a>
-
     <a href="../collection/">COLLECTION</a>
-
     <a href="../rover/">ROVER HUB</a>
-
     <a href="../my-rover/">MY ROVER</a>
-
     <a href="../leaderboard/">LEADERBOARD</a>
-
     <a class="active" href="../referral/">REFERRAL</a>
-
     <a href="../roadmap/">ROADMAP</a>
-
     <a href="../faq/">FAQ</a>
-
   </nav>
 
-  <a class="btn" href="#" id="mintButton">
-    MINT ON OPENSEA
-  </a>
-
+  <a class="btn" href="#" id="mintButton">MINT ON OPENSEA</a>
 </header>
 
-
 <main>
-
 <div class="wrap">
 
 <section class="hero reveal">
-
   <div class="window">
-
     <div class="window-bar">
-
-      <span>
-        REFERRAL.EXE
-      </span>
-
-      <span class="window-lights">
-
-        <i class="light"></i>
-        <i class="light"></i>
-        <i class="light"></i>
-
-      </span>
-
+      <span>REFERRAL.EXE</span>
+      <span class="window-lights"><i class="light"></i><i class="light"></i><i class="light"></i></span>
     </div>
 
     <div class="hero-content">
-
       <div>
-
-        <span class="eyebrow">
-          HOOD ROVER // NETWORK MODULE
-        </span>
-
-        <h1>
-          REFERRAL
-        </h1>
-
+        <span class="eyebrow">HOOD ROVER // NETWORK MODULE</span>
+        <h1>REFERRAL</h1>
         <p class="hero-text">
           Invite real Rovers into the Hood.
           Build your network through genuine activity
           and earn Rover rewards from successful invites.
         </p>
-
       </div>
 
       <div class="system-status">
-
-        <div class="status-line">
-
-          <span class="status-dot"></span>
-
-          SYSTEM ONLINE
-
-        </div>
-
-        <div class="status-small">
-          REFERRAL STATUS: READY
-        </div>
-
-        <div class="status-small">
-          MAX SUCCESSFUL: 10
-        </div>
-
+        <div class="status-line"><span class="status-dot"></span>SYSTEM ONLINE</div>
+        <div class="status-small">REFERRAL STATUS: READY</div>
+        <div class="status-small">MAX SUCCESSFUL: 10</div>
       </div>
-
     </div>
-
   </div>
-
 </section>
 
-
 <section class="referral-window reveal">
-
   <div class="referral-bar">
-
-    <span>
-      REFERRAL_SYSTEM.EXE
-    </span>
-
-    <span id="referralBarStatus">
-      [ READY ]
-    </span>
-
+    <span>REFERRAL_SYSTEM.EXE</span>
+    <span id="referralBarStatus">[ READY ]</span>
   </div>
-
 
   <div class="referral-content">
 
     <div class="status">
-
       <span class="status-dot-small"></span>
-
       REFERRAL SYSTEM ONLINE
-
     </div>
 
-
     <p class="intro">
-
       Every Rover can build a referral network.
       Share your personal link and bring genuine users
       into The Hood Rover ecosystem.
-
     </p>
 
+    <div class="invite-box" id="inviteBox" style="display:none;">
+      <div class="invite-title">INVITE DETECTED</div>
+      <p class="invite-text">You have been invited to The Hood Rover.</p>
 
-    <!-- INVITE AREA -->
-
-    <div
-      class="invite-box"
-      id="inviteBox"
-      style="display:none;"
-    >
-
-      <div class="invite-title">
-        INVITE DETECTED
-      </div>
-
-      <p class="invite-text">
-        You have been invited to
-        The Hood Rover.
-      </p>
-
-      <button
-        class="btn"
-        id="acceptInviteBtn"
-        type="button"
-      >
+      <button class="btn" id="acceptInviteBtn" type="button">
         ACCEPT INVITE
       </button>
 
-      <div
-        class="invite-status"
-        id="inviteStatus"
-      >
+      <div class="invite-status" id="inviteStatus">
         CONNECT YOUR WALLET TO ACCEPT THIS INVITE.
       </div>
-
     </div>
-
-
-    <!-- REFERRAL LINK -->
 
     <div class="ref-box">
-
-      <span class="ref-label">
-        YOUR REFERRAL LINK
-      </span>
+      <span class="ref-label">YOUR REFERRAL LINK</span>
 
       <div class="link-row">
-
-        <input
-          id="refLink"
-          class="link-input"
-          type="text"
-          readonly
-          value="CONNECT WALLET TO GENERATE"
-        >
-
-        <button
-          class="copy-btn"
-          id="copyBtn"
-          type="button"
-        >
-          COPY LINK
-        </button>
-
+        <input id="refLink" class="link-input" type="text" readonly value="CONNECT WALLET TO GENERATE">
+        <button class="copy-btn" id="copyBtn" type="button">COPY LINK</button>
       </div>
-
     </div>
-
-
-    <!-- STATS -->
 
     <div class="stats">
-
       <div class="stat">
-
         SUCCESSFUL REFERRALS
-
-        <strong id="refCount">
-          0 / 10
-        </strong>
-
+        <strong id="refCount">0 / 10</strong>
       </div>
 
-
       <div class="stat">
-
         REFERRAL STATUS
-
-        <strong id="statusText">
-          READY
-        </strong>
-
+        <strong id="statusText">READY</strong>
       </div>
-
 
       <div class="stat">
-
         MAX NETWORK
-
-        <strong>
-          10 USERS
-        </strong>
-
+        <strong>10 USERS</strong>
       </div>
-
     </div>
 
-
-    <!-- PROGRESS -->
-
     <div class="progress-wrap">
-
       <div class="progress-head">
-
-        <span>
-          REFERRAL CAPACITY
-        </span>
-
-        <span id="progressText">
-          0%
-        </span>
-
+        <span>REFERRAL CAPACITY</span>
+        <span id="progressText">0%</span>
       </div>
 
       <div class="progress">
-
-        <div
-          class="progress-bar"
-          id="progressBar">
-        </div>
-
+        <div class="progress-bar" id="progressBar"></div>
       </div>
-
     </div>
-
-
-    <!-- RULES -->
 
     <div class="rules">
-
       <div class="rule">
-
-        <b>
-          01 // INVITE
-        </b>
-
-        <p>
-          Share your personal referral link with people
-          you actually want to bring into The Hood Rover ecosystem.
-        </p>
-
+        <b>01 // INVITE</b>
+        <p>Share your personal referral link with people you actually want to bring into The Hood Rover ecosystem.</p>
       </div>
 
-
       <div class="rule">
-
-        <b>
-          02 // ACCEPT INVITE
-        </b>
-
-        <p>
-          A referral becomes successful when the invited
-          user connects their wallet and accepts the invite.
-        </p>
-
+        <b>02 // ACCEPT INVITE</b>
+        <p>A referral becomes successful when the invited user connects their wallet and accepts the invite.</p>
       </div>
 
-
       <div class="rule">
-
-        <b>
-          03 // MAX 10
-        </b>
-
-        <p>
-          Each account can have a maximum of 10 successful
-          referrals.
-        </p>
-
+        <b>03 // MAX 10</b>
+        <p>Each account can have a maximum of 10 successful referrals.</p>
       </div>
 
-
       <div class="rule">
-
-        <b>
-          04 // NO FAKE FARMING
-        </b>
-
-        <p>
-          Duplicate, self-referral or suspicious activity
-          can be rejected by the referral system.
-        </p>
-
+        <b>04 // NO FAKE FARMING</b>
+        <p>Duplicate, self-referral or suspicious activity can be rejected by the referral system.</p>
       </div>
-
     </div>
-
-
-    <!-- ACTIVITY -->
 
     <div class="activity">
-
-      <div class="activity-title">
-        REFERRAL ACTIVITY
-      </div>
-
+      <div class="activity-title">REFERRAL ACTIVITY</div>
 
       <div class="activity-row">
-
-        <span>
-          SYSTEM
-        </span>
-
-        <span id="systemActivity">
-          WAITING FOR WALLET
-        </span>
-
+        <span>SYSTEM</span>
+        <span id="systemActivity">WAITING FOR WALLET</span>
       </div>
-
 
       <div class="activity-row">
-
-        <span>
-          REFERRALS
-        </span>
-
-        <span id="activityReferrals">
-          0 SUCCESSFUL
-        </span>
-
+        <span>REFERRALS</span>
+        <span id="activityReferrals">0 SUCCESSFUL</span>
       </div>
-
 
       <div class="activity-row">
-
-        <span>
-          LIMIT
-        </span>
-
-        <span id="activityLimit">
-          10 USERS
-        </span>
-
+        <span>LIMIT</span>
+        <span id="activityLimit">10 USERS</span>
       </div>
-
     </div>
 
-
     <p class="note">
-
-      Successful referrals are verified and recorded
-      through the Hood Rover backend.
-      Each successful referral gives the referrer
-      <strong>+2 ROVER</strong>.
-
+      Successful referrals are verified and recorded through the Hood Rover backend.
+      Each successful referral gives the referrer <strong>+2 ROVER</strong>.
     </p>
 
-
     <div class="cta">
-
-      <a class="btn" href="../rover/">
-        OPEN ROVER HUB
-      </a>
-
-      <a class="btn secondary" href="../leaderboard/">
-        VIEW LEADERBOARD
-      </a>
-
-      <a class="btn yellow" href="../">
-        BACK HOME
-      </a>
-
+      <a class="btn" href="../rover/">OPEN ROVER HUB</a>
+      <a class="btn secondary" href="../leaderboard/">VIEW LEADERBOARD</a>
+      <a class="btn yellow" href="../">BACK HOME</a>
     </div>
 
   </div>
-
 </section>
 
 </div>
-
 </main>
 
-
 <footer>
-
   <div class="wrap footer">
-
-    <div>
-      <b>THE HOOD ROVER</b>
-    </div>
-
-    <div>
-      RETRO SYSTEM // 2026
-    </div>
-
+    <div><b>THE HOOD ROVER</b></div>
+    <div>RETRO SYSTEM // 2026</div>
   </div>
-
 </footer>
 
-
 <script>
-
 /* =========================================================
    MOBILE MENU
 ========================================================= */
+const menu = document.getElementById("menu");
+const nav = document.getElementById("nav");
 
-const menu =
-  document.getElementById("menu");
+menu.addEventListener("click", () => {
+  nav.classList.toggle("open");
+});
 
-const nav =
-  document.getElementById("nav");
-
-menu.addEventListener(
-  "click",
-  () => {
-
-    nav.classList.toggle("open");
-
-  }
-);
-
-
-document
-  .querySelectorAll("#nav a")
-  .forEach(link => {
-
-    link.addEventListener(
-      "click",
-      () => {
-
-        nav.classList.remove("open");
-
-      }
-    );
-
-  });
-
+document.querySelectorAll("#nav a").forEach(link => {
+  link.addEventListener("click", () => nav.classList.remove("open"));
+});
 
 /* =========================================================
    SUPABASE
 ========================================================= */
-
 const SUPABASE_URL =
   "https://hyshlvuywbwhhjgqwfwi.supabase.co";
 
 const SUPABASE_PUBLISHABLE_KEY =
   "sb_publishable_LWmPzfGLuzdjDZvnwKs0Ug_Gvs5yROF";
 
-const {
-  createClient
-} = window.supabase;
+let supabaseClient = null;
 
-const supabaseClient =
-  createClient(
+if (window.supabase && typeof window.supabase.createClient === "function") {
+  supabaseClient = window.supabase.createClient(
     SUPABASE_URL,
     SUPABASE_PUBLISHABLE_KEY
   );
-
+}
 
 /* =========================================================
    WALLET
-   SAME KEY USED BY ROVER HUB
 ========================================================= */
+const walletKey = "roverHubWallet";
+let walletAddress = null;
+let incomingReferrer = null;
 
-const walletKey =
-  "roverHubWallet";
+const refLink = document.getElementById("refLink");
+const copyBtn = document.getElementById("copyBtn");
+const refCount = document.getElementById("refCount");
+const statusText = document.getElementById("statusText");
+const progressBar = document.getElementById("progressBar");
+const progressText = document.getElementById("progressText");
+const systemActivity = document.getElementById("systemActivity");
+const activityReferrals = document.getElementById("activityReferrals");
+const activityLimit = document.getElementById("activityLimit");
+const inviteBox = document.getElementById("inviteBox");
+const acceptInviteBtn = document.getElementById("acceptInviteBtn");
+const inviteStatus = document.getElementById("inviteStatus");
 
-let walletAddress =
-  null;
-
-let incomingReferrer =
-  null;
-
-
-/* =========================================================
-   ELEMENTS
-========================================================= */
-
-const refLink =
-  document.getElementById(
-    "refLink"
-  );
-
-const copyBtn =
-  document.getElementById(
-    "copyBtn"
-  );
-
-const refCount =
-  document.getElementById(
-    "refCount"
-  );
-
-const statusText =
-  document.getElementById(
-    "statusText"
-  );
-
-const progressBar =
-  document.getElementById(
-    "progressBar"
-  );
-
-const progressText =
-  document.getElementById(
-    "progressText"
-  );
-
-const systemActivity =
-  document.getElementById(
-    "systemActivity"
-  );
-
-const activityReferrals =
-  document.getElementById(
-    "activityReferrals"
-  );
-
-const activityLimit =
-  document.getElementById(
-    "activityLimit"
-  );
-
-const inviteBox =
-  document.getElementById(
-    "inviteBox"
-  );
-
-const acceptInviteBtn =
-  document.getElementById(
-    "acceptInviteBtn"
-  );
-
-const inviteStatus =
-  document.getElementById(
-    "inviteStatus"
-  );
-
-
-/* =========================================================
-   RPC HELPER
-========================================================= */
-
-async function roverRPC(
-  functionName,
-  args = {}
-){
-
-  const {
-    data,
-    error
-  } =
-    await supabaseClient.rpc(
-      functionName,
-      args
-    );
-
-  if(error){
-
-    throw error;
-
-  }
-
-  return data;
-
-}
-
-
-/* =========================================================
-   REFERRAL LINK
-========================================================= */
-
-function createReferralLink(
-  address
-){
-
-  return (
-    window.location.origin +
+function createReferralLink(address) {
+  return window.location.origin +
     window.location.pathname +
     "?ref=" +
-    address.toLowerCase()
-  );
-
+    address.toLowerCase();
 }
 
+function getIncomingReferrer() {
+  const params = new URLSearchParams(window.location.search);
+  const ref = params.get("ref");
 
-/* =========================================================
-   GET URL REFERRER
-========================================================= */
+  if (!ref) return null;
 
-function getIncomingReferrer(){
+  const clean = ref.trim().toLowerCase();
 
-  const params =
-    new URLSearchParams(
-      window.location.search
-    );
-
-  const ref =
-    params.get("ref");
-
-  if(!ref){
-
+  if (!clean.startsWith("0x") || clean.length !== 42) {
     return null;
-
-  }
-
-  const clean =
-    ref
-      .trim()
-      .toLowerCase();
-
-  if(
-    !clean.startsWith("0x") ||
-    clean.length !== 42
-  ){
-
-    return null;
-
   }
 
   return clean;
-
 }
 
-
-/* =========================================================
-   SHOW INVITE BOX
-========================================================= */
-
-function showInvite(
-  message,
-  showButton = true
-){
-
-  inviteBox.style.display =
-    "block";
-
-  inviteStatus.textContent =
-    message;
-
-  acceptInviteBtn.style.display =
-    showButton
-      ? "inline-flex"
-      : "none";
-
-}
-
-
-/* =========================================================
-   HIDE INVITE BOX
-========================================================= */
-
-function hideInvite(){
-
-  inviteBox.style.display =
-    "none";
-
-}
-
-
-/* =========================================================
-   UPDATE WALLET UI
-========================================================= */
-
-function updateWalletUI(){
-
-  if(!walletAddress){
-
-    refLink.value =
-      "CONNECT WALLET TO GENERATE";
-
-    statusText.textContent =
-      "READY";
-
-    systemActivity.textContent =
-      "WAITING FOR WALLET";
-
-    return;
-
+async function roverRPC(functionName, args = {}) {
+  if (!supabaseClient) {
+    throw new Error("Supabase client failed to load.");
   }
 
+  const { data, error } =
+    await supabaseClient.rpc(functionName, args);
 
-  refLink.value =
-    createReferralLink(
-      walletAddress
-    );
+  if (error) throw error;
 
-  statusText.textContent =
-    "ACTIVE";
-
-  systemActivity.textContent =
-    "WALLET CONNECTED";
-
+  return data;
 }
 
+function updateWalletUI() {
+  if (!walletAddress) {
+    refLink.value = "CONNECT WALLET TO GENERATE";
+    statusText.textContent = "READY";
+    systemActivity.textContent = "WAITING FOR WALLET";
+    return;
+  }
 
-/* =========================================================
-   CONNECT WALLET
-========================================================= */
+  refLink.value = createReferralLink(walletAddress);
+  statusText.textContent = "ACTIVE";
+  systemActivity.textContent = "WALLET CONNECTED";
+}
 
-async function connectWallet(){
-
-  if(!window.ethereum){
-
+async function connectWallet() {
+  if (!window.ethereum) {
     alert(
       "NO WEB3 WALLET DETECTED.\n\n" +
       "Please open this page inside your wallet browser."
     );
-
     return null;
-
   }
 
+  try {
+    const accounts = await window.ethereum.request({
+      method: "eth_requestAccounts"
+    });
 
-  try{
+    if (!accounts || !accounts[0]) return null;
 
-    const accounts =
-      await window.ethereum.request({
-        method:
-          "eth_requestAccounts"
-      });
+    walletAddress = accounts[0].toLowerCase();
 
-
-    if(
-      !accounts ||
-      !accounts[0]
-    ){
-
-      return null;
-
-    }
-
-
-    walletAddress =
-      accounts[0].toLowerCase();
-
-
-    localStorage.setItem(
-      walletKey,
-      walletAddress
-    );
-
+    localStorage.setItem(walletKey, walletAddress);
 
     updateWalletUI();
-
     await loadReferralData();
-
     await checkIncomingReferral();
 
-
     return walletAddress;
-
-  }
-  catch(error){
-
-    console.error(
-      "Wallet connection error:",
-      error
-    );
-
-    alert(
-      "WALLET CONNECTION FAILED."
-    );
-
+  } catch (error) {
+    console.error("Wallet connection error:", error);
+    alert("WALLET CONNECTION FAILED.");
     return null;
-
   }
-
 }
 
+async function loadSavedWallet() {
+  const savedWallet = localStorage.getItem(walletKey);
 
-/* =========================================================
-   LOAD SAVED WALLET
-========================================================= */
+  if (!savedWallet) return;
 
-async function loadSavedWallet(){
+  walletAddress = savedWallet.toLowerCase();
 
-  const savedWallet =
-    localStorage.getItem(
-      walletKey
-    );
-
-
-  if(savedWallet){
-
-    walletAddress =
-      savedWallet
-        .toLowerCase();
-
-    updateWalletUI();
-
-    await loadReferralData();
-
-  }
-
+  updateWalletUI();
+  await loadReferralData();
 }
 
+async function loadReferralData() {
+  if (!walletAddress) return;
 
-/* =========================================================
-   LOAD REFERRAL DATA
-========================================================= */
+  try {
+    const data = await roverRPC("get_referral_data", {
+      p_wallet: walletAddress
+    });
 
-async function loadReferralData(){
+    const result = Array.isArray(data) ? (data[0] || {}) : (data || {});
 
-  if(!walletAddress){
+    const count = Number(result.referral_count || 0);
+    const max = Number(result.max_referrals || 10);
+    const percent = Math.min(100, (count / max) * 100);
 
-    return;
+    refCount.textContent = `${count} / ${max}`;
+    progressBar.style.width = `${percent}%`;
+    progressText.textContent = `${Math.round(percent)}%`;
+    activityReferrals.textContent = `${count} SUCCESSFUL`;
 
-  }
-
-
-  try{
-
-    const data =
-      await roverRPC(
-        "get_referral_data",
-        {
-          p_wallet:
-            walletAddress
-        }
-      );
-
-
-    const result =
-      Array.isArray(data)
-        ? data[0] || {}
-        : data || {};
-
-
-    const count =
-      Number(
-        result.referral_count || 0
-      );
-
-
-    const max =
-      Number(
-        result.max_referrals || 10
-      );
-
-
-    const percent =
-      Math.min(
-        100,
-        (count / max) * 100
-      );
-
-
-    refCount.textContent =
-      `${count} / ${max}`;
-
-
-    progressBar.style.width =
-      `${percent}%`;
-
-
-    progressText.textContent =
-      `${Math.round(percent)}%`;
-
-
-    activityReferrals.textContent =
-      `${count} SUCCESSFUL`;
-
-
-    if(count >= max){
-
-      activityLimit.textContent =
-        "MAX REACHED";
-
-      statusText.textContent =
-        "MAX REACHED";
-
+    if (count >= max) {
+      activityLimit.textContent = "MAX REACHED";
+      statusText.textContent = "MAX REACHED";
+    } else {
+      activityLimit.textContent = `${max - count} SLOTS LEFT`;
     }
-    else{
-
-      activityLimit.textContent =
-        `${max - count} SLOTS LEFT`;
-
-      statusText.textContent =
-        "ACTIVE";
-
-    }
-
+  } catch (error) {
+    console.error("Referral data error:", error);
   }
-  catch(error){
-
-    console.error(
-      "Referral data error:",
-      error
-    );
-
-  }
-
 }
 
+function showInvite(message, showButton = true) {
+  inviteBox.style.display = "block";
+  inviteStatus.textContent = message;
+  acceptInviteBtn.style.display = showButton ? "inline-flex" : "none";
+}
 
-/* =========================================================
-   CHECK INCOMING REFERRAL
-========================================================= */
+function hideInvite() {
+  inviteBox.style.display = "none";
+}
 
-async function checkIncomingReferral(){
+async function checkIncomingReferral() {
+  incomingReferrer = getIncomingReferrer();
 
-  incomingReferrer =
-    getIncomingReferrer();
-
-
-  if(!incomingReferrer){
-
+  if (!incomingReferrer) {
     hideInvite();
-
     return;
-
   }
 
-
-  /*
-     No wallet yet.
-     Show invite immediately.
-  */
-
-  if(!walletAddress){
-
-    showInvite(
-      "CONNECT YOUR WALLET TO ACCEPT THIS INVITE.",
-      true
-    );
-
+  if (!walletAddress) {
+    showInvite("CONNECT YOUR WALLET TO ACCEPT THIS INVITE.", true);
     return;
-
   }
 
-
-  /*
-     Self referral.
-  */
-
-  if(
-    incomingReferrer ===
-    walletAddress
-  ){
-
-    showInvite(
-      "SELF REFERRAL IS NOT ALLOWED.",
-      false
-    );
-
+  if (incomingReferrer === walletAddress) {
+    showInvite("SELF REFERRAL IS NOT ALLOWED.", false);
     return;
-
   }
 
+  try {
+    const data = await roverRPC("get_referral_status", {
+      p_wallet: walletAddress
+    });
 
-  /*
-     Check whether this wallet
-     already accepted a referral.
-  */
+    const result = Array.isArray(data) ? (data[0] || {}) : (data || {});
 
-  try{
-
-    const data =
-      await roverRPC(
-        "get_referral_status",
-        {
-          p_wallet:
-            walletAddress
-        }
-      );
-
-
-    const result =
-      Array.isArray(data)
-        ? data[0] || {}
-        : data || {};
-
-
-    if(result.accepted){
-
+    if (result.accepted) {
       showInvite(
         "THIS WALLET HAS ALREADY ACCEPTED A REFERRAL.",
         false
       );
-
       return;
-
     }
 
-
-    showInvite(
-      "YOUR INVITE IS READY TO ACCEPT.",
-      true
-    );
-
-  }
-  catch(error){
-
-    console.error(
-      "Referral status error:",
-      error
-    );
-
+    showInvite("YOUR INVITE IS READY TO ACCEPT.", true);
+  } catch (error) {
+    console.error("Referral status error:", error);
     showInvite(
       "UNABLE TO VERIFY INVITE. PLEASE TRY AGAIN.",
       false
     );
-
   }
-
 }
 
+acceptInviteBtn.addEventListener("click", async () => {
+  if (!walletAddress) {
+    const connected = await connectWallet();
+    if (!connected) return;
+  }
 
-/* =========================================================
-   ACCEPT REFERRAL
-========================================================= */
+  incomingReferrer = getIncomingReferrer();
 
-acceptInviteBtn.addEventListener(
-  "click",
-  async () => {
+  if (!incomingReferrer) {
+    showInvite("NO VALID REFERRAL INVITE FOUND.", false);
+    return;
+  }
 
-    /*
-       Wallet required
-    */
+  if (incomingReferrer === walletAddress) {
+    showInvite("SELF REFERRAL IS NOT ALLOWED.", false);
+    return;
+  }
 
-    if(!walletAddress){
+  acceptInviteBtn.disabled = true;
+  acceptInviteBtn.textContent = "PROCESSING...";
+  inviteStatus.textContent = "VERIFYING INVITE...";
 
-      const connected =
-        await connectWallet();
+  try {
+    const data = await roverRPC("accept_referral", {
+      p_wallet: walletAddress,
+      p_referrer_wallet: incomingReferrer
+    });
 
-      if(!connected){
+    const result = Array.isArray(data) ? (data[0] || {}) : (data || {});
 
-        return;
+    if (!result.success) {
+      let message = "REFERRAL COULD NOT BE ACCEPTED.";
 
+      if (result.reason === "already_referred") {
+        message = "THIS WALLET HAS ALREADY ACCEPTED A REFERRAL.";
+      } else if (result.reason === "self_referral") {
+        message = "SELF REFERRAL IS NOT ALLOWED.";
+      } else if (result.reason === "referral_limit_reached") {
+        message = "THIS REFERRER HAS REACHED THE 10 USER LIMIT.";
+      } else if (result.reason === "referrer_not_found") {
+        message = "REFERRER WAS NOT FOUND.";
       }
 
-    }
-
-
-    /*
-       Refresh URL ref
-    */
-
-    incomingReferrer =
-      getIncomingReferrer();
-
-
-    if(!incomingReferrer){
-
-      showInvite(
-        "NO VALID REFERRAL INVITE FOUND.",
-        false
-      );
-
+      acceptInviteBtn.disabled = false;
+      acceptInviteBtn.textContent = "ACCEPT INVITE";
+      inviteStatus.textContent = message;
       return;
-
     }
 
+    acceptInviteBtn.textContent = "INVITE ACCEPTED ✓";
+    acceptInviteBtn.style.background = "var(--green)";
+    inviteStatus.textContent = "WELCOME TO THE HOOD ROVER.";
+    statusText.textContent = "INVITE ACCEPTED";
+    systemActivity.textContent = "REFERRAL ACCEPTED";
 
-    /*
-       Self referral
-    */
+    const cleanUrl =
+      window.location.origin + window.location.pathname;
 
-    if(
-      incomingReferrer ===
-      walletAddress
-    ){
+    window.history.replaceState({}, document.title, cleanUrl);
 
-      showInvite(
-        "SELF REFERRAL IS NOT ALLOWED.",
-        false
-      );
+    alert(
+      "INVITE ACCEPTED!\n\n" +
+      "WELCOME TO THE HOOD ROVER."
+    );
+  } catch (error) {
+    console.error("Accept referral error:", error);
 
-      return;
-
-    }
-
-
-    acceptInviteBtn.disabled =
-      true;
-
-    acceptInviteBtn.textContent =
-      "PROCESSING...";
-
+    acceptInviteBtn.disabled = false;
+    acceptInviteBtn.textContent = "ACCEPT INVITE";
     inviteStatus.textContent =
-      "VERIFYING INVITE...";
-
-
-    try{
-
-      const data =
-        await roverRPC(
-          "accept_referral",
-          {
-            p_wallet:
-              walletAddress,
-
-            p_referrer_wallet:
-              incomingReferrer
-          }
-        );
-
-
-      const result =
-        Array.isArray(data)
-          ? data[0] || {}
-          : data || {};
-
-
-      /*
-         FAILED
-      */
-
-      if(!result.success){
-
-        let message =
-          "REFERRAL COULD NOT BE ACCEPTED.";
-
-
-        if(
-          result.reason ===
-          "already_referred"
-        ){
-
-          message =
-            "THIS WALLET HAS ALREADY ACCEPTED A REFERRAL.";
-
-        }
-
-
-        if(
-          result.reason ===
-          "self_referral"
-        ){
-
-          message =
-            "SELF REFERRAL IS NOT ALLOWED.";
-
-        }
-
-
-        if(
-          result.reason ===
-          "referral_limit_reached"
-        ){
-
-          message =
-            "THIS REFERRER HAS REACHED THE 10 USER LIMIT.";
-
-        }
-
-
-        if(
-          result.reason ===
-          "referrer_not_found"
-        ){
-
-          message =
-            "REFERRER WAS NOT FOUND.";
-
-        }
-
-
-        acceptInviteBtn.disabled =
-          false;
-
-        acceptInviteBtn.textContent =
-          "ACCEPT INVITE";
-
-        inviteStatus.textContent =
-          message;
-
-        return;
-
-      }
-
-
-      /*
-         SUCCESS
-      */
-
-      acceptInviteBtn.disabled =
-        true;
-
-      acceptInviteBtn.textContent =
-        "INVITE ACCEPTED ✓";
-
-      acceptInviteBtn.style.background =
-        "var(--green)";
-
-      inviteStatus.textContent =
-        "WELCOME TO THE HOOD ROVER.";
-
-
-      statusText.textContent =
-        "INVITE ACCEPTED";
-
-
-      systemActivity.textContent =
-        "REFERRAL ACCEPTED";
-
-
-      /*
-         The referrer has now received:
-         +1 referral
-         +2 ROVER
-      */
-
-
-      /*
-         Remove ?ref= from URL
-      */
-
-      const cleanUrl =
-        window.location.origin +
-        window.location.pathname;
-
-
-      window.history.replaceState(
-        {},
-        document.title,
-        cleanUrl
-      );
-
-
-      alert(
-        "INVITE ACCEPTED!\n\n" +
-        "WELCOME TO THE HOOD ROVER."
-      );
-
-
-    }
-    catch(error){
-
-      console.error(
-        "Accept referral error:",
-        error
-      );
-
-
-      acceptInviteBtn.disabled =
-        false;
-
-      acceptInviteBtn.textContent =
-        "ACCEPT INVITE";
-
-      inviteStatus.textContent =
-        "REFERRAL FAILED. PLEASE TRY AGAIN.";
-
-
-      alert(
-        "REFERRAL FAILED.\n\n" +
-        (
-          error.message ||
-          "Please try again."
-        )
-      );
-
-    }
-
+      "REFERRAL FAILED. PLEASE TRY AGAIN.";
   }
-);
+});
 
-
-/* =========================================================
-   COPY REFERRAL LINK
-========================================================= */
-
-copyBtn.addEventListener(
-  "click",
-  async function(){
-
-    if(!walletAddress){
-
-      const connected =
-        await connectWallet();
-
-      if(!connected){
-
-        return;
-
-      }
-
-    }
-
-
-    try{
-
-      await navigator.clipboard.writeText(
-        refLink.value
-      );
-
-
-      this.textContent =
-        "COPIED!";
-
-
-      setTimeout(
-        () => {
-
-          this.textContent =
-            "COPY LINK";
-
-        },
-        1500
-      );
-
-    }
-    catch(error){
-
-      refLink.select();
-
-      document.execCommand(
-        "copy"
-      );
-
-
-      this.textContent =
-        "COPIED!";
-
-
-      setTimeout(
-        () => {
-
-          this.textContent =
-            "COPY LINK";
-
-        },
-        1500
-      );
-
-    }
-
+copyBtn.addEventListener("click", async function() {
+  if (!walletAddress) {
+    const connected = await connectWallet();
+    if (!connected) return;
   }
-);
 
+  try {
+    await navigator.clipboard.writeText(refLink.value);
 
-/* =========================================================
-   WALLET ACCOUNT CHANGED
-========================================================= */
+    this.textContent = "COPIED!";
 
-if(window.ethereum){
+    setTimeout(() => {
+      this.textContent = "COPY LINK";
+    }, 1500);
+  } catch (error) {
+    refLink.select();
+    document.execCommand("copy");
 
-  window.ethereum.on(
-    "accountsChanged",
-    async accounts => {
+    this.textContent = "COPIED!";
 
-      if(
-        !accounts ||
-        !accounts[0]
-      ){
+    setTimeout(() => {
+      this.textContent = "COPY LINK";
+    }, 1500);
+  }
+});
 
-        walletAddress =
-          null;
-
-        localStorage.removeItem(
-          walletKey
-        );
-
-        updateWalletUI();
-
-        await checkIncomingReferral();
-
-        return;
-
-      }
-
-
-      walletAddress =
-        accounts[0]
-          .toLowerCase();
-
-
-      localStorage.setItem(
-        walletKey,
-        walletAddress
-      );
-
-
+if (window.ethereum) {
+  window.ethereum.on("accountsChanged", async accounts => {
+    if (!accounts || !accounts[0]) {
+      walletAddress = null;
+      localStorage.removeItem(walletKey);
       updateWalletUI();
-
-      await loadReferralData();
-
       await checkIncomingReferral();
-
+      return;
     }
-  );
 
-}
+    walletAddress = accounts[0].toLowerCase();
+    localStorage.setItem(walletKey, walletAddress);
 
-
-/* =========================================================
-   REVEAL
-========================================================= */
-
-function startReveal(){
-
-  setTimeout(
-    () => {
-
-      document
-        .querySelectorAll(
-          ".reveal"
-        )
-        .forEach(
-          (element,index) => {
-
-            setTimeout(
-              () => {
-
-                element.classList.add(
-                  "visible"
-                );
-
-              },
-              index * 120
-            );
-
-          }
-        );
-
-    },
-    100
-  );
-
-}
-
-
-/* =========================================================
-   OPENSEA
-========================================================= */
-
-document
-  .getElementById("mintButton")
-  .addEventListener(
-    "click",
-    event => {
-
-      event.preventDefault();
-
-      alert(
-        "OpenSea mint link will be connected here."
-      );
-
-    }
-  );
-
-
-/* =========================================================
-   PAGE LOAD
-========================================================= */
-
-window.addEventListener(
-  "load",
-  async () => {
-
-    await loadSavedWallet();
-
+    updateWalletUI();
+    await loadReferralData();
     await checkIncomingReferral();
+  });
+}
 
-    startReveal();
+document.getElementById("mintButton").addEventListener("click", event => {
+  event.preventDefault();
+  alert("OpenSea mint link will be connected here.");
+});
 
-  }
-);
+window.addEventListener("load", async () => {
+  await loadSavedWallet();
+  await checkIncomingReferral();
 
+  setTimeout(() => {
+    document.querySelectorAll(".reveal").forEach((element, index) => {
+      setTimeout(() => {
+        element.classList.add("visible");
+      }, index * 120);
+    });
+  }, 100);
+});
 </script>
 
 </body>
