@@ -2647,14 +2647,52 @@ function firstRow(data){
 
 async function roverRPC(functionName,args={}){
 
+  if(!supabaseClient){
+    throw new Error("Supabase client is not initialized.");
+  }
+
+  console.log("[ROVER RPC]",functionName,args);
+
   const { data, error } = await supabaseClient.rpc(
     functionName,
     args
   );
 
-  if(error) throw error;
+  if(error){
+    console.error("[ROVER RPC ERROR]",functionName,error);
 
+    const detail = [
+      error.message,
+      error.details,
+      error.hint,
+      error.code ? `code: ${error.code}` : ""
+    ].filter(Boolean).join("\n");
+
+    throw new Error(detail || `Supabase RPC failed: ${functionName}`);
+  }
+
+  console.log("[ROVER RPC OK]",functionName,data);
   return data;
+}
+
+
+function addLocalReward(rewardType,amount){
+
+  const value = Number(amount || 0);
+
+  backendHistory.unshift({
+    reward_type:rewardType,
+    amount:value,
+    reward_date:todayKey(),
+    created_at:new Date().toISOString()
+  });
+
+  if(value > 0){
+    roverAmount += value;
+    roverTodayAmount += value;
+  }
+
+  updateRoverUI();
 }
 
 
@@ -2785,85 +2823,95 @@ async function loadBackendState(){
 
     updateRoverUI();
     updateBackendUI();
-
     return false;
   }
 
 
-  try{
+  /*
+     IMPORTANT:
+     Do NOT use Promise.all here. If one read RPC fails, the other
+     successful RPCs must still update the game.
+  */
+  const results = await Promise.allSettled([
 
-    const [
-      balanceData,
-      statusData,
-      historyData
-    ] = await Promise.all([
+    roverRPC(
+      "get_rover_balance",
+      {p_wallet:walletAddress}
+    ),
 
-      roverRPC(
-        "get_rover_balance",
-        {p_wallet:walletAddress}
-      ),
+    roverRPC(
+      "rover_reward_status",
+      {p_wallet:walletAddress}
+    ),
 
-      roverRPC(
-        "rover_reward_status",
-        {p_wallet:walletAddress}
-      ),
+    roverRPC(
+      "get_rover_history",
+      {p_wallet:walletAddress}
+    )
 
-      roverRPC(
-        "get_rover_history",
-        {p_wallet:walletAddress}
-      )
-
-    ]);
-
-
-    const balance = firstRow(balanceData);
-    const status = firstRow(statusData);
+  ]);
 
 
-    roverAmount = Number(
-      balance.balance || 0
-    );
+  const [balanceResult,statusResult,historyResult] = results;
 
-    roverTodayAmount = Number(
-      balance.today_earned || 0
-    );
+  if(balanceResult.status === "fulfilled"){
 
-    backendStatus = {
-      checkin_claimed:
-        Boolean(status.checkin_claimed),
-      quiz_claimed:
-        Boolean(status.quiz_claimed)
-    };
+    const balance = firstRow(balanceResult.value);
 
-    backendHistory = Array.isArray(historyData)
-      ? historyData
-      : [];
+    roverAmount = Number(balance.balance || 0);
+    roverTodayAmount = Number(balance.today_earned || 0);
 
-
-    updateRoverUI();
-    updateBackendUI();
-
-    return true;
-
-  }catch(error){
+  }else{
 
     console.error(
-      "Supabase game state error:",
-      error
+      "get_rover_balance failed:",
+      balanceResult.reason
     );
 
-    roverAmount = 0;
-    roverTodayAmount = 0;
-    backendHistory = [];
+  }
+
+
+  if(statusResult.status === "fulfilled"){
+
+    const status = firstRow(statusResult.value);
+
     backendStatus = {
-      checkin_claimed:false,
-      quiz_claimed:false
+      checkin_claimed:Boolean(status.checkin_claimed),
+      quiz_claimed:Boolean(status.quiz_claimed)
     };
 
-    updateRoverUI();
+  }else{
 
-    return false;
+    console.error(
+      "rover_reward_status failed:",
+      statusResult.reason
+    );
+
   }
+
+
+  if(historyResult.status === "fulfilled"){
+
+    backendHistory = Array.isArray(historyResult.value)
+      ? historyResult.value
+      : [];
+
+  }else{
+
+    console.error(
+      "get_rover_history failed:",
+      historyResult.reason
+    );
+
+  }
+
+
+  updateRoverUI();
+  updateBackendUI();
+
+  return results.some(
+    result => result.status === "fulfilled"
+  );
 }
 
 
@@ -3002,6 +3050,13 @@ checkinButton.addEventListener(
       }
 
 
+      addLocalReward("daily_checkin",Number(result.reward || 1));
+
+      if(Number(result.bonus || 0) > 0){
+        addLocalReward("streak_bonus",Number(result.bonus));
+      }
+
+      backendStatus.checkin_claimed = true;
       await loadBackendState();
 
       const streak = Number(
@@ -3364,6 +3419,8 @@ DONE
 
       finished = true;
 
+      addLocalReward("quiz",passed ? 2 : 0);
+      backendStatus.quiz_claimed = true;
       await loadBackendState();
 
 
@@ -3703,6 +3760,8 @@ spinButton.addEventListener(
       }
 
 
+      addLocalReward("spin",Number(reward.value || 0));
+
       /* Mystery result gets one backend key. */
       if(reward.type === "mystery"){
 
@@ -3720,6 +3779,8 @@ spinButton.addEventListener(
         if(!keyResult.success){
           throw new Error("Mystery key was not confirmed by Supabase.");
         }
+
+        addLocalReward("mystery_key",0);
       }
 
 
@@ -3901,7 +3962,7 @@ mysteryButton.addEventListener(
           throw new Error("Mystery box was not confirmed by Supabase.");
         }
 
-
+        addLocalReward("mystery_box",Number(reward.value || 0));
         await loadBackendState();
 
 
