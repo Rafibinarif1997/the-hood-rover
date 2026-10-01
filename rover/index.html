@@ -28,6 +28,7 @@
 }
 
 *{box-sizing:border-box}
+
 html{scroll-behavior:smooth}
 
 body{
@@ -194,6 +195,7 @@ nav a.active{
 /* HERO */
 
 main{padding:55px 0 90px}
+
 .hero{margin-bottom:28px}
 
 .window{
@@ -290,6 +292,7 @@ h1{
 .status-small{
   color:var(--muted);
   font-size:12px;
+  margin-top:3px;
 }
 
 /* BALANCE */
@@ -687,7 +690,6 @@ h1{
   font-size:18px;
   line-height:1;
   margin-bottom:4px;
-  text-shadow:2px 2px 0 rgba(5,17,25,.7);
 }
 
 .wheel-label small{
@@ -1005,17 +1007,20 @@ footer{
   font-weight:700;
 }
 
-/* ANIMATION */
+/* IMPORTANT:
+   reveal is visible by default.
+   This prevents the whole page from disappearing
+   if IntersectionObserver does not fire.
+*/
 
 .reveal{
-  opacity:0;
-  transform:translateY(20px);
+  opacity:1;
+  transform:none;
 }
 
 .reveal.visible{
   opacity:1;
   transform:none;
-  transition:opacity .65s ease,transform .65s ease;
 }
 
 /* POPUPS */
@@ -1533,7 +1538,7 @@ One wrong answer ends today's attempt.
 
 <div>
 
-<div class="streak-number" id="quizStatus">READY</div>
+<div class="streak-number" id="quizStatus">CONNECT WALLET</div>
 
 <span class="streak-label">TODAY'S QUIZ</span>
 
@@ -1542,7 +1547,7 @@ One wrong answer ends today's attempt.
 </div>
 
 <button class="btn secondary" id="quizButton" type="button">
-START QUIZ
+CONNECT WALLET
 </button>
 
 </article>
@@ -1657,7 +1662,9 @@ BAD<br>LUCK
 
 <div class="reward-display" id="spinRewardDisplay">
 
-<div class="reward-display-title">READY TO SPIN</div>
+<div class="reward-display-title">
+READY TO SPIN
+</div>
 
 <div class="reward-display-sub">
 3 CHANCES TODAY
@@ -1709,7 +1716,7 @@ BOX LOCKED
 </div>
 
 <div class="mystery-help" id="mysteryHelp">
-Spin the wheel and find a Mystery Reward first.
+Connect your wallet to start earning.
 </div>
 
 </div>
@@ -1740,7 +1747,7 @@ Build your activity and unlock Rover milestones.
 
 <div class="achievement-list">
 
-<div class="achievement" id="achievementFirst">
+<div class="achievement locked" id="achievementFirst">
 
 <div class="achievement-icon">🚀</div>
 
@@ -1840,8 +1847,9 @@ Complete activities, collect rewards and build your Rover profile.
 
 
 <script>
+
 /* =========================================================
-   ROVER HUB — FULL BACKEND SYNC
+   ROVER HUB — FINAL BACKEND VERSION
 ========================================================= */
 
 const SUPABASE_URL =
@@ -1853,13 +1861,27 @@ const SUPABASE_PUBLISHABLE_KEY =
 let supabaseClient = null;
 
 try{
-  supabaseClient =
+
+  if(
+    window.supabase &&
+    typeof window.supabase.createClient === "function"
+  ){
+
+    supabaseClient =
     window.supabase.createClient(
       SUPABASE_URL,
       SUPABASE_PUBLISHABLE_KEY
     );
+
+  }
+
 }catch(error){
-  console.error("Supabase initialization error:",error);
+
+  console.error(
+    "Supabase initialization error:",
+    error
+  );
+
 }
 
 
@@ -1952,15 +1974,19 @@ const WALLET_DISCONNECTED_KEY =
 
 function todayKey(){
 
-  return new Date()
-    .toLocaleDateString("en-CA");
+  const d = new Date();
+
+  return d.toLocaleDateString(
+    "en-CA"
+  );
 
 }
 
 
 function shortAddress(address){
 
-  if(!address) return "";
+  if(!address)
+  return "";
 
   return (
     address.slice(0,6) +
@@ -2038,34 +2064,39 @@ function clearWalletState(){
    MOBILE MENU
 ========================================================= */
 
-menu.addEventListener("click",()=>{
+menu.addEventListener(
+  "click",
+  ()=>{
+    nav.classList.toggle("open");
+  }
+);
 
-  nav.classList.toggle("open");
 
-});
-
-
-nav.querySelectorAll("a").forEach(link=>{
-
-  link.addEventListener("click",()=>{
-
-    nav.classList.remove("open");
-
-  });
-
-});
+nav.querySelectorAll("a").forEach(
+  link=>{
+    link.addEventListener(
+      "click",
+      ()=>{
+        nav.classList.remove("open");
+      }
+    );
+  }
+);
 
 
 /* =========================================================
-   RPC
+   SUPABASE RPC
 ========================================================= */
 
-async function rpc(functionName,args={}){
+async function rpc(
+  functionName,
+  args={}
+){
 
   if(!supabaseClient){
 
     throw new Error(
-      "Supabase client unavailable."
+      "Supabase client is not available."
     );
 
   }
@@ -2104,17 +2135,14 @@ let backend = {
 
   balance:0,
   today:0,
-
   history:[],
   status:null,
-
   streak:0,
-
   spinsToday:0,
-  totalSpins:0,
-
   mysteryKeys:0,
-  mysteryOpened:0
+  mysteryOpened:0,
+  totalSpins:0,
+  checkins:0
 
 };
 
@@ -2124,6 +2152,9 @@ let backend = {
 ========================================================= */
 
 async function fetchBalance(){
+
+  if(!walletAddress)
+  return;
 
   const data =
   await rpc(
@@ -2139,10 +2170,14 @@ async function fetchBalance(){
   : data;
 
   backend.balance =
-  Number(row?.balance || 0);
+  Number(
+    row?.balance || 0
+  );
 
   backend.today =
-  Number(row?.today_earned || 0);
+  Number(
+    row?.today_earned || 0
+  );
 
 }
 
@@ -2152,6 +2187,9 @@ async function fetchBalance(){
 ========================================================= */
 
 async function fetchRewardStatus(){
+
+  if(!walletAddress)
+  return;
 
   const data =
   await rpc(
@@ -2175,6 +2213,9 @@ async function fetchRewardStatus(){
 
 async function fetchHistory(){
 
+  if(!walletAddress)
+  return;
+
   const data =
   await rpc(
     "get_rover_history",
@@ -2187,6 +2228,45 @@ async function fetchHistory(){
   Array.isArray(data)
   ? data
   : [];
+
+}
+
+
+/* =========================================================
+   DATE HELPER
+========================================================= */
+
+function historyDate(item){
+
+  if(!item)
+  return null;
+
+  if(item.created_at){
+
+    const d =
+    new Date(
+      item.created_at
+    );
+
+    if(!Number.isNaN(d.getTime())){
+
+      return d.toLocaleDateString(
+        "en-CA"
+      );
+
+    }
+
+  }
+
+  if(item.reward_date){
+
+    return String(
+      item.reward_date
+    ).slice(0,10);
+
+  }
+
+  return null;
 
 }
 
@@ -2205,77 +2285,52 @@ function analyseHistory(){
 
 
   const todayHistory =
-  history.filter(item=>{
-
-    if(!item.created_at)
-    return false;
-
-    return (
-      new Date(
-        item.created_at
-      ).toLocaleDateString("en-CA")
-      === today
-    );
-
-  });
+  history.filter(
+    item =>
+    historyDate(item) === today
+  );
 
 
-  /* EVERY SPIN IS STORED AS reward_type=spin */
+  /*
+    IMPORTANT:
+    Every spin is recorded by the backend,
+    including BAD LUCK with amount 0.
+  */
 
   backend.spinsToday =
-  todayHistory.filter(item=>{
-
-    return (
-      String(
-        item.reward_type || ""
-      ).toLowerCase()
-      === "spin"
-    );
-
-  }).length;
+  todayHistory.filter(
+    item =>
+    String(
+      item.reward_type || ""
+    ).toLowerCase() === "spin"
+  ).length;
 
 
   backend.totalSpins =
-  history.filter(item=>{
+  history.filter(
+    item =>
+    String(
+      item.reward_type || ""
+    ).toLowerCase() === "spin"
+  ).length;
 
-    return (
-      String(
-        item.reward_type || ""
-      ).toLowerCase()
-      === "spin"
-    );
-
-  }).length;
-
-
-  /* MYSTERY BOX */
 
   backend.mysteryOpened =
-  history.filter(item=>{
+  history.filter(
+    item =>
+    String(
+      item.reward_type || ""
+    ).toLowerCase() === "mystery_box"
+  ).length;
 
-    return (
-      String(
-        item.reward_type || ""
-      ).toLowerCase()
-      === "mystery_box"
-    );
-
-  }).length;
-
-
-  /* MYSTERY KEYS */
 
   const keysEarned =
-  history.filter(item=>{
-
-    return (
-      String(
-        item.reward_type || ""
-      ).toLowerCase()
-      === "mystery_key"
-    );
-
-  }).length;
+  history.filter(
+    item =>
+    String(
+      item.reward_type || ""
+    ).toLowerCase() === "mystery_key"
+  ).length;
 
 
   backend.mysteryKeys =
@@ -2286,11 +2341,31 @@ function analyseHistory(){
   );
 
 
-  /* CHECK-IN STREAK */
+  const checkins =
+  history.filter(
+    item=>{
+
+      const type =
+      String(
+        item.reward_type || ""
+      ).toLowerCase();
+
+      return (
+        type === "daily_checkin" ||
+        type === "checkin"
+      );
+
+    }
+  );
+
+
+  backend.checkins =
+  checkins.length;
+
 
   backend.streak =
   calculateStreak(
-    history
+    checkins
   );
 
 }
@@ -2300,36 +2375,26 @@ function analyseHistory(){
    STREAK
 ========================================================= */
 
-function calculateStreak(history){
-
-  const checkins =
-  history.filter(item=>{
-
-    const type =
-    String(
-      item.reward_type || ""
-    ).toLowerCase();
-
-    return (
-      type === "daily_checkin" ||
-      type === "checkin"
-    );
-
-  });
-
+function calculateStreak(
+  checkins
+){
 
   if(!checkins.length)
   return 0;
 
 
   const dates =
-  [...new Set(
-    checkins.map(item=>
-      new Date(
-        item.created_at
-      ).toLocaleDateString("en-CA")
+  [
+    ...new Set(
+      checkins
+      .map(historyDate)
+      .filter(Boolean)
     )
-  )].sort().reverse();
+  ].sort().reverse();
+
+
+  if(!dates.length)
+  return 0;
 
 
   const today =
@@ -2352,7 +2417,9 @@ function calculateStreak(history){
   let streak = 0;
 
 
-  for(const date of dates){
+  for(
+    const date of dates
+  ){
 
     const expected =
     cursor.toLocaleDateString(
@@ -2380,7 +2447,7 @@ function calculateStreak(history){
 
 
 /* =========================================================
-   REFRESH
+   REFRESH ALL BACKEND DATA
 ========================================================= */
 
 async function refreshBackendState(){
@@ -2389,15 +2456,39 @@ async function refreshBackendState(){
   return;
 
 
-  await Promise.all([
+  /*
+    Do them separately so one failing RPC
+    doesn't hide the other results.
+  */
 
-    fetchBalance(),
+  try{
+    await fetchBalance();
+  }catch(error){
+    console.error(
+      "Balance error:",
+      error
+    );
+  }
 
-    fetchRewardStatus(),
 
-    fetchHistory()
+  try{
+    await fetchRewardStatus();
+  }catch(error){
+    console.error(
+      "Status error:",
+      error
+    );
+  }
 
-  ]);
+
+  try{
+    await fetchHistory();
+  }catch(error){
+    console.error(
+      "History error:",
+      error
+    );
+  }
 
 
   analyseHistory();
@@ -2413,19 +2504,16 @@ async function refreshBackendState(){
 
 function updateAllBackendUI(){
 
-  /* BALANCE */
-
   roverBalance.textContent =
   backend.balance +
   " ROVER";
+
 
   roverToday.textContent =
   "TODAY: +" +
   backend.today +
   " ROVER";
 
-
-  /* STREAK */
 
   streakNumber.textContent =
   backend.streak;
@@ -2442,7 +2530,8 @@ function updateAllBackendUI(){
 
   if(checkinDone){
 
-    checkinButton.disabled = true;
+    checkinButton.disabled =
+    true;
 
     checkinButton.textContent =
     "ALREADY CHECKED IN";
@@ -2456,7 +2545,8 @@ function updateAllBackendUI(){
 
   }else{
 
-    checkinButton.disabled = false;
+    checkinButton.disabled =
+    false;
 
     checkinButton.textContent =
     "DAILY CHECK-IN";
@@ -2480,6 +2570,19 @@ function updateAllBackendUI(){
   );
 
 
+  const failedToday =
+  walletAddress
+  ?
+  localStorage.getItem(
+    "roverQuizFailed_" +
+    walletAddress +
+    "_" +
+    todayKey()
+  ) === "1"
+  :
+  false;
+
+
   if(quizDone){
 
     quizStatus.textContent =
@@ -2488,12 +2591,31 @@ function updateAllBackendUI(){
     quizButton.textContent =
     "QUIZ COMPLETED";
 
-    quizButton.disabled = true;
+    quizButton.disabled =
+    true;
 
     missionQuiz.textContent =
     "DONE";
 
     missionQuiz.classList.add(
+      "done"
+    );
+
+  }else if(failedToday){
+
+    quizStatus.textContent =
+    "FAILED";
+
+    quizButton.textContent =
+    "TRY TOMORROW";
+
+    quizButton.disabled =
+    true;
+
+    missionQuiz.textContent =
+    "FAILED";
+
+    missionQuiz.classList.remove(
       "done"
     );
 
@@ -2505,7 +2627,8 @@ function updateAllBackendUI(){
     quizButton.textContent =
     "START QUIZ";
 
-    quizButton.disabled = false;
+    quizButton.disabled =
+    false;
 
     missionQuiz.textContent =
     "0/1";
@@ -2545,7 +2668,8 @@ function updateAllBackendUI(){
 
   if(used >= 3){
 
-    spinButton.disabled = true;
+    spinButton.disabled =
+    true;
 
     spinButton.textContent =
     "COME BACK TOMORROW";
@@ -2559,10 +2683,15 @@ function updateAllBackendUI(){
 
   }else{
 
-    spinButton.disabled = false;
+    if(!spinning){
 
-    spinButton.textContent =
-    "SPIN NOW";
+      spinButton.disabled =
+      false;
+
+      spinButton.textContent =
+      "SPIN NOW";
+
+    }
 
     missionSpin.classList.remove(
       "done"
@@ -2622,6 +2751,33 @@ function updateAllBackendUI(){
   }
 
 
+  /*
+    Mystery mission.
+  */
+
+  if(
+    backend.mysteryOpened > 0
+  ){
+
+    missionMystery.textContent =
+    "DONE";
+
+    missionMystery.classList.add(
+      "done"
+    );
+
+  }else{
+
+    missionMystery.textContent =
+    "0/1";
+
+    missionMystery.classList.remove(
+      "done"
+    );
+
+  }
+
+
   updateAchievements();
 
 }
@@ -2636,8 +2792,15 @@ async function claimRoverReward(
   amount
 ){
 
-  if(!walletAddress)
-  return false;
+  if(!walletAddress){
+
+    alert(
+      "CONNECT YOUR WALLET FIRST."
+    );
+
+    return false;
+
+  }
 
 
   try{
@@ -2647,33 +2810,54 @@ async function claimRoverReward(
       "claim_rover_reward",
       {
         p_wallet:walletAddress,
-        p_reward_type:rewardType,
-        p_amount:Number(amount || 0)
+        p_reward_type:String(
+          rewardType
+        ),
+        p_amount:Number(
+          amount || 0
+        )
       }
     );
 
 
     console.log(
-      "Reward:",
+      "Reward result:",
       data
     );
 
 
-    const result =
-    Array.isArray(data)
-    ? data[0]
-    : data;
-
+    /*
+      The backend returns success=false
+      when daily limits are reached.
+    */
 
     if(
-      result &&
-      result.success === false
+      data &&
+      data.success === false
     ){
 
-      console.warn(
-        "Backend rejected reward:",
-        result
-      );
+      if(
+        data.reason ===
+        "daily_spin_limit_reached"
+      ){
+
+        await refreshBackendState();
+
+        alert(
+          "YOU HAVE USED ALL 3 SPINS TODAY."
+        );
+
+      }else{
+
+        alert(
+          "REWARD NOT CLAIMED.\n\n" +
+          (
+            data.reason ||
+            "Please try again."
+          )
+        );
+
+      }
 
       return false;
 
@@ -2687,9 +2871,10 @@ async function claimRoverReward(
   }catch(error){
 
     console.error(
-      "Reward failed:",
+      "Reward claim failed:",
       error
     );
+
 
     alert(
       "ROVER REWARD FAILED.\n\n" +
@@ -2698,6 +2883,7 @@ async function claimRoverReward(
         "Please try again."
       )
     );
+
 
     return false;
 
@@ -2713,7 +2899,9 @@ async function claimRoverReward(
 function showDisconnectPopup(){
 
   const popup =
-  document.createElement("div");
+  document.createElement(
+    "div"
+  );
 
 
   popup.innerHTML = `
@@ -2743,13 +2931,15 @@ function showDisconnectPopup(){
 
         <button
           class="btn secondary"
-          id="cancelDisconnect">
+          id="cancelDisconnect"
+          type="button">
           CANCEL
         </button>
 
         <button
           class="btn"
-          id="confirmDisconnect">
+          id="confirmDisconnect"
+          type="button">
           DISCONNECT
         </button>
 
@@ -2758,7 +2948,6 @@ function showDisconnectPopup(){
     </div>
 
   </div>
-
   `;
 
 
@@ -2773,7 +2962,9 @@ function showDisconnectPopup(){
   )
   .addEventListener(
     "click",
-    ()=>popup.remove()
+    ()=>{
+      popup.remove();
+    }
   );
 
 
@@ -2823,7 +3014,7 @@ async function disconnectWallet(){
       }catch(error){
 
         console.log(
-          "Wallet revoke unsupported:",
+          "Provider revoke not supported:",
           error
         );
 
@@ -2914,7 +3105,10 @@ async function connectWallet(){
 
       alert(
         "WALLET CONNECTION FAILED.\n\n" +
-        "Please try again."
+        (
+          error?.message ||
+          "Please try again."
+        )
       );
 
     }
@@ -2976,15 +3170,12 @@ async function restoreWallet(){
 
   if(!window.ethereum){
 
-    if(savedWallet){
+    /*
+      If provider isn't available,
+      don't falsely show connected state.
+    */
 
-      updateWalletUI(
-        savedWallet
-      );
-
-      await loadWalletGame();
-
-    }
+    updateWalletUI(null);
 
     return;
 
@@ -3019,7 +3210,24 @@ async function restoreWallet(){
     }
 
 
+    /*
+      No provider account.
+    */
+
     updateWalletUI(null);
+
+    /*
+      Keep saved wallet only as local history
+      but don't display it as connected.
+    */
+
+    if(savedWallet){
+
+      localStorage.removeItem(
+        WALLET_STORAGE_KEY
+      );
+
+    }
 
   }catch(error){
 
@@ -3034,6 +3242,10 @@ async function restoreWallet(){
 
 }
 
+
+/* =========================================================
+   ACCOUNT CHANGED
+========================================================= */
 
 if(window.ethereum){
 
@@ -3088,9 +3300,6 @@ checkinButton.addEventListener(
     }
 
 
-    await refreshBackendState();
-
-
     if(
       backend.status &&
       backend.status.checkin_claimed
@@ -3120,26 +3329,24 @@ checkinButton.addEventListener(
 
 
       console.log(
-        "CHECK-IN:",
+        "Daily check-in result:",
         result
       );
 
 
-      const response =
-      Array.isArray(result)
-      ? result[0]
-      : result;
-
-
       if(
-        response &&
-        response.success === false
+        result &&
+        result.success === false
       ){
 
-        if(response.already_checked_in){
+        await refreshBackendState();
+
+        if(
+          result.already_checked_in
+        ){
 
           alert(
-            "YOU HAVE ALREADY CHECKED IN TODAY."
+            "YOU ALREADY CHECKED IN TODAY."
           );
 
         }else{
@@ -3150,10 +3357,17 @@ checkinButton.addEventListener(
 
         }
 
+        return;
+
       }
 
 
       await refreshBackendState();
+
+
+      checkinButton.textContent =
+      "CHECKED IN ✓";
+
 
     }catch(error){
 
@@ -3172,7 +3386,11 @@ checkinButton.addEventListener(
       );
 
 
-      await refreshBackendState();
+      checkinButton.disabled =
+      false;
+
+      checkinButton.textContent =
+      "DAILY CHECK-IN";
 
     }
 
@@ -3181,7 +3399,7 @@ checkinButton.addEventListener(
 
 
 /* =========================================================
-   QUIZ
+   QUIZ DATA
 ========================================================= */
 
 const quizQuestions = [
@@ -3244,6 +3462,10 @@ const quizQuestions = [
 ];
 
 
+/* =========================================================
+   QUIZ
+========================================================= */
+
 function openQuiz(){
 
   if(!walletAddress){
@@ -3255,6 +3477,13 @@ function openQuiz(){
     return;
 
   }
+
+
+  const failedKey =
+  "roverQuizFailed_" +
+  walletAddress +
+  "_" +
+  todayKey();
 
 
   if(
@@ -3271,13 +3500,6 @@ function openQuiz(){
   }
 
 
-  const failedKey =
-    "roverQuizFailed_" +
-    walletAddress +
-    "_" +
-    todayKey();
-
-
   if(
     localStorage.getItem(
       failedKey
@@ -3285,7 +3507,7 @@ function openQuiz(){
   ){
 
     alert(
-      "TODAY'S QUIZ IS ALREADY FAILED.\n\n" +
+      "TODAY'S QUIZ HAS ALREADY BEEN FAILED.\n\n" +
       "TRY AGAIN TOMORROW."
     );
 
@@ -3300,7 +3522,9 @@ function openQuiz(){
 
 
   const overlay =
-  document.createElement("div");
+  document.createElement(
+    "div"
+  );
 
   overlay.className =
   "quiz-overlay";
@@ -3371,56 +3595,65 @@ function openQuiz(){
 
 
     overlay
-    .querySelectorAll(".quiz-option")
-    .forEach(button=>{
+    .querySelectorAll(
+      ".quiz-option"
+    )
+    .forEach(
+      button=>{
 
-      button.addEventListener(
-        "click",
-        ()=>{
+        button.addEventListener(
+          "click",
+          ()=>{
 
-          const answer =
-          Number(
-            button.dataset.answer
-          );
+            const answer =
+            Number(
+              button.dataset.answer
+            );
 
 
-          if(answer !== q.answer){
+            if(
+              answer !==
+              q.answer
+            ){
 
-            finishQuiz(false);
+              finishQuiz(false);
 
-            return;
+              return;
+
+            }
+
+
+            score++;
+
+            questionIndex++;
+
+
+            if(
+              questionIndex >=
+              quizQuestions.length
+            ){
+
+              finishQuiz(true);
+
+              return;
+
+            }
+
+
+            renderQuestion();
 
           }
+        );
 
-
-          score++;
-
-          questionIndex++;
-
-
-          if(
-            questionIndex >=
-            quizQuestions.length
-          ){
-
-            finishQuiz(true);
-
-            return;
-
-          }
-
-
-          renderQuestion();
-
-        }
-      );
-
-    });
+      }
+    );
 
   }
 
 
-  async function finishQuiz(passed){
+  async function finishQuiz(
+    passed
+  ){
 
     if(finished)
     return;
@@ -3465,24 +3698,31 @@ function openQuiz(){
 
             <button
               class="btn secondary quiz-close"
-              id="closeQuiz">
+              id="closeQuiz"
+              type="button">
               CLOSE
             </button>
 
           </div>
 
         </div>
-
       `;
 
 
       document
-      .getElementById("closeQuiz")
+      .getElementById(
+        "closeQuiz"
+      )
       .addEventListener(
         "click",
-        ()=>overlay.remove()
+        ()=>{
+          overlay.remove();
+          refreshBackendState();
+        }
       );
 
+
+      await refreshBackendState();
 
       return;
 
@@ -3510,7 +3750,6 @@ function openQuiz(){
         </div>
 
       </div>
-
     `;
 
 
@@ -3522,6 +3761,15 @@ function openQuiz(){
 
 
     if(success){
+
+      /*
+        Remove failure marker if any.
+      */
+
+      localStorage.removeItem(
+        failedKey
+      );
+
 
       overlay.innerHTML = `
 
@@ -3547,23 +3795,28 @@ function openQuiz(){
 
             <button
               class="btn quiz-close"
-              id="closeQuiz">
+              id="closeQuiz"
+              type="button">
               DONE
             </button>
 
           </div>
 
         </div>
-
       `;
 
 
       document
-      .getElementById("closeQuiz")
+      .getElementById(
+        "closeQuiz"
+      )
       .addEventListener(
         "click",
-        ()=>overlay.remove()
+        ()=>{
+          overlay.remove();
+        }
       );
+
 
     }else{
 
@@ -3586,7 +3839,7 @@ quizButton.addEventListener(
 
 
 /* =========================================================
-   SPIN
+   SPIN SYSTEM
 ========================================================= */
 
 let spinning = false;
@@ -3664,7 +3917,8 @@ function randomSpinReward(){
 
 
   let random =
-  Math.random() * total;
+  Math.random() *
+  total;
 
 
   for(
@@ -3700,13 +3954,18 @@ function normalizeDegrees(value){
 }
 
 
-function showSpinReward(reward){
+function showSpinReward(
+  reward
+){
 
   spinRewardDisplay.className =
   "reward-display";
 
 
-  if(reward.type === "bad"){
+  if(
+    reward.type ===
+    "bad"
+  ){
 
     spinRewardDisplay.classList.add(
       "bad"
@@ -3721,7 +3980,6 @@ function showSpinReward(reward){
       <div class="reward-display-sub">
         NO REWARD THIS TIME
       </div>
-
     `;
 
     return;
@@ -3729,7 +3987,10 @@ function showSpinReward(reward){
   }
 
 
-  if(reward.type === "rover"){
+  if(
+    reward.type ===
+    "rover"
+  ){
 
     spinRewardDisplay.innerHTML = `
 
@@ -3740,7 +4001,6 @@ function showSpinReward(reward){
       <div class="reward-display-sub">
         ${reward.name}
       </div>
-
     `;
 
     return;
@@ -3748,7 +4008,10 @@ function showSpinReward(reward){
   }
 
 
-  if(reward.type === "mystery"){
+  if(
+    reward.type ===
+    "mystery"
+  ){
 
     spinRewardDisplay.classList.add(
       "mystery"
@@ -3763,7 +4026,6 @@ function showSpinReward(reward){
       <div class="reward-display-sub">
         +1 MYSTERY KEY
       </div>
-
     `;
 
   }
@@ -3772,8 +4034,7 @@ function showSpinReward(reward){
 
 
 /* =========================================================
-   SPIN BUTTON
-   EVERY SPIN IS SAVED IN BACKEND
+   SPIN
 ========================================================= */
 
 spinButton.addEventListener(
@@ -3795,208 +4056,188 @@ spinButton.addEventListener(
     }
 
 
-    try{
+    /*
+      Always refresh first.
+      Backend history is the authority.
+    */
 
-      /*
-        Always sync before spin.
-      */
-
-      await refreshBackendState();
+    await refreshBackendState();
 
 
-      if(
-        backend.spinsToday >= 3
-      ){
+    if(
+      backend.spinsToday >= 3
+    ){
 
-        updateAllBackendUI();
+      alert(
+        "YOU HAVE USED ALL 3 SPINS TODAY.\n\n" +
+        "COME BACK TOMORROW."
+      );
 
-        alert(
-          "YOU HAVE USED ALL 3 SPINS TODAY.\n\n" +
-          "COME BACK TOMORROW."
+      return;
+
+    }
+
+
+    spinning = true;
+
+    spinButton.disabled =
+    true;
+
+    spinButton.textContent =
+    "SPINNING...";
+
+
+    /*
+      Select visual result.
+    */
+
+    const reward =
+    randomSpinReward();
+
+
+    const targetAngle =
+    wheelSectorCenters[
+      reward.name
+    ];
+
+
+    const current =
+    normalizeDegrees(
+      rotation
+    );
+
+
+    let delta =
+    normalizeDegrees(
+      -targetAngle -
+      current
+    );
+
+
+    const fullSpins =
+    5 +
+    Math.floor(
+      Math.random() * 3
+    );
+
+
+    delta +=
+    fullSpins * 360;
+
+
+    rotation +=
+    delta;
+
+
+    wheel.style.transform =
+    `rotate(${rotation}deg)`;
+
+
+    setTimeout(
+      async()=>{
+
+        showSpinReward(
+          reward
         );
 
-        return;
 
-      }
+        /*
+          CRITICAL FIX:
+          EVERY spin must be sent to backend.
 
+          Previously BAD LUCK did not create
+          a spin record, which made spins unlimited.
+        */
 
-      spinning = true;
-
-      spinButton.disabled = true;
-
-      spinButton.textContent =
-      "SPINNING...";
-
-
-      const reward =
-      randomSpinReward();
+        let success = false;
 
 
-      const targetAngle =
-      wheelSectorCenters[
-        reward.name
-      ];
+        if(
+          reward.type ===
+          "rover"
+        ){
+
+          success =
+          await claimRoverReward(
+            "spin",
+            reward.value
+          );
+
+        }else if(
+          reward.type ===
+          "mystery"
+        ){
+
+          success =
+          await claimRoverReward(
+            "spin",
+            0
+          );
 
 
-      const current =
-      normalizeDegrees(
-        rotation
-      );
-
-
-      let delta =
-      normalizeDegrees(
-        -targetAngle -
-        current
-      );
-
-
-      const fullSpins =
-      5 +
-      Math.floor(
-        Math.random() * 3
-      );
-
-
-      delta +=
-      fullSpins * 360;
-
-
-      rotation +=
-      delta;
-
-
-      wheel.style.transform =
-      `rotate(${rotation}deg)`;
-
-
-      /*
-        Wait for wheel animation.
-      */
-
-      setTimeout(
-        async()=>{
-
-          try{
-
-            showSpinReward(
-              reward
-            );
-
+          if(success){
 
             /*
-              CRITICAL FIX:
-
-              Every spin is saved.
-
-              BAD LUCK:
-              spin amount = 0
-
-              ROVER:
-              spin amount = reward
-
-              MYSTERY:
-              spin amount = 0
+              Create the mystery key separately.
             */
 
-            const spinSuccess =
             await claimRoverReward(
-              "spin",
-              reward.type === "rover"
-              ? reward.value
-              : 0
+              "mystery_key",
+              0
             );
-
-
-            /*
-              Mystery gives one key
-              only after the spin itself
-              has been recorded.
-            */
-
-            if(
-              spinSuccess &&
-              reward.type === "mystery"
-            ){
-
-              await claimRoverReward(
-                "mystery_key",
-                0
-              );
-
-            }
-
-
-            await refreshBackendState();
-
-
-            spinning = false;
-
-
-            if(
-              backend.spinsToday >= 3
-            ){
-
-              spinButton.disabled = true;
-
-              spinButton.textContent =
-              "COME BACK TOMORROW";
-
-            }else{
-
-              spinButton.disabled = false;
-
-              spinButton.textContent =
-              "SPIN NOW";
-
-            }
-
-          }catch(error){
-
-            console.error(
-              "Spin reward processing failed:",
-              error
-            );
-
-
-            spinning = false;
-
-            spinButton.disabled = false;
-
-            spinButton.textContent =
-            "SPIN NOW";
 
           }
 
-        },
-        4700
-      );
+        }else{
 
-    }catch(error){
+          /*
+            BAD LUCK = 0 ROVER,
+            BUT IT STILL COUNTS AS A SPIN.
+          */
 
-      console.error(
-        "Spin failed:",
-        error
-      );
+          success =
+          await claimRoverReward(
+            "spin",
+            0
+          );
 
-
-      spinning = false;
-
-      spinButton.disabled = false;
-
-      spinButton.textContent =
-      "SPIN NOW";
+        }
 
 
-      alert(
-        "SPIN FAILED.\n\n" +
-        (
-          error?.message ||
-          "Please try again."
-        )
-      );
+        /*
+          If backend refused the spin,
+          refresh the real state.
+        */
 
-    }
+        await refreshBackendState();
+
+
+        spinning = false;
+
+
+        if(
+          backend.spinsToday >= 3
+        ){
+
+          spinButton.disabled =
+          true;
+
+          spinButton.textContent =
+          "COME BACK TOMORROW";
+
+        }else{
+
+          spinButton.disabled =
+          false;
+
+          spinButton.textContent =
+          "SPIN NOW";
+
+        }
+
+      },
+      4700
+    );
 
   }
 );
@@ -4086,47 +4327,37 @@ mysteryButton.addEventListener(
     setTimeout(
       async()=>{
 
-        try{
-
-          const reward =
-          mysteryRewards[
-            Math.floor(
-              Math.random() *
-              mysteryRewards.length
-            )
-          ];
+        const reward =
+        mysteryRewards[
+          Math.floor(
+            Math.random() *
+            mysteryRewards.length
+          )
+        ];
 
 
-          /*
-            mystery_box record consumes
-            one key.
-          */
+        /*
+          First consume the key.
 
-          const success =
-          await claimRoverReward(
-            "mystery_box",
-            reward.type === "rover"
-            ? reward.value
-            : 0
-          );
+          The backend's mystery_box record
+          represents one used key.
+        */
 
-
-          if(!success){
-
-            mysteryResult.textContent =
-            "OPEN FAILED";
-
-            mysteryBox.style.transform =
-            "scale(1) rotate(0deg)";
-
-            await refreshBackendState();
-
-            return;
-
-          }
+        const success =
+        await claimRoverReward(
+          "mystery_box",
+          reward.type === "rover"
+          ? reward.value
+          : 0
+        );
 
 
-          if(reward.type === "rover"){
+        if(success){
+
+          if(
+            reward.type ===
+            "rover"
+          ){
 
             mysteryResult.textContent =
             "🎉 " +
@@ -4139,36 +4370,25 @@ mysteryButton.addEventListener(
 
           }
 
-
-          mysteryBox.textContent =
-          "★";
-
-          mysteryBox.style.transform =
-          "scale(1) rotate(0deg)";
-
-          mysteryHelp.textContent =
-          "Your Mystery Key was consumed.";
-
-
-          await refreshBackendState();
-
-        }catch(error){
-
-          console.error(
-            "Mystery box error:",
-            error
-          );
-
+        }else{
 
           mysteryResult.textContent =
-          "OPEN FAILED";
-
-          mysteryBox.style.transform =
-          "scale(1) rotate(0deg)";
-
-          await refreshBackendState();
+          "REWARD FAILED";
 
         }
+
+
+        mysteryBox.textContent =
+        "★";
+
+        mysteryBox.style.transform =
+        "scale(1) rotate(0deg)";
+
+        mysteryHelp.textContent =
+        "Your Mystery Key was consumed.";
+
+
+        await refreshBackendState();
 
       },
       1000
@@ -4194,7 +4414,7 @@ function unlockAchievement(
     textElement
   );
 
-  const box =
+  const elementBox =
   document.getElementById(
     element
   );
@@ -4206,13 +4426,15 @@ function unlockAchievement(
   target;
 
 
-  if(current >= target){
+  if(
+    current >= target
+  ){
 
-    box.classList.remove(
+    elementBox.classList.remove(
       "locked"
     );
 
-    box.classList.add(
+    elementBox.classList.add(
       "unlocked"
     );
 
@@ -4221,11 +4443,11 @@ function unlockAchievement(
 
   }else{
 
-    box.classList.add(
+    elementBox.classList.add(
       "locked"
     );
 
-    box.classList.remove(
+    elementBox.classList.remove(
       "unlocked"
     );
 
@@ -4271,29 +4493,12 @@ function updateAchievements(){
   }
 
 
-  const checkin =
-  Boolean(
-    backend.history &&
-    backend.history.some(item=>{
-
-      const type =
-      String(
-        item.reward_type || ""
-      ).toLowerCase();
-
-      return (
-        type === "daily_checkin" ||
-        type === "checkin"
-      );
-
-    })
-  );
-
-
   unlockAchievement(
     "achievementFirst",
     "achievementFirstText",
-    checkin ? 1 : 0,
+    backend.checkins > 0
+    ? 1
+    : 0,
     1
   );
 
@@ -4308,12 +4513,6 @@ function updateAchievements(){
     7
   );
 
-
-  /*
-    IMPORTANT:
-    This now counts ALL backend spins,
-    including BAD LUCK.
-  */
 
   unlockAchievement(
     "achievementSpinner",
@@ -4340,7 +4539,7 @@ function updateAchievements(){
 
 
 /* =========================================================
-   LOAD GAME
+   LOAD WALLET GAME
 ========================================================= */
 
 async function loadWalletGame(){
@@ -4363,7 +4562,7 @@ async function loadWalletGame(){
   }catch(error){
 
     console.error(
-      "Game load failed:",
+      "Wallet game load failed:",
       error
     );
 
@@ -4380,7 +4579,7 @@ async function loadWalletGame(){
 
 
 /* =========================================================
-   RESET
+   RESET UI
 ========================================================= */
 
 function resetWalletUI(){
@@ -4389,17 +4588,14 @@ function resetWalletUI(){
 
     balance:0,
     today:0,
-
     history:[],
     status:null,
-
     streak:0,
-
     spinsToday:0,
-    totalSpins:0,
-
     mysteryKeys:0,
-    mysteryOpened:0
+    mysteryOpened:0,
+    totalSpins:0,
+    checkins:0
 
   };
 
@@ -4442,6 +4638,10 @@ function resetWalletUI(){
   missionQuiz.textContent =
   "0/1";
 
+  missionQuiz.classList.remove(
+    "done"
+  );
+
 
   spinCount.textContent =
   "3 / 3";
@@ -4473,7 +4673,6 @@ function resetWalletUI(){
     <div class="reward-display-sub">
       3 CHANCES TODAY
     </div>
-
   `;
 
 
@@ -4497,58 +4696,20 @@ function resetWalletUI(){
   "BOX LOCKED";
 
   mysteryHelp.textContent =
-  "Connect your wallet to start earning";
+  "Connect your wallet to start earning.";
+
+
+  missionMystery.textContent =
+  "0/1";
+
+  missionMystery.classList.remove(
+    "done"
+  );
 
 
   updateAchievements();
 
 }
-
-
-/* =========================================================
-   SCROLL
-========================================================= */
-
-const observer =
-new IntersectionObserver(
-  entries=>{
-
-    entries.forEach(
-      (entry,index)=>{
-
-        if(entry.isIntersecting){
-
-          setTimeout(
-            ()=>{
-              entry.target.classList.add(
-                "visible"
-              );
-            },
-            index * 70
-          );
-
-
-          observer.unobserve(
-            entry.target
-          );
-
-        }
-
-      }
-    );
-
-  },
-  {
-    threshold:.08
-  }
-);
-
-
-document
-.querySelectorAll(".reveal")
-.forEach(
-  el=>observer.observe(el)
-);
 
 
 /* =========================================================
