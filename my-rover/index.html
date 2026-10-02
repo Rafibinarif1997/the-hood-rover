@@ -108,16 +108,20 @@ header{
   white-space:nowrap;  
 }  
   
-.mark{
-  width:38px;
-  height:38px;
-  display:block;
-  overflow:hidden;
-  background:var(--blue);
-  border:3px solid var(--line);
-  box-shadow:3px 3px 0 var(--line);
-  flex-shrink:0;
-}
+.mark{  
+  width:38px;  
+  height:38px;  
+  display:grid;  
+  place-items:center;  
+  background:var(--blue);  
+  color:#fff;  
+  border:3px solid var(--line);  
+  box-shadow:3px 3px 0 var(--line);  
+  font-family:"Press Start 2P";  
+  font-size:10px;  
+  flex-shrink:0;  
+}  
+  
 
 .mark img{
   width:100%;
@@ -125,7 +129,6 @@ header{
   display:block;
   object-fit:cover;
 }
-  
 nav{  
   margin-left:auto;  
   display:flex;  
@@ -1992,9 +1995,7 @@ footer{
 
 <header>
   <a class="brand" href="../">
-    <span class="mark">
-  <img src="../assets/rovers/rover-01.png" alt="Hood Rover">
-</span>
+    <span class="mark"><img src="../assets/rovers/rover-01.png" alt="Hood Rover"></span>
     THE HOOD ROVER
   </a>
 
@@ -2077,14 +2078,17 @@ footer{
               <article class="earn-card">
                 <h3>DAILY ROVER EARN</h3>
                 <p>
-                  Your NFT rarity determines how much ROVER is credited each day.
+                  Each Hood Rover you own contributes its rarity-based ROVER rate.
                 </p>
 
                 <div class="rate-box">
-                  <div class="rate-label">TODAY'S RATE</div>
+                  <div class="rate-label">TODAY'S TOTAL RATE</div>
                   <div class="rate-number" id="rateNumber">+0 ROVER</div>
                   <div class="rate-small" id="rateText">Waiting for NFT rarity...</div>
                 </div>
+
+                <div class="rate-small" id="ownedCount" style="margin-top:12px">OWNED ROVERS: 0</div>
+                <div class="rate-small" id="rateBreakdown" style="margin-top:8px"></div>
 
                 <div id="claimStatus" class="claim-status">
                   CHECKING DAILY REWARD...
@@ -2360,14 +2364,14 @@ function getRate(rarity){
    provided below the page response.
 ========================================================= */
 
-async function claimDailyRover(wallet, amount, tokenId, rarity){
+async function claimDailyRoverBatch(wallet, amount, tokenIds, rarities){
   const { data, error } = await supabaseClient.rpc(
-    "claim_rover_nft_daily",
+    "claim_rover_nft_daily_batch",
     {
       p_wallet: wallet,
-      p_amount: amount,
-      p_token_id: String(tokenId),
-      p_rarity: rarity
+      p_total_amount: amount,
+      p_token_ids: tokenIds.map(String),
+      p_rarities: rarities.map(String)
     }
   );
 
@@ -2398,14 +2402,6 @@ function renderNFT(item,wallet){
   $("rarityBadge").textContent =
     "RARITY: " + rarityText;
 
-  $("rateNumber").textContent =
-    "+" + rate + " ROVER";
-
-  $("rateText").textContent =
-    rarity
-      ? rarityText + " ROVER • DAILY"
-      : "Rarity metadata was not found.";
-
   const img = $("nftImage");
   const placeholder = $("nftPlaceholder");
 
@@ -2425,15 +2421,62 @@ function renderNFT(item,wallet){
     show("nftPlaceholder");
   }
 
-  if(!rarity){
-    setClaimStatus(
-      "NFT FOUND, BUT RARITY METADATA WAS NOT FOUND. DAILY REWARD WAS NOT CLAIMED.",
-      "error"
-    );
-    return {tokenId,rarity,rate};
+  return {tokenId,rarity,rate};
+}
+
+function buildRoverRewardData(items){
+  const tokenIds = [];
+  const rarities = [];
+  const validItems = [];
+  let totalRate = 0;
+  let hasMissingRarity = false;
+
+  for(const item of items){
+    const tokenId = getItemTokenId(item);
+    const rarity = getRarity(item);
+    const rate = getRate(rarity);
+
+    tokenIds.push(String(tokenId));
+    rarities.push(String(rarity || ""));
+
+    if(!rarity || rate <= 0){
+      hasMissingRarity = true;
+      continue;
+    }
+
+    validItems.push({item,tokenId,rarity,rate});
+    totalRate += rate;
   }
 
-  return {tokenId,rarity,rate};
+  return {
+    tokenIds,
+    rarities,
+    validItems,
+    totalRate,
+    hasMissingRarity
+  };
+}
+
+function renderRewardSummary(items, rewardData){
+  $("ownedCount").textContent =
+    "OWNED ROVERS: " + items.length;
+
+  const breakdown = rewardData.validItems.map(x =>
+    String(x.rarity).toUpperCase() + " +" + x.rate
+  );
+
+  $("rateBreakdown").textContent =
+    breakdown.length
+      ? breakdown.join("  •  ") + " ROVER/DAY"
+      : "Rarity data unavailable.";
+
+  $("rateNumber").textContent =
+    "+" + rewardData.totalRate + " ROVER";
+
+  $("rateText").textContent =
+    rewardData.totalRate > 0
+      ? "TOTAL DAILY ROVER FROM ALL OWNED NFTS"
+      : "Rarity metadata was not found.";
 }
 
 /* =========================================================
@@ -2476,54 +2519,66 @@ async function initMyRover(){
       return;
     }
 
-    /*
-      If a wallet owns more than one Hood Rover, show the first one
-      for the daily generator. The backend RPC should enforce the
-      daily claim server-side.
-    */
-    const result = renderNFT(items[0],wallet);
+    const rewardData = buildRoverRewardData(items);
 
+    /* Keep the existing NFT card design and show the first owned Rover. */
+    renderNFT(items[0],wallet);
+    renderRewardSummary(items,rewardData);
     show("nftArea");
 
-    if(result.rate > 0){
-      setClaimStatus("CLAIMING TODAY'S ROVER REWARD...");
+    if(rewardData.hasMissingRarity){
+      setClaimStatus(
+        "ALL OWNED HOOD ROVERS MUST HAVE RARITY METADATA BEFORE THE DAILY REWARD CAN BE CLAIMED.",
+        "error"
+      );
+      return;
+    }
 
-      try{
-        const claim = await claimDailyRover(
-          wallet,
-          result.rate,
-          result.tokenId,
-          result.rarity
-        );
+    if(rewardData.totalRate <= 0){
+      setClaimStatus(
+        "NO VALID ROVER DAILY RATE WAS FOUND.",
+        "error"
+      );
+      return;
+    }
 
-        if(claim && claim.success === false){
-          if(claim.reason === "already_claimed"){
-            setClaimStatus(
-              "TODAY'S +" + result.rate + " ROVER IS ALREADY CLAIMED. COME BACK TOMORROW.",
-              ""
-            );
-          }else{
-            setClaimStatus(
-              "DAILY REWARD WAS NOT CLAIMED: " +
-              String(claim.reason || "UNKNOWN ERROR"),
-              "error"
-            );
-          }
+    setClaimStatus("CLAIMING TODAY'S TOTAL ROVER REWARD...");
+
+    try{
+      const claim = await claimDailyRoverBatch(
+        wallet,
+        rewardData.totalRate,
+        rewardData.tokenIds,
+        rewardData.rarities
+      );
+
+      if(claim && claim.success === false){
+        if(claim.reason === "already_claimed"){
+          setClaimStatus(
+            "TODAY'S +" + rewardData.totalRate + " ROVER IS ALREADY CLAIMED. COME BACK TOMORROW.",
+            ""
+          );
         }else{
           setClaimStatus(
-            "TODAY'S +" + result.rate +
-            " ROVER HAS BEEN ADDED TO YOUR ROVER HUB BALANCE.",
-            "success"
+            "DAILY REWARD WAS NOT CLAIMED: " +
+            String(claim.reason || "UNKNOWN ERROR"),
+            "error"
           );
         }
-
-      }catch(claimError){
-        console.error(claimError);
+      }else{
         setClaimStatus(
-          "NFT VERIFIED, BUT DAILY CREDIT COULD NOT BE COMPLETED. PLEASE TRY AGAIN.",
-          "error"
+          "TODAY'S +" + rewardData.totalRate +
+          " ROVER HAS BEEN ADDED TO YOUR ROVER HUB BALANCE.",
+          "success"
         );
       }
+
+    }catch(claimError){
+      console.error(claimError);
+      setClaimStatus(
+        "NFTS VERIFIED, BUT DAILY CREDIT COULD NOT BE COMPLETED. PLEASE TRY AGAIN.",
+        "error"
+      );
     }
 
   }catch(error){
