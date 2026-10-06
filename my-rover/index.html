@@ -2115,742 +2115,300 @@ footer{
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-/* =========================================================
-   MY ROVER CONFIG
-========================================================= */
+const SUPABASE_URL="https://hyshlvuywbwhhjgqwfwi.supabase.co";
+const SUPABASE_PUBLISHABLE_KEY="sb_publishable_LWmPzfGLuzdjDZvnwKs0Ug_Gvs5yROF";
+const supabaseClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY);
 
-const SUPABASE_URL =
-  "https://hyshlvuywbwhhjgqwfwi.supabase.co";
+const HOOD_ROVER_CONTRACT="0x9783fada0231d5c48d9ec98d561dd516c38d51c0".toLowerCase();
+const BLOCKSCOUT_NFT_API="https://robinhoodchain.blockscout.com/api/v2/addresses";
+const ROBINHOOD_RPC="https://rpc.mainnet.chain.robinhood.com";
+const RARITY_RATES={common:20,uncommon:40,rare:70,epic:90,legendary:100};
+const WALLET_KEY="roverHubWallet";
+const $=id=>document.getElementById(id);
 
-const SUPABASE_PUBLISHABLE_KEY =
-  "sb_publishable_LWmPzfGLuzdjDZvnwKs0Ug_Gvs5yROF";
-
-const supabaseClient = window.supabase.createClient(
-  SUPABASE_URL,
-  SUPABASE_PUBLISHABLE_KEY
-);
-
-const HOOD_ROVER_CONTRACT =
-  "0x9783fada0231d5c48d9ec98d561dd516c38d51c0".toLowerCase();
-
-const BLOCKSCOUT_NFT_API =
-  "https://robinhoodchain.blockscout.com/api/v2/addresses";
-
-const ROBINHOOD_RPC_ENDPOINTS = [
-  "https://rpc.mainnet.chain.robinhood.com",
-  "https://rpc.nodeflare.app/robinhood/public",
-  "https://triport.io/rpc/robinhood/public"
-];
-
-const TOKEN_URI_SELECTOR =
-  "0xc87b56dd";
-
-const RARITY_RATES = {
-  common: 20,
-  uncommon: 40,
-  rare: 70,
-  epic: 90,
-  legendary: 100
-};
-
-const WALLET_KEY = "roverHubWallet";
-
-const $ = (id) => document.getElementById(id);
-
-function normalizeWallet(value){
-  return String(value || "").trim().toLowerCase();
-}
-
-function shortWallet(wallet){
-  if(!wallet || wallet.length < 12) return wallet || "";
-  return wallet.slice(0,6) + "..." + wallet.slice(-4);
-}
-
-function show(id){
-  $(id).classList.remove("hidden");
-}
-
-function hide(id){
-  $(id).classList.add("hidden");
-}
-
-function setError(title,text){
-  $("errorTitle").textContent = title;
-  $("errorText").textContent = text;
-  show("errorBox");
-}
-
-function clearError(){
-  hide("errorBox");
-}
-
-function setClaimStatus(text,type=""){
-  const el = $("claimStatus");
-  el.textContent = text;
-  el.className = "claim-status" + (type ? " " + type : "");
-}
+function normalizeWallet(v){return String(v||"").trim().toLowerCase()}
+function shortWallet(w){return w&&w.length>=12?w.slice(0,6)+"..."+w.slice(-4):w||""}
+function show(id){$(id)?.classList.remove("hidden")}
+function hide(id){$(id)?.classList.add("hidden")}
+function setError(t,x){$("errorTitle").textContent=t;$("errorText").textContent=x;show("errorBox")}
+function setClaimStatus(t,type=""){const e=$("claimStatus");e.textContent=t;e.className="claim-status"+(type?" "+type:"")}
 
 function getWalletFromRoverHub(){
-  const raw = localStorage.getItem(WALLET_KEY);
-  if(!raw) return "";
-
+  const raw=localStorage.getItem(WALLET_KEY); if(!raw)return"";
   try{
-    const parsed = JSON.parse(raw);
-    if(typeof parsed === "string") return normalizeWallet(parsed);
-
-    if(parsed && typeof parsed === "object"){
-      return normalizeWallet(
-        parsed.address ||
-        parsed.wallet ||
-        parsed.account ||
-        parsed.wallet_address ||
-        ""
-      );
-    }
+    const p=JSON.parse(raw);
+    if(typeof p==="string")return normalizeWallet(p);
+    if(p&&typeof p==="object")return normalizeWallet(p.address||p.wallet||p.account||p.wallet_address||"");
   }catch(e){}
-
   return normalizeWallet(raw);
 }
 
-/* =========================================================
-   BLOCKSCOUT NFT LOOKUP
-========================================================= */
-
+/* ---------- FAST OWNERSHIP LOOKUP ---------- */
 async function fetchOwnedHoodRover(wallet){
-  const url =
-    BLOCKSCOUT_NFT_API +
-    "/" + encodeURIComponent(wallet) +
-    "/nft?type=ERC-721";
-
-  const response = await fetch(url, {
-    method:"GET",
-    headers:{ "accept":"application/json" }
+  const u=BLOCKSCOUT_NFT_API+"/"+encodeURIComponent(wallet)+"/nft?type=ERC-721";
+  const r=await fetch(u,{headers:{accept:"application/json"}});
+  if(!r.ok)throw new Error("NFT indexer HTTP "+r.status);
+  const d=await r.json();
+  return (d.items||[]).filter(item=>{
+    const token=item.token||{};
+    return normalizeWallet(
+      token.address_hash||token.address||token.contract_address||
+      item.address_hash||item.contract_address||""
+    )===HOOD_ROVER_CONTRACT;
   });
-
-  if(!response.ok){
-    throw new Error("NFT indexer returned HTTP " + response.status);
-  }
-
-  const data = await response.json();
-  const items = Array.isArray(data.items) ? data.items : [];
-
-  const matches = items.filter(item => {
-    const token = item.token || {};
-    const address = normalizeWallet(
-      token.address_hash ||
-      token.address ||
-      token.contract_address ||
-      item.address_hash ||
-      item.contract_address ||
-      ""
-    );
-
-    return address === HOOD_ROVER_CONTRACT;
-  });
-
-  return matches;
 }
 
-/* =========================================================
-   BLOCKSCOUT NFT INSTANCE METADATA
-   This is the important fallback for OpenSea-style metadata.
-========================================================= */
-
-async function fetchBlockscoutNFTInstance(tokenId){
-
-  const url =
-    "https://robinhoodchain.blockscout.com/api/v2/tokens/" +
-    HOOD_ROVER_CONTRACT +
-    "/instances/" +
-    encodeURIComponent(String(tokenId));
-
-  const response = await fetch(url,{
-    method:"GET",
-    headers:{
-      "accept":"application/json"
-    }
-  });
-
-  if(!response.ok){
-    throw new Error(
-      "Blockscout NFT instance HTTP " +
-      response.status
-    );
-  }
-
-  return await response.json();
+/* ---------- METADATA HELPERS ---------- */
+function tokenIdOf(item){
+  return String(item?.token_id??item?.tokenId??item?.instance?.token_id??
+    item?.instance?.tokenId??item?.instance?.id??item?.id??"");
 }
-
-/* =========================================================
-   METADATA HELPERS — ROBUST BLOCKSCOUT + ON-CHAIN
-========================================================= */
-
-function parseMetadataValue(value){
-  if(!value) return null;
-  if(typeof value === "object") return value;
-  if(typeof value !== "string") return null;
-  const text = value.trim();
-  if(!text) return null;
-  try{
-    if(text.startsWith("{")) return JSON.parse(text);
-  }catch(e){}
+function metadataObject(v){
+  if(!v)return null;
+  if(typeof v==="object")return v;
+  if(typeof v==="string"){
+    try{return JSON.parse(v)}catch(e){return null}
+  }
   return null;
 }
-
-function collectMetadataObjects(item){
-  const out=[];
-  const add=(v)=>{
-    const parsed=parseMetadataValue(v);
-    if(parsed && typeof parsed === "object") out.push(parsed);
-  };
-  add(item?.metadata);
-  add(item?.instance?.metadata);
-  add(item?.token?.metadata);
-  add(item?._metadata);
-  return out;
+function attrsOf(m){
+  return Array.isArray(m?.attributes)?m.attributes:[];
 }
-
-function getItemTokenId(item){
-  return String(
-    item?.token_id ??
-    item?.tokenId ??
-    item?.instance?.token_id ??
-    item?.instance?.tokenId ??
-    item?.instance?.id ??
-    item?.id ??
-    ""
-  );
+function tierOf(m){
+  const a=attrsOf(m).find(x=>String(x?.trait_type||x?.traitType||"").toLowerCase()==="tier");
+  return normalizeRarity(m?.rarity||m?.tier||a?.value||"");
 }
-
-function getItemName(item){
-  const token=item?.token||{};
-  const m=collectMetadataObjects(item);
-  return (
-    item?._name ||
-    item?.name ||
-    item?.token_name ||
-    item?.instance?.name ||
-    token.name ||
-    m.find(x=>x.name)?.name ||
-    "THE HOOD ROVER"
-  );
+function normalizeRarity(v){
+  const r=String(v||"").toLowerCase();
+  if(r.includes("legend"))return"legendary";
+  if(r.includes("epic"))return"epic";
+  if(r.includes("rare"))return"rare";
+  if(r.includes("uncommon"))return"uncommon";
+  if(r.includes("common"))return"common";
+  return"";
 }
+function rateOf(r){return RARITY_RATES[r]||0}
 
-function getItemImage(item){
-  const m=collectMetadataObjects(item);
-  const candidates=[
-    item?._image,
-    item?.image_url,
-    item?.image,
-    item?.image_url_preview,
-    item?.instance?.image_url,
-    item?.instance?.image,
-    item?.token?.image_url,
-    ...m.flatMap(x=>[x.image,x.image_url,x.imageUrl,x.media?.image])
-  ];
-  const value=candidates.find(v=>typeof v==="string" && v.trim());
-  return value ? resolveMediaURI(value) : "";
-}
-
-/* =========================================================
-   ON-CHAIN TOKEN METADATA
-========================================================= */
-
-function hexToUtf8(hex){
-  const clean=String(hex||"").replace(/^0x/,"");
-  if(!clean) return "";
-  try{
-    const bytes=new Uint8Array(Math.floor(clean.length/2));
-    for(let i=0;i<bytes.length;i++) bytes[i]=parseInt(clean.slice(i*2,i*2+2),16);
-    return new TextDecoder().decode(bytes);
-  }catch(e){
-    console.error("HEX decode failed",e);
-    return "";
-  }
-}
-
-function decodeAbiString(hex){
-  const clean=String(hex||"").replace(/^0x/,"");
-  if(clean.length<128) return "";
-  try{
-    const offset=Number(BigInt("0x"+clean.slice(0,64)))*2;
-    const length=Number(BigInt("0x"+clean.slice(offset,offset+64)));
-    const start=offset+64;
-    return hexToUtf8("0x"+clean.slice(start,start+length*2));
-  }catch(e){
-    return "";
-  }
-}
-
-async function ethCallString(selector,tokenId){
-  const data=selector+BigInt(String(tokenId)).toString(16).padStart(64,"0");
-  let last=null;
-  for(const rpc of ROBINHOOD_RPC_ENDPOINTS){
-    try{
-      const r=await fetch(rpc,{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({jsonrpc:"2.0",id:1,method:"eth_call",params:[{to:HOOD_ROVER_CONTRACT,data},"latest"]})});
-      if(!r.ok) throw new Error("HTTP "+r.status);
-      const j=await r.json();
-      if(j.error) throw new Error(j.error.message||"RPC error");
-      const value=decodeAbiString(j.result);
-      if(value) return value;
-      throw new Error("Empty decoded string");
-    }catch(e){ last=e; }
-  }
-  throw last||new Error("RPC unavailable");
-}
-
-async function readTokenURI(tokenId){
-  return await ethCallString(TOKEN_URI_SELECTOR,tokenId);
-}
-
-async function readERC1155URI(tokenId){
-  /* ERC-1155 uri(uint256), useful as a fallback for non-standard deployments. */
-  return await ethCallString("0x0e89341c",tokenId);
-}
-
-function parseDataURI(uri){
-  if(!String(uri).startsWith("data:")) return null;
-  try{
-    const comma=uri.indexOf(",");
-    if(comma<0) return null;
-    const header=uri.slice(0,comma);
-    const body=uri.slice(comma+1);
-    let text;
-    if(header.includes(";base64")){
-      const bin=atob(body);
-      const bytes=new Uint8Array(bin.length);
-      for(let i=0;i<bin.length;i++) bytes[i]=bin.charCodeAt(i);
-      text=new TextDecoder().decode(bytes);
-    }else text=decodeURIComponent(body);
-    return JSON.parse(text);
-  }catch(e){ return null; }
-}
-
-function replaceIpfsPlaceholders(uri,tokenId){
-  return String(uri||"")
-    .replaceAll("{id}",BigInt(String(tokenId)).toString(16).padStart(64,"0"))
-    .replaceAll("{ID}",BigInt(String(tokenId)).toString(16).padStart(64,"0"));
-}
-
-function getGatewayCandidates(uri,tokenId="0"){
-  let value=replaceIpfsPlaceholders(String(uri||"").trim(),tokenId);
-  if(!value) return [];
-  if(value.startsWith("data:")) return [value];
-  if(value.startsWith("ipfs://")){
-    const path=value.slice(7);
+function ipfsCandidates(uri){
+  let u=String(uri||"").trim();
+  if(!u)return[];
+  if(u.startsWith("ipfs://")){
+    const p=u.slice(7);
     return [
-      "https://ipfs.io/ipfs/"+path,
-      "https://dweb.link/ipfs/"+path,
-      "https://nftstorage.link/ipfs/"+path,
-      "https://cloudflare-ipfs.com/ipfs/"+path
+      "https://ipfs.io/ipfs/"+p,
+      "https://dweb.link/ipfs/"+p,
+      "https://nftstorage.link/ipfs/"+p,
+      "https://w3s.link/ipfs/"+p
     ];
   }
-  if(value.startsWith("ar://")) return ["https://arweave.net/"+value.slice(5)];
-  return [value];
+  if(u.startsWith("ar://"))return["https://arweave.net/"+u.slice(5)];
+  return[u];
 }
+function mediaUrl(uri){return ipfsCandidates(uri)[0]||""}
 
-function resolveMediaURI(uri,tokenId="0"){
-  return getGatewayCandidates(uri,tokenId)[0]||"";
-}
-
-async function fetchJSONFromURI(uri,tokenId="0"){
-  const direct=parseDataURI(uri);
-  if(direct) return direct;
-  let last=null;
-  for(const url of getGatewayCandidates(uri,tokenId)){
-    try{
-      const r=await fetch(url,{headers:{accept:"application/json,text/plain,*/*"}});
-      if(!r.ok) throw new Error("HTTP "+r.status);
-      const text=await r.text();
-      const parsed=JSON.parse(text);
-      return parsed;
-    }catch(e){ last=e; }
-  }
-  throw last||new Error("Metadata unavailable");
-}
-
-async function fetchBlockscoutNFTInstance(tokenId){
-  const url="https://robinhoodchain.blockscout.com/api/v2/tokens/"+
-    HOOD_ROVER_CONTRACT+"/instances/"+encodeURIComponent(String(tokenId));
-  const r=await fetch(url,{headers:{accept:"application/json"}});
-  if(!r.ok) throw new Error("Blockscout instance HTTP "+r.status);
-  return await r.json();
-}
-
-
-/* =========================================================
-   OPENSEA PUBLIC PAGE FALLBACK
-   Used only when the indexed/on-chain metadata is unavailable.
-   The NFT itself remains the source of truth; this fallback only
-   reads the public OpenSea item page for its displayed metadata.
-========================================================= */
-
-function getOpenSeaItemURL(tokenId){
-  return "https://opensea.io/item/robinhood/" +
-    HOOD_ROVER_CONTRACT + "/" + encodeURIComponent(String(tokenId));
-}
-
-function extractOpenSeaMetadataFromText(text){
-  const source = String(text || "");
-  if(!source) return null;
-
-  const metadata = {};
-
-  const imageMatch = source.match(/"image"\s*:\s*"(ipfs:\/\/[^"\\]+|https?:\/\/[^"\\]+)"/i);
-  if(imageMatch) metadata.image = imageMatch[1].replace(/\\\\//g,"/");
-
-  const nameMatch = source.match(/"name"\s*:\s*"([^"]+)"/i);
-  if(nameMatch) metadata.name = nameMatch[1];
-
-  const tierMatch = source.match(/"trait_type"\s*:\s*"Tier"\s*,\s*"value"\s*:\s*"([^"]+)"/i);
-  if(tierMatch){
-    metadata.attributes = [
-      {trait_type:"Tier",value:tierMatch[1]}
-    ];
-  }
-
-  if(!metadata.image){
-    const markdownImage = source.match(/!\\[[^\\]]*\\]\\((https?:\/\/[^)]+)\\)/i);
-    if(markdownImage) metadata.image = markdownImage[1];
-  }
-
-  if(!metadata.image && !metadata.name && !metadata.attributes){
-    return null;
-  }
-
-  return metadata;
-}
-
-async function fetchOpenSeaPublicMetadata(tokenId){
-  const pageURL = getOpenSeaItemURL(tokenId);
-
-  const bridgeURLs = [
-    "https://r.jina.ai/http://" + pageURL.replace(/^https?:\/\//,""),
-    "https://r.jina.ai/https://" + pageURL.replace(/^https?:\/\//,"")
-  ];
-
-  for(const bridgeURL of bridgeURLs){
-    try{
-      const response = await fetch(bridgeURL,{headers:{accept:"text/plain,text/markdown,*/*"}});
-      if(!response.ok) continue;
-      const text = await response.text();
-      const metadata = extractOpenSeaMetadataFromText(text);
-      if(metadata) return metadata;
-    }catch(error){
-      console.warn("OpenSea public metadata fallback failed",error);
-    }
-  }
-
-  return null;
-}
-
-async function fetchTokenMetadata(tokenId){
-  let uri="";
-  try{ uri=await readTokenURI(tokenId); }
-  catch(e){
-    try{ uri=await readERC1155URI(tokenId); }
-    catch(e2){ throw e; }
-  }
-  return await fetchJSONFromURI(uri,tokenId);
-}
-
-function getMetadataImage(metadata,tokenId="0"){
-  if(!metadata) return "";
-  const image=metadata.image||metadata.image_url||metadata.imageUrl||metadata.media?.image||"";
-  return resolveMediaURI(image,tokenId);
-}
-
-function getAttributes(item){
-  const objects=[item,...collectMetadataObjects(item)];
-  for(const obj of objects){
-    const attrs=obj?.attributes;
-    if(Array.isArray(attrs)) return attrs;
-  }
-  return [];
-}
-
-function findAttribute(item,names){
-  const attrs=getAttributes(item);
-  for(const attr of attrs){
-    const trait=String(attr?.trait_type||attr?.traitType||attr?.type||"").trim().toLowerCase();
-    if(names.includes(trait)) return String(attr?.value??attr?.val??"").trim();
-  }
-  return "";
-}
-
-function normalizeRarity(value){
-  const r=String(value||"").trim().toLowerCase();
-  if(r.includes("legend")) return "legendary";
-  if(r.includes("epic")) return "epic";
-  if(r.includes("rare")) return "rare";
-  if(r.includes("uncommon")) return "uncommon";
-  if(r.includes("common")) return "common";
-  return "";
-}
-
-function getRarity(item){
-  const direct=item?._rarity||item?.rarity||item?.tier||item?.instance?.rarity||item?.instance?.tier||"";
-  return normalizeRarity(direct||findAttribute(item,["rarity","rarity tier","rank","tier"]));
-}
-
-function getRate(rarity){
-  return RARITY_RATES[String(rarity||"").toLowerCase()]||0;
-}
-
-/* =========================================================
-   DAILY CREDIT
-   This calls a dedicated Supabase RPC. The SQL for it is
-   provided below the page response.
-========================================================= */
-
-async function claimDailyRover(wallet, amount, tokenId, rarity){
-  const { data, error } = await supabaseClient.rpc(
-    "claim_rover_nft_daily",
-    {
-      p_wallet: wallet,
-      p_amount: amount,
-      p_token_id: String(tokenId),
-      p_rarity: rarity
-    }
-  );
-
-  if(error) throw error;
-
-  return data;
-}
-
-/* =========================================================
-   RENDER
-========================================================= */
-
-async function renderNFT(item,wallet){
-  const tokenId=getItemTokenId(item);
-  let metadata=null;
-  let name=getItemName(item);
-  let image=getItemImage(item);
-  let rarity=getRarity(item);
-
-  /* 1) Use metadata already returned by the wallet NFT endpoint. */
-  const existing=collectMetadataObjects(item)[0];
-  if(existing){
-    metadata=existing;
-    name=existing.name||name;
-    image=getMetadataImage(existing,tokenId)||image;
-    rarity=getRarity({metadata:existing,attributes:existing.attributes})||rarity;
-  }
-
-  /* 2) Ask Blockscout for the exact NFT instance. */
+async function fetchJSON(url,ms=4500){
+  const c=new AbortController(); const timer=setTimeout(()=>c.abort(),ms);
   try{
-    const instance=await fetchBlockscoutNFTInstance(tokenId);
-    const md=parseMetadataValue(instance?.metadata)||parseMetadataValue(instance?.token?.metadata);
-    if(md){
-      metadata=md;
-      name=md.name||instance?.name||name;
-      image=getMetadataImage(md,tokenId)||resolveMediaURI(instance?.image_url||instance?.image||"",tokenId)||image;
-      rarity=getRarity({metadata:md,attributes:md.attributes,tier:instance?.tier,rarity:instance?.rarity})||rarity;
-    }else{
-      image=resolveMediaURI(instance?.image_url||instance?.image||"",tokenId)||image;
-      rarity=getRarity({
-        attributes:instance?.attributes,
-        tier:instance?.tier,
-        rarity:instance?.rarity
-      })||rarity;
-    }
-  }catch(e){
-    console.warn("Blockscout instance metadata unavailable",e);
+    const r=await fetch(url,{signal:c.signal,headers:{accept:"application/json,text/plain,*/*"}});
+    if(!r.ok)throw new Error("HTTP "+r.status);
+    return await r.json();
+  }finally{clearTimeout(timer)}
+}
+
+/* ---------- BLOCKSCOUT INSTANCE ---------- */
+async function blockscoutMetadata(tokenId){
+  const u="https://robinhoodchain.blockscout.com/api/v2/tokens/"+
+    HOOD_ROVER_CONTRACT+"/instances/"+encodeURIComponent(tokenId);
+  const d=await fetchJSON(u,4500);
+  return metadataObject(d?.metadata)||metadataObject(d?.token?.metadata)||d;
+}
+
+/* ---------- ERC721 tokenURI ---------- */
+function decodeAbiString(hex){
+  const s=String(hex||"").replace(/^0x/,"");
+  if(s.length<128)return"";
+  try{
+    const offset=Number(BigInt("0x"+s.slice(0,64)))*2;
+    const len=Number(BigInt("0x"+s.slice(offset,offset+64)));
+    const start=offset+64;
+    const bytes=new Uint8Array(len);
+    const part=s.slice(start,start+len*2);
+    for(let i=0;i<len;i++)bytes[i]=parseInt(part.slice(i*2,i*2+2),16);
+    return new TextDecoder().decode(bytes);
+  }catch(e){return""}
+}
+async function tokenURI(tokenId){
+  const data="0xc87b56dd"+BigInt(tokenId).toString(16).padStart(64,"0");
+  const r=await fetch(ROBINHOOD_RPC,{
+    method:"POST",
+    headers:{"content-type":"application/json"},
+    body:JSON.stringify({jsonrpc:"2.0",id:1,method:"eth_call",
+      params:[{to:HOOD_ROVER_CONTRACT,data},"latest"]})
+  });
+  if(!r.ok)throw new Error("RPC HTTP "+r.status);
+  const j=await r.json(); if(j.error)throw new Error(j.error.message||"RPC error");
+  return decodeAbiString(j.result);
+}
+async function tokenMetadata(tokenId){
+  const uri=await tokenURI(tokenId);
+  if(!uri)throw new Error("empty tokenURI");
+  if(uri.startsWith("data:")){
+    const body=uri.slice(uri.indexOf(",")+1);
+    return JSON.parse(decodeURIComponent(body));
   }
-
-  /* 3) Final fallback: read the NFT metadata URI directly from the contract. */
-  if(!image||!rarity){
-    try{
-      const md=await fetchTokenMetadata(tokenId);
-      if(md){
-        metadata=md;
-        name=md.name||name;
-        image=getMetadataImage(md,tokenId)||image;
-        rarity=getRarity({metadata:md,attributes:md.attributes})||rarity;
-      }
-    }catch(e){
-      console.warn("On-chain metadata unavailable",e);
-    }
+  let last;
+  for(const u of ipfsCandidates(uri)){
+    try{return await fetchJSON(u,4500)}catch(e){last=e}
   }
+  throw last||new Error("metadata unavailable");
+}
 
-  /* 4) OpenSea public-page fallback. */
-  if(!image||!rarity){
-    try{
-      const md=await fetchOpenSeaPublicMetadata(tokenId);
-      if(md){
-        metadata=md;
-        name=md.name||name;
-        image=getMetadataImage(md,tokenId)||image;
-        rarity=getRarity({metadata:md,attributes:md.attributes})||rarity;
-      }
-    }catch(e){
-      console.warn("OpenSea fallback unavailable",e);
-    }
-  }
+/* ---------- PUBLIC OPENSEA PAGE, LAST RESORT ---------- */
+async function openSeaMetadata(tokenId){
+  const page="https://opensea.io/item/robinhood/"+HOOD_ROVER_CONTRACT+"/"+tokenId;
+  const u="https://r.jina.ai/http://"+page.replace(/^https?:\/\//,"");
+  const c=new AbortController();const timer=setTimeout(()=>c.abort(),4500);
+  try{
+    const r=await fetch(u,{signal:c.signal});
+    if(!r.ok)throw new Error("OpenSea bridge HTTP "+r.status);
+    const text=await r.text();
+    const out={};
+    const im=text.match(/"image"\s*:\s*"(ipfs:\/\/[^"]+|https?:\/\/[^"]+)"/i);
+    const nm=text.match(/"name"\s*:\s*"([^"]+)"/i);
+    const tr=text.match(/"trait_type"\s*:\s*"Tier"\s*,\s*"value"\s*:\s*"([^"]+)"/i);
+    if(im)out.image=im[1];
+    if(nm)out.name=nm[1];
+    if(tr)out.attributes=[{trait_type:"Tier",value:tr[1]}];
+    return Object.keys(out).length?out:null;
+  }finally{clearTimeout(timer)}
+}
 
-  image=resolveMediaURI(image,tokenId);
-  const rate=getRate(rarity);
-
+/* ---------- FAST FIRST RENDER ---------- */
+function renderImmediate(item,wallet){
+  const id=tokenIdOf(item);
+  const name=item?.name||item?.instance?.name||("HOOD ROVER #"+id);
   $("walletAddress").textContent=shortWallet(wallet);
   $("nftName").textContent=name;
-  $("nftId").textContent="TOKEN ID: "+tokenId;
+  $("nftId").textContent="TOKEN ID: "+id;
+  $("rarityBadge").textContent="RARITY: CHECKING...";
+  $("rateNumber").textContent="+0 ROVER";
+  $("rateText").textContent="LOADING NFT METADATA...";
+  show("nftArea");hide("loadingBox");
+  return id;
+}
+
+function renderMetadata(md,tokenId){
+  if(!md)return null;
+  const name=md.name||("HOOD ROVER #"+tokenId);
+  const rarity=tierOf(md);
+  const image=mediaUrl(md.image||md.image_url||"");
+  const rate=rateOf(rarity);
+
+  $("nftName").textContent=name;
   $("rarityBadge").textContent="RARITY: "+(rarity?rarity.toUpperCase():"UNKNOWN");
   $("rateNumber").textContent="+"+rate+" ROVER";
   $("rateText").textContent=rarity?rarity.toUpperCase()+" ROVER • DAILY":"Rarity metadata was not found.";
 
-  const img=$("nftImage");
-  const placeholder=$("nftPlaceholder");
-
   if(image){
-    const candidates=getGatewayCandidates(image,tokenId);
-    let index=0;
+    const img=$("nftImage"),ph=$("nftPlaceholder");
+    const urls=ipfsCandidates(md.image||md.image_url);
+    let i=0;
     img.onerror=()=>{
-      index++;
-      if(index<candidates.length){ img.src=candidates[index]; return; }
-      img.classList.add("hidden");
-      show("nftPlaceholder");
+      i++;
+      if(i<urls.length){img.src=urls[i];return}
+      img.classList.add("hidden");show("nftPlaceholder");
     };
-    img.src=candidates[0]||image;
-    img.alt=name;
-    img.classList.remove("hidden");
-    hide("nftPlaceholder");
-  }else{
-    img.classList.add("hidden");
-    show("nftPlaceholder");
+    img.src=urls[0];img.alt=name;img.classList.remove("hidden");hide("nftPlaceholder");
   }
-
-  return {tokenId,rarity,rate,image,metadata};
+  return {tokenId:String(tokenId),rarity,rate,image,metadata:md};
 }
 
-/* =========================================================
-   START
-========================================================= */
+/* ---------- DAILY CREDIT ---------- */
+async function claimDailyRover(wallet,amount,tokenId,rarity){
+  const {data,error}=await supabaseClient.rpc("claim_rover_nft_daily",{
+    p_wallet:wallet,p_amount:amount,p_token_id:String(tokenId),p_rarity:rarity
+  });
+  if(error)throw error; return data;
+}
 
+/* ---------- INIT ---------- */
 async function initMyRover(){
-  hide("walletRequired");
-  hide("nftArea");
-  hide("errorBox");
-  show("loadingBox");
+  hide("walletRequired");hide("nftArea");hide("errorBox");show("loadingBox");
+  const wallet=getWalletFromRoverHub();
 
-  const wallet = getWalletFromRoverHub();
-
-  if(!wallet){
-    hide("loadingBox");
-    show("walletRequired");
-    return;
-  }
-
+  if(!wallet){hide("loadingBox");show("walletRequired");return}
   if(!/^0x[a-fA-F0-9]{40}$/.test(wallet)){
     hide("loadingBox");
-    setError(
-      "INVALID ROVER HUB WALLET",
-      "The saved Rover Hub wallet is not a valid EVM address. Reconnect from ROVER HUB."
-    );
+    setError("INVALID ROVER HUB WALLET","The saved Rover Hub wallet is not a valid EVM address. Reconnect from ROVER HUB.");
     return;
   }
 
   try{
-    const items = await fetchOwnedHoodRover(wallet);
-
-    hide("loadingBox");
-
+    const items=await fetchOwnedHoodRover(wallet);
     if(!items.length){
-      setError(
-        "NO HOOD ROVER FOUND",
-        "This wallet does not currently appear to own a Hood Rover NFT from the configured collection."
+      hide("loadingBox");
+      setError("NO HOOD ROVER FOUND","This wallet does not currently appear to own a Hood Rover NFT from the configured collection.");
+      return;
+    }
+
+    const id=renderImmediate(items[0],wallet);
+
+    /* Run metadata sources in parallel instead of sequentially.
+       The first usable metadata wins. */
+    const jobs=[
+      blockscoutMetadata(id).catch(()=>null),
+      tokenMetadata(id).catch(()=>null),
+      openSeaMetadata(id).catch(()=>null)
+    ];
+
+    let md=null;
+    for(const result of await Promise.all(jobs)){
+      if(result && (result.image||result.image_url||result.attributes||result.name)){
+        md=result;break;
+      }
+    }
+
+    const result=renderMetadata(md,id);
+
+    if(!result || result.rate<=0){
+      setClaimStatus(
+        "NFT FOUND, BUT RARITY METADATA COULD NOT BE READ.",
+        "error"
       );
       return;
     }
 
-    /*
-      If a wallet owns more than one Hood Rover, show the first one
-      for the daily generator. The backend RPC should enforce the
-      daily claim server-side.
-    */
-    const result =
-      await renderNFT(items[0],wallet);
+    setClaimStatus("CLAIMING TODAY'S ROVER REWARD...");
 
-    show("nftArea");
-
-    if(result.rate > 0){
-      setClaimStatus("CLAIMING TODAY'S ROVER REWARD...");
-
-      try{
-        const claim = await claimDailyRover(
-          wallet,
-          result.rate,
-          result.tokenId,
-          result.rarity
-        );
-
-        if(claim && claim.success === false){
-          if(claim.reason === "already_claimed"){
-            setClaimStatus(
-              "TODAY'S +" + result.rate + " ROVER IS ALREADY CLAIMED. COME BACK TOMORROW.",
-              ""
-            );
-          }else{
-            setClaimStatus(
-              "DAILY REWARD WAS NOT CLAIMED: " +
-              String(claim.reason || "UNKNOWN ERROR"),
-              "error"
-            );
-          }
+    try{
+      const claim=await claimDailyRover(wallet,result.rate,result.tokenId,result.rarity);
+      if(claim?.success===false){
+        if(claim.reason==="already_claimed"){
+          setClaimStatus("TODAY'S +"+result.rate+" ROVER IS ALREADY CLAIMED. COME BACK TOMORROW.");
         }else{
-          setClaimStatus(
-            "TODAY'S +" + result.rate +
-            " ROVER HAS BEEN ADDED TO YOUR ROVER HUB BALANCE.",
-            "success"
-          );
+          setClaimStatus("DAILY REWARD WAS NOT CLAIMED: "+String(claim.reason||"UNKNOWN ERROR"),"error");
         }
-
-      }catch(claimError){
-        console.error(claimError);
-        setClaimStatus(
-          "NFT VERIFIED, BUT DAILY CREDIT COULD NOT BE COMPLETED. PLEASE TRY AGAIN.",
-          "error"
-        );
+      }else{
+        setClaimStatus("TODAY'S +"+result.rate+" ROVER HAS BEEN ADDED TO YOUR ROVER HUB BALANCE.","success");
       }
+    }catch(e){
+      console.error(e);
+      setClaimStatus("NFT VERIFIED, BUT DAILY CREDIT COULD NOT BE COMPLETED. PLEASE TRY AGAIN.","error");
     }
 
-  }catch(error){
-    console.error(error);
+  }catch(e){
+    console.error(e);
     hide("loadingBox");
-
-    setError(
-      "NFT CHECK FAILED",
-      "The NFT indexer could not be reached right now. Please try again."
-    );
+    setError("NFT CHECK FAILED","The NFT indexer could not be reached right now. Please try again.");
   }
 }
 
-/* =========================================================
-   MOBILE MENU
-========================================================= */
-
-const menu = $("menu");
-const nav = $("nav");
-
-if(menu && nav){
-  menu.addEventListener("click",()=>{
-    nav.classList.toggle("open");
-  });
-
-  nav.querySelectorAll("a").forEach(a=>{
-    a.addEventListener("click",()=>{
-      nav.classList.remove("open");
-    });
-  });
+const menu=$("menu"),nav=$("nav");
+if(menu&&nav){
+  menu.addEventListener("click",()=>nav.classList.toggle("open"));
+  nav.querySelectorAll("a").forEach(a=>a.addEventListener("click",()=>nav.classList.remove("open")));
 }
-
-window.addEventListener("storage",(event)=>{
-  if(event.key === WALLET_KEY){
-    initMyRover();
-  }
-});
-
+window.addEventListener("storage",e=>{if(e.key===WALLET_KEY)initMyRover()});
 document.addEventListener("DOMContentLoaded",initMyRover);
 </script>
 
