@@ -2477,6 +2477,73 @@ async function fetchBlockscoutNFTInstance(tokenId){
   return await r.json();
 }
 
+
+/* =========================================================
+   OPENSEA PUBLIC PAGE FALLBACK
+   Used only when the indexed/on-chain metadata is unavailable.
+   The NFT itself remains the source of truth; this fallback only
+   reads the public OpenSea item page for its displayed metadata.
+========================================================= */
+
+function getOpenSeaItemURL(tokenId){
+  return "https://opensea.io/item/robinhood/" +
+    HOOD_ROVER_CONTRACT + "/" + encodeURIComponent(String(tokenId));
+}
+
+function extractOpenSeaMetadataFromText(text){
+  const source = String(text || "");
+  if(!source) return null;
+
+  const metadata = {};
+
+  const imageMatch = source.match(/"image"\s*:\s*"(ipfs:\/\/[^"\\]+|https?:\/\/[^"\\]+)"/i);
+  if(imageMatch) metadata.image = imageMatch[1].replace(/\\\\//g,"/");
+
+  const nameMatch = source.match(/"name"\s*:\s*"([^"]+)"/i);
+  if(nameMatch) metadata.name = nameMatch[1];
+
+  const tierMatch = source.match(/"trait_type"\s*:\s*"Tier"\s*,\s*"value"\s*:\s*"([^"]+)"/i);
+  if(tierMatch){
+    metadata.attributes = [
+      {trait_type:"Tier",value:tierMatch[1]}
+    ];
+  }
+
+  if(!metadata.image){
+    const markdownImage = source.match(/!\\[[^\\]]*\\]\\((https?:\/\/[^)]+)\\)/i);
+    if(markdownImage) metadata.image = markdownImage[1];
+  }
+
+  if(!metadata.image && !metadata.name && !metadata.attributes){
+    return null;
+  }
+
+  return metadata;
+}
+
+async function fetchOpenSeaPublicMetadata(tokenId){
+  const pageURL = getOpenSeaItemURL(tokenId);
+
+  const bridgeURLs = [
+    "https://r.jina.ai/http://" + pageURL.replace(/^https?:\/\//,""),
+    "https://r.jina.ai/https://" + pageURL.replace(/^https?:\/\//,"")
+  ];
+
+  for(const bridgeURL of bridgeURLs){
+    try{
+      const response = await fetch(bridgeURL,{headers:{accept:"text/plain,text/markdown,*/*"}});
+      if(!response.ok) continue;
+      const text = await response.text();
+      const metadata = extractOpenSeaMetadataFromText(text);
+      if(metadata) return metadata;
+    }catch(error){
+      console.warn("OpenSea public metadata fallback failed",error);
+    }
+  }
+
+  return null;
+}
+
 async function fetchTokenMetadata(tokenId){
   let uri="";
   try{ uri=await readTokenURI(tokenId); }
@@ -2605,6 +2672,21 @@ async function renderNFT(item,wallet){
       }
     }catch(e){
       console.warn("On-chain metadata unavailable",e);
+    }
+  }
+
+  /* 4) OpenSea public-page fallback. */
+  if(!image||!rarity){
+    try{
+      const md=await fetchOpenSeaPublicMetadata(tokenId);
+      if(md){
+        metadata=md;
+        name=md.name||name;
+        image=getMetadataImage(md,tokenId)||image;
+        rarity=getRarity({metadata:md,attributes:md.attributes})||rarity;
+      }
+    }catch(e){
+      console.warn("OpenSea fallback unavailable",e);
     }
   }
 
