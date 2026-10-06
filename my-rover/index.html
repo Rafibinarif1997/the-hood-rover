@@ -2282,418 +2282,252 @@ async function fetchBlockscoutNFTInstance(tokenId){
 }
 
 /* =========================================================
-   METADATA HELPERS
+   METADATA HELPERS — ROBUST BLOCKSCOUT + ON-CHAIN
 ========================================================= */
 
+function parseMetadataValue(value){
+  if(!value) return null;
+  if(typeof value === "object") return value;
+  if(typeof value !== "string") return null;
+  const text = value.trim();
+  if(!text) return null;
+  try{
+    if(text.startsWith("{")) return JSON.parse(text);
+  }catch(e){}
+  return null;
+}
+
+function collectMetadataObjects(item){
+  const out=[];
+  const add=(v)=>{
+    const parsed=parseMetadataValue(v);
+    if(parsed && typeof parsed === "object") out.push(parsed);
+  };
+  add(item?.metadata);
+  add(item?.instance?.metadata);
+  add(item?.token?.metadata);
+  add(item?._metadata);
+  return out;
+}
+
 function getItemTokenId(item){
-  return (
-    item.token_id ??
-    item.tokenId ??
-    item.instance?.token_id ??
-    item.instance?.id ??
-    item.id ??
-    "—"
+  return String(
+    item?.token_id ??
+    item?.tokenId ??
+    item?.instance?.token_id ??
+    item?.instance?.tokenId ??
+    item?.instance?.id ??
+    item?.id ??
+    ""
   );
 }
 
 function getItemName(item){
-  const token = item.token || {};
+  const token=item?.token||{};
+  const m=collectMetadataObjects(item);
   return (
-    item.name ||
-    item.token_name ||
-    item.instance?.name ||
+    item?._name ||
+    item?.name ||
+    item?.token_name ||
+    item?.instance?.name ||
     token.name ||
+    m.find(x=>x.name)?.name ||
     "THE HOOD ROVER"
   );
 }
 
 function getItemImage(item){
-  const candidates = [
-    item._image,
-    item.image_url,
-    item.image,
-    item.image_url_preview,
-    item.instance?.image_url,
-    item.instance?.image,
-    item.metadata?.image,
-    item.metadata?.image_url,
-    item.token?.image_url
+  const m=collectMetadataObjects(item);
+  const candidates=[
+    item?._image,
+    item?.image_url,
+    item?.image,
+    item?.image_url_preview,
+    item?.instance?.image_url,
+    item?.instance?.image,
+    item?.token?.image_url,
+    ...m.flatMap(x=>[x.image,x.image_url,x.imageUrl,x.media?.image])
   ];
-
-  const value = candidates.find(
-    v => typeof v === "string" && v.trim()
-  ) || "";
-
-  return resolveMediaURI(value);
+  const value=candidates.find(v=>typeof v==="string" && v.trim());
+  return value ? resolveMediaURI(value) : "";
 }
 
 /* =========================================================
    ON-CHAIN TOKEN METADATA
-   OpenSea reads ERC-721 metadata from tokenURI().
-   We do the same here so MY ROVER uses the real NFT artwork.
 ========================================================= */
 
 function hexToUtf8(hex){
-  const clean = String(hex || "").replace(/^0x/,"");
+  const clean=String(hex||"").replace(/^0x/,"");
   if(!clean) return "";
-
   try{
-    const bytes = new Uint8Array(clean.length / 2);
-
-    for(let i = 0; i < clean.length; i += 2){
-      bytes[i / 2] = parseInt(clean.slice(i,i + 2),16);
-    }
-
+    const bytes=new Uint8Array(Math.floor(clean.length/2));
+    for(let i=0;i<bytes.length;i++) bytes[i]=parseInt(clean.slice(i*2,i*2+2),16);
     return new TextDecoder().decode(bytes);
-  }catch(error){
-    console.error("HEX decode failed:",error);
+  }catch(e){
+    console.error("HEX decode failed",e);
     return "";
   }
 }
 
 function decodeAbiString(hex){
-  const clean = String(hex || "").replace(/^0x/,"");
-
-  if(clean.length < 128) return "";
-
+  const clean=String(hex||"").replace(/^0x/,"");
+  if(clean.length<128) return "";
   try{
-    const offsetBytes = parseInt(
-      clean.slice(0,64),
-      16
-    );
-
-    const offset = offsetBytes * 2;
-
-    const length = parseInt(
-      clean.slice(offset,offset + 64),
-      16
-    );
-
-    const start = offset + 64;
-    const end = start + (length * 2);
-
-    if(end > clean.length) return "";
-
-    return hexToUtf8(
-      "0x" + clean.slice(start,end)
-    );
-
-  }catch(error){
-    console.error(
-      "ABI tokenURI decode failed:",
-      error
-    );
+    const offset=Number(BigInt("0x"+clean.slice(0,64)))*2;
+    const length=Number(BigInt("0x"+clean.slice(offset,offset+64)));
+    const start=offset+64;
+    return hexToUtf8("0x"+clean.slice(start,start+length*2));
+  }catch(e){
     return "";
   }
 }
 
-async function readTokenURI(tokenId){
-  const id = String(tokenId);
-  if(!/^\d+$/.test(id)) throw new Error("Invalid token ID: " + id);
-
-  const tokenHex = BigInt(id).toString(16).padStart(64,"0");
-  const data = TOKEN_URI_SELECTOR + tokenHex;
-  let lastError = null;
-
+async function ethCallString(selector,tokenId){
+  const data=selector+BigInt(String(tokenId)).toString(16).padStart(64,"0");
+  let last=null;
   for(const rpc of ROBINHOOD_RPC_ENDPOINTS){
     try{
-      const response = await fetch(rpc,{
-        method:"POST",
-        headers:{"content-type":"application/json"},
-        body:JSON.stringify({
-          jsonrpc:"2.0",
-          id:1,
-          method:"eth_call",
-          params:[{to:HOOD_ROVER_CONTRACT,data},"latest"]
-        })
-      });
-
-      if(!response.ok) throw new Error("HTTP " + response.status);
-      const result = await response.json();
-      if(result.error) throw new Error(result.error.message || "eth_call failed");
-      if(!result.result || result.result === "0x") throw new Error("Empty tokenURI");
-
-      const uri = decodeAbiString(result.result);
-      if(uri) return uri;
-      throw new Error("Could not decode tokenURI");
-    }catch(error){
-      lastError = error;
-      console.warn("tokenURI RPC failed:",rpc,error);
-    }
+      const r=await fetch(rpc,{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({jsonrpc:"2.0",id:1,method:"eth_call",params:[{to:HOOD_ROVER_CONTRACT,data},"latest"]})});
+      if(!r.ok) throw new Error("HTTP "+r.status);
+      const j=await r.json();
+      if(j.error) throw new Error(j.error.message||"RPC error");
+      const value=decodeAbiString(j.result);
+      if(value) return value;
+      throw new Error("Empty decoded string");
+    }catch(e){ last=e; }
   }
-
-  throw lastError || new Error("All Robinhood RPC endpoints failed");
+  throw last||new Error("RPC unavailable");
 }
 
-/* =========================================================
-   URI HELPERS
-========================================================= */
+async function readTokenURI(tokenId){
+  return await ethCallString(TOKEN_URI_SELECTOR,tokenId);
+}
+
+async function readERC1155URI(tokenId){
+  /* ERC-1155 uri(uint256), useful as a fallback for non-standard deployments. */
+  return await ethCallString("0x0e89341c",tokenId);
+}
 
 function parseDataURI(uri){
-
-  if(!String(uri).startsWith("data:")){
-    return null;
-  }
-
+  if(!String(uri).startsWith("data:")) return null;
   try{
-    const comma = uri.indexOf(",");
-
-    if(comma === -1) return null;
-
-    const header = uri.slice(0,comma);
-    const body = uri.slice(comma + 1);
-
-    let jsonText;
-
+    const comma=uri.indexOf(",");
+    if(comma<0) return null;
+    const header=uri.slice(0,comma);
+    const body=uri.slice(comma+1);
+    let text;
     if(header.includes(";base64")){
-      const binary = atob(body);
-      const bytes =
-        new Uint8Array(binary.length);
-
-      for(let i = 0; i < binary.length; i++){
-        bytes[i] =
-          binary.charCodeAt(i);
-      }
-
-      jsonText =
-        new TextDecoder().decode(bytes);
-    }else{
-      jsonText =
-        decodeURIComponent(body);
-    }
-
-    return JSON.parse(jsonText);
-
-  }catch(error){
-    console.error(
-      "Metadata data URI decode failed:",
-      error
-    );
-    return null;
-  }
+      const bin=atob(body);
+      const bytes=new Uint8Array(bin.length);
+      for(let i=0;i<bin.length;i++) bytes[i]=bin.charCodeAt(i);
+      text=new TextDecoder().decode(bytes);
+    }else text=decodeURIComponent(body);
+    return JSON.parse(text);
+  }catch(e){ return null; }
 }
 
-function getGatewayCandidates(uri){
+function replaceIpfsPlaceholders(uri,tokenId){
+  return String(uri||"")
+    .replaceAll("{id}",BigInt(String(tokenId)).toString(16).padStart(64,"0"))
+    .replaceAll("{ID}",BigInt(String(tokenId)).toString(16).padStart(64,"0"));
+}
 
-  const value =
-    String(uri || "").trim();
-
+function getGatewayCandidates(uri,tokenId="0"){
+  let value=replaceIpfsPlaceholders(String(uri||"").trim(),tokenId);
   if(!value) return [];
-
+  if(value.startsWith("data:")) return [value];
   if(value.startsWith("ipfs://")){
-    const path =
-      value.slice(7);
-
+    const path=value.slice(7);
     return [
-      "https://ipfs.io/ipfs/" + path,
-      "https://dweb.link/ipfs/" + path,
-      "https://nftstorage.link/ipfs/" + path
+      "https://ipfs.io/ipfs/"+path,
+      "https://dweb.link/ipfs/"+path,
+      "https://nftstorage.link/ipfs/"+path,
+      "https://cloudflare-ipfs.com/ipfs/"+path
     ];
   }
-
-  if(value.startsWith("ar://")){
-    const id =
-      value.slice(5);
-
-    return [
-      "https://arweave.net/" + id
-    ];
-  }
-
+  if(value.startsWith("ar://")) return ["https://arweave.net/"+value.slice(5)];
   return [value];
 }
 
-function resolveMediaURI(uri){
-  const candidates =
-    getGatewayCandidates(uri);
-
-  return candidates[0] || "";
+function resolveMediaURI(uri,tokenId="0"){
+  return getGatewayCandidates(uri,tokenId)[0]||"";
 }
 
-async function fetchJSONFromURI(uri){
-
-  const direct =
-    parseDataURI(uri);
-
+async function fetchJSONFromURI(uri,tokenId="0"){
+  const direct=parseDataURI(uri);
   if(direct) return direct;
-
-  const candidates =
-    getGatewayCandidates(uri);
-
-  let lastError = null;
-
-  for(const url of candidates){
-
+  let last=null;
+  for(const url of getGatewayCandidates(uri,tokenId)){
     try{
-
-      const response =
-        await fetch(
-          url,
-          {
-            method:"GET",
-            headers:{
-              "accept":
-                "application/json,text/plain,*/*"
-            }
-          }
-        );
-
-      if(!response.ok){
-        throw new Error(
-          "HTTP " + response.status
-        );
-      }
-
-      const text =
-        await response.text();
-
-      try{
-        return JSON.parse(text);
-      }catch{
-        throw new Error(
-          "Metadata response was not JSON"
-        );
-      }
-
-    }catch(error){
-
-      lastError = error;
-
-      console.warn(
-        "Metadata gateway failed:",
-        url,
-        error
-      );
-    }
+      const r=await fetch(url,{headers:{accept:"application/json,text/plain,*/*"}});
+      if(!r.ok) throw new Error("HTTP "+r.status);
+      const text=await r.text();
+      const parsed=JSON.parse(text);
+      return parsed;
+    }catch(e){ last=e; }
   }
+  throw last||new Error("Metadata unavailable");
+}
 
-  throw (
-    lastError ||
-    new Error("Metadata could not be loaded")
-  );
+async function fetchBlockscoutNFTInstance(tokenId){
+  const url="https://robinhoodchain.blockscout.com/api/v2/tokens/"+
+    HOOD_ROVER_CONTRACT+"/instances/"+encodeURIComponent(String(tokenId));
+  const r=await fetch(url,{headers:{accept:"application/json"}});
+  if(!r.ok) throw new Error("Blockscout instance HTTP "+r.status);
+  return await r.json();
 }
 
 async function fetchTokenMetadata(tokenId){
-
-  const tokenURI =
-    await readTokenURI(tokenId);
-
-  console.log(
-    "Hood Rover #" +
-    tokenId +
-    " tokenURI:",
-    tokenURI
-  );
-
-  return await fetchJSONFromURI(
-    tokenURI
-  );
+  let uri="";
+  try{ uri=await readTokenURI(tokenId); }
+  catch(e){
+    try{ uri=await readERC1155URI(tokenId); }
+    catch(e2){ throw e; }
+  }
+  return await fetchJSONFromURI(uri,tokenId);
 }
 
-function getMetadataImage(metadata){
-
+function getMetadataImage(metadata,tokenId="0"){
   if(!metadata) return "";
-
-  const image =
-    metadata.image ||
-    metadata.image_url ||
-    metadata.imageUrl ||
-    metadata.media?.image ||
-    "";
-
-  return resolveMediaURI(image);
+  const image=metadata.image||metadata.image_url||metadata.imageUrl||metadata.media?.image||"";
+  return resolveMediaURI(image,tokenId);
 }
 
 function getAttributes(item){
-  const sources = [
-    item.attributes,
-    item.metadata?.attributes,
-    item.instance?.metadata?.attributes,
-    item.instance?.attributes
-  ];
-
-  for(const attrs of sources){
+  const objects=[item,...collectMetadataObjects(item)];
+  for(const obj of objects){
+    const attrs=obj?.attributes;
     if(Array.isArray(attrs)) return attrs;
   }
-
   return [];
 }
 
 function findAttribute(item,names){
-  const attrs = getAttributes(item);
-
+  const attrs=getAttributes(item);
   for(const attr of attrs){
-    const trait = String(
-      attr.trait_type ||
-      attr.traitType ||
-      attr.type ||
-      ""
-    ).trim().toLowerCase();
-
-    if(names.includes(trait)){
-      return String(
-        attr.value ??
-        attr.val ??
-        ""
-      ).trim();
-    }
+    const trait=String(attr?.trait_type||attr?.traitType||attr?.type||"").trim().toLowerCase();
+    if(names.includes(trait)) return String(attr?.value??attr?.val??"").trim();
   }
-
   return "";
 }
 
 function normalizeRarity(value){
-  const r = String(value || "").trim().toLowerCase();
-
+  const r=String(value||"").trim().toLowerCase();
   if(r.includes("legend")) return "legendary";
   if(r.includes("epic")) return "epic";
   if(r.includes("rare")) return "rare";
   if(r.includes("uncommon")) return "uncommon";
   if(r.includes("common")) return "common";
-
   return "";
 }
 
 function getRarity(item){
-  const metadata = item._metadata || item.metadata || {};
-
-  const direct =
-    item._rarity ||
-    item.rarity ||
-    item.tier ||
-    item.instance?.rarity ||
-    item.instance?.tier ||
-    metadata.rarity ||
-    metadata.tier ||
-    "";
-
-  const attrs =
-    item.attributes ||
-    item.instance?.attributes ||
-    metadata.attributes ||
-    [];
-
-  const fromAttribute = Array.isArray(attrs)
-    ? attrs.reduce((found,attr) => {
-        if(found) return found;
-        const trait = String(
-          attr?.trait_type ||
-          attr?.traitType ||
-          attr?.type ||
-          ""
-        ).trim().toLowerCase();
-        if(["rarity","rarity tier","rank","tier"].includes(trait)){
-          return String(attr?.value ?? attr?.val ?? "").trim();
-        }
-        return "";
-      },"")
-    : "";
-
-  return normalizeRarity(direct || fromAttribute);
+  const direct=item?._rarity||item?.rarity||item?.tier||item?.instance?.rarity||item?.instance?.tier||"";
+  return normalizeRarity(direct||findAttribute(item,["rarity","rarity tier","rank","tier"]));
 }
 
 function getRate(rarity){
-  return RARITY_RATES[String(rarity || "").toLowerCase()] || 0;
+  return RARITY_RATES[String(rarity||"").toLowerCase()]||0;
 }
 
 /* =========================================================
@@ -2723,85 +2557,81 @@ async function claimDailyRover(wallet, amount, tokenId, rarity){
 ========================================================= */
 
 async function renderNFT(item,wallet){
-  const tokenId = getItemTokenId(item);
+  const tokenId=getItemTokenId(item);
+  let metadata=null;
+  let name=getItemName(item);
+  let image=getItemImage(item);
+  let rarity=getRarity(item);
 
-  let name = item._name || getItemName(item);
-  let image = item._image || getItemImage(item);
-  let rarity = item._rarity || getRarity(item);
-  let metadata = item._metadata || item.metadata || null;
-
-  /* Exact Blockscout NFT instance metadata. */
-  try{
-    const instance = await fetchBlockscoutNFTInstance(tokenId);
-    const md = instance?.metadata || instance?.token?.metadata || null;
-    if(md) metadata = md;
-
-    const instanceImage =
-      instance?.image_url ||
-      instance?.image ||
-      md?.image ||
-      md?.image_url ||
-      "";
-
-    if(instanceImage) image = resolveMediaURI(instanceImage);
-    if(md?.name) name = String(md.name);
-    if(instance?.name) name = String(instance.name);
-
-    rarity = getRarity({
-      ...item,
-      rarity: instance?.rarity,
-      tier: instance?.tier,
-      attributes: instance?.attributes || md?.attributes,
-      metadata: md
-    }) || rarity;
-  }catch(error){
-    console.warn("Blockscout instance metadata failed for #" + tokenId,error);
+  /* 1) Use metadata already returned by the wallet NFT endpoint. */
+  const existing=collectMetadataObjects(item)[0];
+  if(existing){
+    metadata=existing;
+    name=existing.name||name;
+    image=getMetadataImage(existing,tokenId)||image;
+    rarity=getRarity({metadata:existing,attributes:existing.attributes})||rarity;
   }
 
-  /* Contract tokenURI() is the authoritative ERC-721 metadata fallback. */
-  if(!image || !rarity || !metadata){
+  /* 2) Ask Blockscout for the exact NFT instance. */
+  try{
+    const instance=await fetchBlockscoutNFTInstance(tokenId);
+    const md=parseMetadataValue(instance?.metadata)||parseMetadataValue(instance?.token?.metadata);
+    if(md){
+      metadata=md;
+      name=md.name||instance?.name||name;
+      image=getMetadataImage(md,tokenId)||resolveMediaURI(instance?.image_url||instance?.image||"",tokenId)||image;
+      rarity=getRarity({metadata:md,attributes:md.attributes,tier:instance?.tier,rarity:instance?.rarity})||rarity;
+    }else{
+      image=resolveMediaURI(instance?.image_url||instance?.image||"",tokenId)||image;
+      rarity=getRarity({
+        attributes:instance?.attributes,
+        tier:instance?.tier,
+        rarity:instance?.rarity
+      })||rarity;
+    }
+  }catch(e){
+    console.warn("Blockscout instance metadata unavailable",e);
+  }
+
+  /* 3) Final fallback: read the NFT metadata URI directly from the contract. */
+  if(!image||!rarity){
     try{
-      const md = await fetchTokenMetadata(tokenId);
+      const md=await fetchTokenMetadata(tokenId);
       if(md){
-        metadata = md;
-        if(md.name) name = String(md.name);
-        if(md.image) image = getMetadataImage(md);
-        rarity = getRarity({metadata:md}) || rarity;
+        metadata=md;
+        name=md.name||name;
+        image=getMetadataImage(md,tokenId)||image;
+        rarity=getRarity({metadata:md,attributes:md.attributes})||rarity;
       }
-    }catch(error){
-      console.warn("tokenURI metadata failed for #" + tokenId,error);
+    }catch(e){
+      console.warn("On-chain metadata unavailable",e);
     }
   }
 
-  image = resolveMediaURI(image);
-  const rate = getRate(rarity);
+  image=resolveMediaURI(image,tokenId);
+  const rate=getRate(rarity);
 
-  $("walletAddress").textContent = shortWallet(wallet);
-  $("nftName").textContent = name;
-  $("nftId").textContent = "TOKEN ID: " + tokenId;
-  $("rarityBadge").textContent = "RARITY: " + (rarity ? rarity.toUpperCase() : "UNKNOWN");
-  $("rateNumber").textContent = "+" + rate + " ROVER";
-  $("rateText").textContent = rarity ? rarity.toUpperCase() + " ROVER • DAILY" : "Rarity metadata was not found.";
+  $("walletAddress").textContent=shortWallet(wallet);
+  $("nftName").textContent=name;
+  $("nftId").textContent="TOKEN ID: "+tokenId;
+  $("rarityBadge").textContent="RARITY: "+(rarity?rarity.toUpperCase():"UNKNOWN");
+  $("rateNumber").textContent="+"+rate+" ROVER";
+  $("rateText").textContent=rarity?rarity.toUpperCase()+" ROVER • DAILY":"Rarity metadata was not found.";
 
-  const img = $("nftImage");
-  const placeholder = $("nftPlaceholder");
+  const img=$("nftImage");
+  const placeholder=$("nftPlaceholder");
 
   if(image){
-    const candidates = getGatewayCandidates(image);
-    let index = 0;
-
-    img.onerror = () => {
+    const candidates=getGatewayCandidates(image,tokenId);
+    let index=0;
+    img.onerror=()=>{
       index++;
-      if(index < candidates.length){
-        img.src = candidates[index];
-        return;
-      }
+      if(index<candidates.length){ img.src=candidates[index]; return; }
       img.classList.add("hidden");
       show("nftPlaceholder");
     };
-
-    img.src = candidates[0] || image;
-    img.alt = name;
+    img.src=candidates[0]||image;
+    img.alt=name;
     img.classList.remove("hidden");
     hide("nftPlaceholder");
   }else{
