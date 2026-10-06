@@ -2033,14 +2033,30 @@ const ROVER_TIER_FALLBACK={"1":"Common","2":"Rare","3":"Common","4":"Common","5"
 function fallbackMetadata(tokenId){const tier=normalizeRarity(ROVER_TIER_FALLBACK[String(tokenId)]||"");return tier?{name:"Hood Rover #"+tokenId,attributes:[{trait_type:"Tier",value:tier}]}:null}
 
 function ipfsCandidates(uri){
-  const u=String(uri||"").trim();if(!u)return[];
-  if(u.startsWith("ipfs://")){const p=u.slice(7);return["https://ipfs.io/ipfs/"+p,"https://dweb.link/ipfs/"+p,"https://nftstorage.link/ipfs/"+p,"https://w3s.link/ipfs/"+p]}
+  let u=String(uri||"").trim();if(!u)return[];
+  if(u.startsWith("ipfs://")){
+    let p=u.slice(7).replace(/^ipfs\//,"");
+    return[
+      "https://ipfs.io/ipfs/"+p,
+      "https://dweb.link/ipfs/"+p,
+      "https://nftstorage.link/ipfs/"+p,
+      "https://w3s.link/ipfs/"+p,
+      "https://cloudflare-ipfs.com/ipfs/"+p,
+      "https://gateway.pinata.cloud/ipfs/"+p,
+      "https://ipfs.filebase.io/ipfs/"+p
+    ];
+  }
   if(u.startsWith("ar://"))return["https://arweave.net/"+u.slice(5)];
   return[u]
 }
 function imageCandidates(m){
-  const raw=[m?.image,m?.image_url,m?.imageUrl,m?.image_data,m?.imageData].filter(Boolean),out=[];
-  for(const x of raw)for(const u of ipfsCandidates(x))if(!out.includes(u))out.push(u);
+  if(!m)return[];
+  const raw=[m?.image,m?.image_url,m?.imageUrl,m?.image_data,m?.imageData,m?.image_uri,m?.imageURI,
+    m?.media?.image,m?.media?.image_url,m?.metadata?.image,m?.metadata?.image_url].filter(Boolean),out=[];
+  for(const x of raw){
+    if(typeof x!=="string")continue;
+    for(const u of ipfsCandidates(x))if(!out.includes(u))out.push(u);
+  }
   return out
 }
 async function fetchJSON(url,ms=6500){
@@ -2080,10 +2096,36 @@ async function openSeaMetadata(tokenId){
   }finally{clearTimeout(timer)}
 }
 function itemMetadata(item){
-  for(const s of [item?.metadata,item?.token?.metadata,item?.instance?.metadata,item?.token,item?.instance,item]){const o=metadataObject(s);if(o&&(o.image||o.image_url||o.image_data||o.attributes||o.rarity||o.tier))return o}
-  const image=item?.image_url||item?.image||item?.token?.image_url||item?.token?.image||item?.instance?.image_url||item?.instance?.image;
-  const name=item?.name||item?.token?.name||item?.instance?.name,tier=item?.rarity||item?.tier||item?.token?.rarity||item?.instance?.rarity;
-  return image||name||tier?{image,name,tier}:null
+  // Blockscout can expose the image directly on the NFT instance while the
+  // nested metadata object only contains traits. Keep BOTH instead of
+  // returning the first metadata object and accidentally dropping image_url.
+  const out={};
+  for(const s of [item?.metadata,item?.token?.metadata,item?.instance?.metadata,item?.token,item?.instance,item]){
+    const o=metadataObject(s);
+    if(o)Object.assign(out,o);
+  }
+  const direct=[
+    ["image_url",item?.image_url], ["image",item?.image],
+    ["image_url",item?.token?.image_url], ["image",item?.token?.image],
+    ["image_url",item?.instance?.image_url], ["image",item?.instance?.image],
+    ["animation_url",item?.animation_url], ["animation_url",item?.instance?.animation_url]
+  ];
+  for(const [k,v] of direct)if(v&&!out[k])out[k]=v;
+  if(!out.name)out.name=item?.name||item?.token?.name||item?.instance?.name;
+  if(!out.rarity&&!out.tier)out.rarity=item?.rarity||item?.tier||item?.token?.rarity||item?.instance?.rarity||"";
+  return Object.keys(out).length?out:null;
+}
+function itemImageCandidates(item){
+  const out=[];
+  const sources=[
+    item, item?.metadata, item?.instance, item?.instance?.metadata,
+    item?.token, item?.token?.metadata
+  ];
+  for(const s of sources){
+    if(!s)continue;
+    for(const u of imageCandidates(s))if(!out.includes(u))out.push(u);
+  }
+  return out;
 }
 function mergeMetadata(a,b){
   const out={...(a||{}),...(b||{})};
@@ -2099,10 +2141,10 @@ function createCard(item){
   $("roverGrid").appendChild(card);return{card,id,item,metadata:initial}
 }
 async function resolveOne(entry){
-  const id=entry.id;let md=entry.metadata||{},tier=normalizeRarity(ROVER_TIER_FALLBACK[String(id)]||"")||tierOf(md),candidates=imageCandidates(md),card=entry.card,img=card.querySelector(".rover-img"),ph=card.querySelector(".nft-placeholder"),badge=card.querySelector(".rarity-badge"),rateEl=card.querySelector(".nft-rate strong"),rateText=card.querySelector(".nft-rate span");
-  if(!candidates.length){const b=await blockscoutMetadata(id);if(b){md=mergeMetadata(md,b);candidates=imageCandidates(md);tier=tierOf(md)||tier}}
-  if(!candidates.length){const t=await tokenMetadata(id).catch(()=>null);if(t){md=mergeMetadata(md,t);candidates=imageCandidates(md);tier=tierOf(md)||tier}}
-  if(!candidates.length){const o=await openSeaMetadata(id).catch(()=>null);if(o){md=mergeMetadata(md,o);candidates=imageCandidates(md);tier=tierOf(md)||tier}}
+  const id=entry.id;let md=entry.metadata||{},tier=normalizeRarity(ROVER_TIER_FALLBACK[String(id)]||"")||tierOf(md),candidates=[...itemImageCandidates(entry.item),...imageCandidates(md)].filter((u,i,a)=>u&&!a.slice(0,i).includes(u)),card=entry.card,img=card.querySelector(".rover-img"),ph=card.querySelector(".nft-placeholder"),badge=card.querySelector(".rarity-badge"),rateEl=card.querySelector(".nft-rate strong"),rateText=card.querySelector(".nft-rate span");
+  if(!candidates.length){const b=await blockscoutMetadata(id);if(b){md=mergeMetadata(md,b);candidates=[...candidates,...imageCandidates(b)].filter((u,i,a)=>u&&!a.slice(0,i).includes(u));tier=tierOf(md)||tier}}
+  if(!candidates.length){const t=await tokenMetadata(id).catch(()=>null);if(t){md=mergeMetadata(md,t);candidates=[...candidates,...imageCandidates(t),...imageCandidates(md)].filter((u,i,a)=>u&&!a.slice(0,i).includes(u));tier=tierOf(md)||tier}}
+  if(!candidates.length){const o=await openSeaMetadata(id).catch(()=>null);if(o){md=mergeMetadata(md,o);candidates=[...candidates,...imageCandidates(o),...imageCandidates(md)].filter((u,i,a)=>u&&!a.slice(0,i).includes(u));tier=tierOf(md)||tier}}
   tier=normalizeRarity(ROVER_TIER_FALLBACK[String(id)]||"")||tier;const rate=rateOf(tier);
   badge.textContent=tier?"RARITY: "+tier.toUpperCase():"RARITY: UNKNOWN";rateEl.textContent="+"+rate+" ROVER";rateText.textContent=tier?tier.toUpperCase()+" / DAY":"METADATA UNAVAILABLE";
   for(const url of candidates){try{await new Promise((ok,bad)=>{const p=new Image();p.onload=ok;p.onerror=bad;p.src=url});img.src=url;img.alt=md.name||("Hood Rover #"+id);img.classList.remove("hidden");ph.classList.add("hidden");break}catch(e){}}
