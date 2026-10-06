@@ -2136,8 +2136,11 @@ const HOOD_ROVER_CONTRACT =
 const BLOCKSCOUT_NFT_API =
   "https://robinhoodchain.blockscout.com/api/v2/addresses";
 
-const ROBINHOOD_RPC =
-  "https://rpc.mainnet.chain.robinhood.com";
+const ROBINHOOD_RPC_ENDPOINTS = [
+  "https://rpc.mainnet.chain.robinhood.com",
+  "https://rpc.nodeflare.app/robinhood/public",
+  "https://triport.io/rpc/robinhood/public"
+];
 
 const TOKEN_URI_SELECTOR =
   "0xc87b56dd";
@@ -2284,10 +2287,11 @@ async function fetchBlockscoutNFTInstance(tokenId){
 
 function getItemTokenId(item){
   return (
-    item.id ??
     item.token_id ??
     item.tokenId ??
+    item.instance?.token_id ??
     item.instance?.id ??
+    item.id ??
     "—"
   );
 }
@@ -2305,16 +2309,22 @@ function getItemName(item){
 
 function getItemImage(item){
   const candidates = [
+    item._image,
     item.image_url,
     item.image,
     item.image_url_preview,
     item.instance?.image_url,
     item.instance?.image,
     item.metadata?.image,
-    item.metadata?.image_url
+    item.metadata?.image_url,
+    item.token?.image_url
   ];
 
-  return candidates.find(v => typeof v === "string" && v.trim()) || "";
+  const value = candidates.find(
+    v => typeof v === "string" && v.trim()
+  ) || "";
+
+  return resolveMediaURI(value);
 }
 
 /* =========================================================
@@ -2378,69 +2388,41 @@ function decodeAbiString(hex){
 }
 
 async function readTokenURI(tokenId){
-
   const id = String(tokenId);
+  if(!/^\d+$/.test(id)) throw new Error("Invalid token ID: " + id);
 
-  if(!/^\d+$/.test(id)){
-    throw new Error(
-      "Invalid token ID: " + id
-    );
-  }
+  const tokenHex = BigInt(id).toString(16).padStart(64,"0");
+  const data = TOKEN_URI_SELECTOR + tokenHex;
+  let lastError = null;
 
-  const tokenHex =
-    BigInt(id)
-      .toString(16)
-      .padStart(64,"0");
+  for(const rpc of ROBINHOOD_RPC_ENDPOINTS){
+    try{
+      const response = await fetch(rpc,{
+        method:"POST",
+        headers:{"content-type":"application/json"},
+        body:JSON.stringify({
+          jsonrpc:"2.0",
+          id:1,
+          method:"eth_call",
+          params:[{to:HOOD_ROVER_CONTRACT,data},"latest"]
+        })
+      });
 
-  const response = await fetch(
-    ROBINHOOD_RPC,
-    {
-      method:"POST",
-      headers:{
-        "content-type":"application/json"
-      },
-      body:JSON.stringify({
-        jsonrpc:"2.0",
-        id:1,
-        method:"eth_call",
-        params:[
-          {
-            to:HOOD_ROVER_CONTRACT,
-            data:TOKEN_URI_SELECTOR + tokenHex
-          },
-          "latest"
-        ]
-      })
+      if(!response.ok) throw new Error("HTTP " + response.status);
+      const result = await response.json();
+      if(result.error) throw new Error(result.error.message || "eth_call failed");
+      if(!result.result || result.result === "0x") throw new Error("Empty tokenURI");
+
+      const uri = decodeAbiString(result.result);
+      if(uri) return uri;
+      throw new Error("Could not decode tokenURI");
+    }catch(error){
+      lastError = error;
+      console.warn("tokenURI RPC failed:",rpc,error);
     }
-  );
-
-  if(!response.ok){
-    throw new Error(
-      "Robinhood RPC HTTP " +
-      response.status
-    );
   }
 
-  const result =
-    await response.json();
-
-  if(result.error){
-    throw new Error(
-      result.error.message ||
-      "tokenURI RPC error"
-    );
-  }
-
-  const uri =
-    decodeAbiString(result.result);
-
-  if(!uri){
-    throw new Error(
-      "Empty tokenURI for #" + id
-    );
-  }
-
-  return uri;
+  throw lastError || new Error("All Robinhood RPC endpoints failed");
 }
 
 /* =========================================================
@@ -2673,25 +2655,41 @@ function normalizeRarity(value){
 }
 
 function getRarity(item){
+  const metadata = item._metadata || item.metadata || {};
+
   const direct =
+    item._rarity ||
     item.rarity ||
     item.tier ||
     item.instance?.rarity ||
     item.instance?.tier ||
-    item.metadata?.rarity ||
-    item.metadata?.tier ||
+    metadata.rarity ||
+    metadata.tier ||
     "";
 
-  const fromAttribute = findAttribute(item,[
-    "rarity",
-    "rarity tier",
-    "rank",
-    "tier"
-  ]);
+  const attrs =
+    item.attributes ||
+    item.instance?.attributes ||
+    metadata.attributes ||
+    [];
 
-  return normalizeRarity(
-    direct || fromAttribute
-  );
+  const fromAttribute = Array.isArray(attrs)
+    ? attrs.reduce((found,attr) => {
+        if(found) return found;
+        const trait = String(
+          attr?.trait_type ||
+          attr?.traitType ||
+          attr?.type ||
+          ""
+        ).trim().toLowerCase();
+        if(["rarity","rarity tier","rank","tier"].includes(trait)){
+          return String(attr?.value ?? attr?.val ?? "").trim();
+        }
+        return "";
+      },"")
+    : "";
+
+  return normalizeRarity(direct || fromAttribute);
 }
 
 function getRate(rarity){
@@ -2725,273 +2723,93 @@ async function claimDailyRover(wallet, amount, tokenId, rarity){
 ========================================================= */
 
 async function renderNFT(item,wallet){
+  const tokenId = getItemTokenId(item);
 
-  const tokenId =
-    getItemTokenId(item);
+  let name = item._name || getItemName(item);
+  let image = item._image || getItemImage(item);
+  let rarity = item._rarity || getRarity(item);
+  let metadata = item._metadata || item.metadata || null;
 
-  let name =
-    getItemName(item);
-
-  let image =
-    getItemImage(item);
-
-  let rarity =
-    getRarity(item);
-
-  let metadata = null;
-
-  /*
-   * FIRST: ask Blockscout for the exact NFT instance.
-   * This exposes the indexed metadata/image that OpenSea
-   * is already able to display for the same token.
-   */
+  /* Exact Blockscout NFT instance metadata. */
   try{
-
-    const instance =
-      await fetchBlockscoutNFTInstance(tokenId);
-
-    metadata =
-      instance?.metadata ||
-      instance?.token?.metadata ||
-      null;
+    const instance = await fetchBlockscoutNFTInstance(tokenId);
+    const md = instance?.metadata || instance?.token?.metadata || null;
+    if(md) metadata = md;
 
     const instanceImage =
       instance?.image_url ||
       instance?.image ||
-      instance?.instance?.image_url ||
-      instance?.metadata?.image ||
-      instance?.metadata?.image_url ||
+      md?.image ||
+      md?.image_url ||
       "";
 
-    if(instanceImage){
-      image = resolveMediaURI(instanceImage);
-    }
+    if(instanceImage) image = resolveMediaURI(instanceImage);
+    if(md?.name) name = String(md.name);
+    if(instance?.name) name = String(instance.name);
 
-    const instanceName =
-      instance?.name ||
-      instance?.instance?.name ||
-      metadata?.name ||
-      "";
-
-    if(instanceName){
-      name = String(instanceName);
-    }
-
-    const instanceAttributes =
-      instance?.attributes ||
-      metadata?.attributes ||
-      [];
-
-    const tierAttribute =
-      Array.isArray(instanceAttributes)
-        ? instanceAttributes.find(attr => {
-            const type = String(
-              attr?.trait_type ||
-              attr?.traitType ||
-              attr?.type ||
-              ""
-            ).trim().toLowerCase();
-
-            return [
-              "tier",
-              "rarity",
-              "rarity tier",
-              "rank"
-            ].includes(type);
-          })
-        : null;
-
-    rarity = normalizeRarity(
-      instance?.rarity ||
-      instance?.tier ||
-      metadata?.rarity ||
-      metadata?.tier ||
-      tierAttribute?.value ||
-      rarity
-    );
-
-    /* Some Blockscout responses keep the image inside metadata. */
-    if(!image && metadata){
-      image = getMetadataImage(metadata);
-    }
-
-  }catch(instanceError){
-    console.warn(
-      "Blockscout NFT instance metadata unavailable for #" +
-      tokenId,
-      instanceError
-    );
+    rarity = getRarity({
+      ...item,
+      rarity: instance?.rarity,
+      tier: instance?.tier,
+      attributes: instance?.attributes || md?.attributes,
+      metadata: md
+    }) || rarity;
+  }catch(error){
+    console.warn("Blockscout instance metadata failed for #" + tokenId,error);
   }
 
-  /*
-   * SECOND: direct tokenURI fallback.
-   */
-  if(!image || !rarity || name === "THE HOOD ROVER"){
-
+  /* Contract tokenURI() is the authoritative ERC-721 metadata fallback. */
+  if(!image || !rarity || !metadata){
     try{
-
-      const chainMetadata =
-        await fetchTokenMetadata(tokenId);
-
-      if(chainMetadata){
-
-        metadata =
-          chainMetadata;
-
-        if(chainMetadata.name){
-          name =
-            String(chainMetadata.name);
-        }
-
-        const chainImage =
-          getMetadataImage(chainMetadata);
-
-        if(chainImage){
-          image = chainImage;
-        }
-
-        const attrs =
-          Array.isArray(chainMetadata.attributes)
-            ? chainMetadata.attributes
-            : [];
-
-        const tier = attrs.find(attr => {
-          const type = String(
-            attr?.trait_type ||
-            attr?.traitType ||
-            attr?.type ||
-            ""
-          ).trim().toLowerCase();
-
-          return [
-            "tier",
-            "rarity",
-            "rarity tier",
-            "rank"
-          ].includes(type);
-        });
-
-        rarity = normalizeRarity(
-          chainMetadata.rarity ||
-          chainMetadata.tier ||
-          tier?.value ||
-          rarity
-        );
+      const md = await fetchTokenMetadata(tokenId);
+      if(md){
+        metadata = md;
+        if(md.name) name = String(md.name);
+        if(md.image) image = getMetadataImage(md);
+        rarity = getRarity({metadata:md}) || rarity;
       }
-
-    }catch(metadataError){
-
-      console.warn(
-        "On-chain metadata unavailable for #" +
-        tokenId,
-        metadataError
-      );
+    }catch(error){
+      console.warn("tokenURI metadata failed for #" + tokenId,error);
     }
   }
 
-  const rate =
-    getRate(rarity);
+  image = resolveMediaURI(image);
+  const rate = getRate(rarity);
 
-  $("walletAddress").textContent =
-    shortWallet(wallet);
+  $("walletAddress").textContent = shortWallet(wallet);
+  $("nftName").textContent = name;
+  $("nftId").textContent = "TOKEN ID: " + tokenId;
+  $("rarityBadge").textContent = "RARITY: " + (rarity ? rarity.toUpperCase() : "UNKNOWN");
+  $("rateNumber").textContent = "+" + rate + " ROVER";
+  $("rateText").textContent = rarity ? rarity.toUpperCase() + " ROVER • DAILY" : "Rarity metadata was not found.";
 
-  $("nftName").textContent =
-    name;
-
-  $("nftId").textContent =
-    "TOKEN ID: " + tokenId;
-
-  $("rarityBadge").textContent =
-    "RARITY: " +
-    (
-      rarity
-        ? rarity.toUpperCase()
-        : "UNKNOWN"
-    );
-
-  $("rateNumber").textContent =
-    "+" + rate + " ROVER";
-
-  $("rateText").textContent =
-    rarity
-      ? rarity.toUpperCase() +
-        " ROVER • DAILY"
-      : "Rarity metadata was not found.";
-
-  const img =
-    $("nftImage");
-
-  const placeholder =
-    $("nftPlaceholder");
+  const img = $("nftImage");
+  const placeholder = $("nftPlaceholder");
 
   if(image){
-
-    const imageCandidates =
-      getGatewayCandidates(
-        metadata?.image ||
-        metadata?.image_url ||
-        image
-      );
-
-    let imageIndex = 0;
+    const candidates = getGatewayCandidates(image);
+    let index = 0;
 
     img.onerror = () => {
-
-      imageIndex++;
-
-      if(
-        imageIndex <
-        imageCandidates.length
-      ){
-
-        img.src =
-          imageCandidates[imageIndex];
-
+      index++;
+      if(index < candidates.length){
+        img.src = candidates[index];
         return;
       }
-
-      console.error(
-        "All NFT image gateways failed:",
-        imageCandidates
-      );
-
       img.classList.add("hidden");
       show("nftPlaceholder");
     };
 
-    img.src =
-      imageCandidates[0] ||
-      image;
-
-    img.alt =
-      name;
-
+    img.src = candidates[0] || image;
+    img.alt = name;
     img.classList.remove("hidden");
     hide("nftPlaceholder");
-
   }else{
-
     img.classList.add("hidden");
     show("nftPlaceholder");
-
   }
 
-  if(!rarity){
-
-    setClaimStatus(
-      "NFT FOUND, BUT RARITY METADATA WAS NOT FOUND. DAILY REWARD WAS NOT CLAIMED.",
-      "error"
-    );
-
-  }
-
-  return {
-    tokenId,
-    rarity,
-    rate,
-    image,
-    metadata
-  };
+  return {tokenId,rarity,rate,image,metadata};
 }
 
 /* =========================================================
