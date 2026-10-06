@@ -2237,6 +2237,8 @@ async function fetchOwnedHoodRover(wallet){
       token.address_hash ||
       token.address ||
       token.contract_address ||
+      item.address_hash ||
+      item.contract_address ||
       ""
     );
 
@@ -2244,6 +2246,36 @@ async function fetchOwnedHoodRover(wallet){
   });
 
   return matches;
+}
+
+/* =========================================================
+   BLOCKSCOUT NFT INSTANCE METADATA
+   This is the important fallback for OpenSea-style metadata.
+========================================================= */
+
+async function fetchBlockscoutNFTInstance(tokenId){
+
+  const url =
+    "https://robinhoodchain.blockscout.com/api/v2/tokens/" +
+    HOOD_ROVER_CONTRACT +
+    "/instances/" +
+    encodeURIComponent(String(tokenId));
+
+  const response = await fetch(url,{
+    method:"GET",
+    headers:{
+      "accept":"application/json"
+    }
+  });
+
+  if(!response.ok){
+    throw new Error(
+      "Blockscout NFT instance HTTP " +
+      response.status
+    );
+  }
+
+  return await response.json();
 }
 
 /* =========================================================
@@ -2697,82 +2729,164 @@ async function renderNFT(item,wallet){
   const tokenId =
     getItemTokenId(item);
 
-  const fallbackName =
+  let name =
     getItemName(item);
 
-  let name = fallbackName;
-  let image = getItemImage(item);
-  let rarity = getRarity(item);
+  let image =
+    getItemImage(item);
+
+  let rarity =
+    getRarity(item);
+
   let metadata = null;
 
   /*
-   * Read the authoritative ERC-721 tokenURI.
-   * This is the same metadata source OpenSea reads.
+   * FIRST: ask Blockscout for the exact NFT instance.
+   * This exposes the indexed metadata/image that OpenSea
+   * is already able to display for the same token.
    */
   try{
 
+    const instance =
+      await fetchBlockscoutNFTInstance(tokenId);
+
     metadata =
-      await fetchTokenMetadata(tokenId);
+      instance?.metadata ||
+      instance?.token?.metadata ||
+      null;
 
-    if(metadata){
+    const instanceImage =
+      instance?.image_url ||
+      instance?.image ||
+      instance?.instance?.image_url ||
+      instance?.metadata?.image ||
+      instance?.metadata?.image_url ||
+      "";
 
-      if(metadata.name){
-        name =
-          String(metadata.name);
-      }
-
-      const metadataImage =
-        getMetadataImage(metadata);
-
-      if(metadataImage){
-        image =
-          metadataImage;
-      }
-
-      const metadataRarity =
-        metadata.rarity ||
-        metadata.tier ||
-        "";
-
-      const metadataTier =
-        Array.isArray(metadata.attributes)
-          ? metadata.attributes.find(attr => {
-              const type =
-                String(
-                  attr.trait_type ||
-                  attr.traitType ||
-                  ""
-                ).trim().toLowerCase();
-
-              return [
-                "tier",
-                "rarity",
-                "rarity tier",
-                "rank"
-              ].includes(type);
-            })?.value || ""
-          : "";
-
-      rarity =
-        normalizeRarity(
-          metadataRarity ||
-          metadataTier ||
-          rarity
-        );
+    if(instanceImage){
+      image = resolveMediaURI(instanceImage);
     }
 
-  }catch(metadataError){
+    const instanceName =
+      instance?.name ||
+      instance?.instance?.name ||
+      metadata?.name ||
+      "";
 
-    /*
-     * Blockscout metadata/image remains a fallback.
-     * This keeps the page working if the public RPC or
-     * metadata gateway is temporarily unavailable.
-     */
-    console.warn(
-      "On-chain metadata unavailable for #" +
-      tokenId,
-      metadataError
+    if(instanceName){
+      name = String(instanceName);
+    }
+
+    const instanceAttributes =
+      instance?.attributes ||
+      metadata?.attributes ||
+      [];
+
+    const tierAttribute =
+      Array.isArray(instanceAttributes)
+        ? instanceAttributes.find(attr => {
+            const type = String(
+              attr?.trait_type ||
+              attr?.traitType ||
+              attr?.type ||
+              ""
+            ).trim().toLowerCase();
+
+            return [
+              "tier",
+              "rarity",
+              "rarity tier",
+              "rank"
+            ].includes(type);
+          })
+        : null;
+
+    rarity = normalizeRarity(
+      instance?.rarity ||
+      instance?.tier ||
+      metadata?.rarity ||
+      metadata?.tier ||
+      tierAttribute?.value ||
+      rarity
     );
+
+    /* Some Blockscout responses keep the image inside metadata. */
+    if(!image && metadata){
+      image = getMetadataImage(metadata);
+    }
+
+  }catch(instanceError){
+    console.warn(
+      "Blockscout NFT instance metadata unavailable for #" +
+      tokenId,
+      instanceError
+    );
+  }
+
+  /*
+   * SECOND: direct tokenURI fallback.
+   */
+  if(!image || !rarity || name === "THE HOOD ROVER"){
+
+    try{
+
+      const chainMetadata =
+        await fetchTokenMetadata(tokenId);
+
+      if(chainMetadata){
+
+        metadata =
+          chainMetadata;
+
+        if(chainMetadata.name){
+          name =
+            String(chainMetadata.name);
+        }
+
+        const chainImage =
+          getMetadataImage(chainMetadata);
+
+        if(chainImage){
+          image = chainImage;
+        }
+
+        const attrs =
+          Array.isArray(chainMetadata.attributes)
+            ? chainMetadata.attributes
+            : [];
+
+        const tier = attrs.find(attr => {
+          const type = String(
+            attr?.trait_type ||
+            attr?.traitType ||
+            attr?.type ||
+            ""
+          ).trim().toLowerCase();
+
+          return [
+            "tier",
+            "rarity",
+            "rarity tier",
+            "rank"
+          ].includes(type);
+        });
+
+        rarity = normalizeRarity(
+          chainMetadata.rarity ||
+          chainMetadata.tier ||
+          tier?.value ||
+          rarity
+        );
+      }
+
+    }catch(metadataError){
+
+      console.warn(
+        "On-chain metadata unavailable for #" +
+        tokenId,
+        metadataError
+      );
+    }
   }
 
   const rate =
