@@ -107,23 +107,19 @@ header{
   white-space:nowrap;  
 }  
   
-.mark{
-  width:38px;
-  height:38px;
-  display:block;
-  overflow:hidden;
-  background:var(--blue);
-  border:3px solid var(--line);
-  box-shadow:3px 3px 0 var(--line);
-  flex-shrink:0;
-}
-
-.mark img{
-  width:100%;
-  height:100%;
-  display:block;
-  object-fit:cover;
-}
+.mark{  
+  width:38px;  
+  height:38px;  
+  display:grid;  
+  place-items:center;  
+  background:var(--blue);  
+  color:#fff;  
+  border:3px solid var(--line);  
+  box-shadow:3px 3px 0 var(--line);  
+  font-family:"Press Start 2P";  
+  font-size:10px;  
+  flex-shrink:0;  
+}  
   
 nav{  
   margin-left:auto;  
@@ -157,6 +153,11 @@ nav a.active{
   flex-shrink:0;  
 }  
   
+.x-login-button{
+  flex-shrink:0;
+  white-space:nowrap;
+}
+
 .wallet-button{  
   flex-shrink:0;  
   white-space:nowrap;  
@@ -1570,6 +1571,14 @@ footer{
     margin-left:0;  
   }  
   
+  .x-login-button{
+    width:auto !important;
+    min-width:0;
+    padding:10px 8px;
+    font-size:7px;
+    box-shadow:3px 3px 0 var(--line);
+  }
+
   .wallet-button{  
     width:auto !important;  
     min-width:0;  
@@ -1706,9 +1715,7 @@ footer{
   
 }  
 </style>  </head>  <body>  <header>  <a class="brand" href="../">  
-  <span class="mark">
-  <img src="../assets/rovers/rover-01.png" alt="Hood Rover">
-</span>  
+  <span class="mark">HR</span>  
   THE HOOD ROVER  
 </a>  <button  
 class="menu"  
@@ -1726,9 +1733,16 @@ type="button">
 <a href="../roadmap/">ROADMAP</a>
 <a href="../faq/">FAQ</a>
 
-</nav>  <button  
-class="btn secondary wallet-button"  
-id="connectWalletButton"  
+</nav>  <button
+class="btn x-login-button"
+id="xLoginButton"
+type="button">
+LOGIN WITH X
+</button>
+
+<button
+class="btn secondary wallet-button"
+id="connectWalletButton"
 type="button">
 CONNECT WALLET
 </button>
@@ -1755,8 +1769,11 @@ SYSTEM ONLINE
 HUB STATUS: READY  
 </div>  <div class="status-small">  
 COLLECTION: 1,111  
-</div>  <div class="status-small" id="walletStatus">  
-WALLET: NOT CONNECTED  
+</div>  <div class="status-small" id="walletStatus">
+WALLET: NOT CONNECTED
+</div>
+<div class="status-small" id="xStatus">
+X: NOT LOGGED IN
 </div>  </div>  </div>  </div>  </section>  <!-- BALANCE -->  <div class="rover-balance reveal">  <div>  <div class="rover-balance-label">  
 ROVER BALANCE  
 </div>  <div  
@@ -2018,2278 +2035,550 @@ Complete activities, collect rewards and build your Rover profile.
 <b>THE HOOD ROVER</b>  
 </div>  <div>  
 RETRO SYSTEM // 2026  
-</div>  </div>  </footer>  <script>  
-  
-/* =========================================================  
-   MOBILE MENU  
-========================================================= */  
-  
-const menu =  
-document.getElementById("menu");  
-  
-const nav =  
-document.getElementById("nav");  
-  
-  
-menu.addEventListener("click",() => {  
-  
-nav.classList.toggle("open");  
-  
-});  
-  
-  
-nav.querySelectorAll("a")  
-.forEach(link => {  
-  
-link.addEventListener("click",() => {  
-  
-nav.classList.remove("open");  
-  
-});  
-  
-});  
-  
-  
-/* =========================================================  
-   SUPABASE CLIENT  
-========================================================= */  
-  
-const SUPABASE_URL =  
-"https://hyshlvuywbwhhjgqwfwi.supabase.co";  
-  
-const SUPABASE_PUBLISHABLE_KEY =  
-"sb_publishable_LWmPzfGLuzdjDZvnwKs0Ug_Gvs5yROF";  
-  
-const {createClient} =  
-window.supabase;  
-  
-const supabaseClient =  
-createClient(  
-SUPABASE_URL,  
-SUPABASE_PUBLISHABLE_KEY  
-);  
-  
-  
-/* =========================================================  
-   ELEMENTS  
-========================================================= */  
-  
-const connectWalletButton =  
-document.getElementById(  
-"connectWalletButton"  
-);  
-  
-const walletStatus =  
-document.getElementById(  
-"walletStatus"  
-);  
-  
-const checkinButton =  
-document.getElementById(  
-"checkinButton"  
-);  
-  
-const streakNumber =  
-document.getElementById(  
-"streakNumber"  
-);  
-  
-const missionCheckin =  
-document.getElementById(  
-"missionCheckin"  
-);  
-  
-const missionQuiz =  
-document.getElementById(  
-"missionQuiz"  
-);  
-  
-const missionSpin =  
-document.getElementById(  
-"missionSpin"  
-);  
-  
-const missionMystery =  
-document.getElementById(  
-"missionMystery"  
-);  
-  
-const roverBalance =  
-document.getElementById(  
-"roverBalance"  
-);  
-  
-const roverToday =  
-document.getElementById(  
-"roverToday"  
-);  
-  
-const quizButton =  
-document.getElementById(  
-"quizButton"  
-);  
-  
-const quizStatus =  
-document.getElementById(  
-"quizStatus"  
-);  
-  
-const spinButton =  
-document.getElementById(  
-"spinButton"  
-);  
-  
-const spinCount =  
-document.getElementById(  
-"spinCount"  
-);  
-  
-const wheel =  
-document.getElementById(  
-"wheel"  
-);  
-  
-const spinRewardDisplay =  
-document.getElementById(  
-"spinRewardDisplay"  
-);  
-  
-const mysteryKeys =  
-document.getElementById(  
-"mysteryKeys"  
-);  
-  
-const mysteryBox =  
-document.getElementById(  
-"mysteryBox"  
-);  
-  
-const mysteryButton =  
-document.getElementById(  
-"mysteryButton"  
-);  
-  
-const mysteryResult =  
-document.getElementById(  
-"mysteryResult"  
-);  
-  
-const mysteryHelp =  
-document.getElementById(  
-"mysteryHelp"  
-);  
-  
-  
-/* =========================================================  
-   WALLET  
-========================================================= */  
-  
-let walletAddress = null;  
-  
-const WALLET_STORAGE_KEY =  
-"roverHubWallet";  
-  
-const WALLET_DISCONNECTED_KEY =  
-"roverHubWalletDisconnected";  
-  
-  
-function shortAddress(address){  
-  
-if(!address) return "";  
-  
-return (  
-address.slice(0,6) +  
-"..." +  
-address.slice(-4)  
-);  
-  
-}  
-  
-  
-function updateWalletUI(address){  
-  
-if(!address){  
-  
-walletAddress = null;  
-  
-walletStatus.textContent =  
-"WALLET: NOT CONNECTED";  
-  
-connectWalletButton.textContent =  
-"CONNECT WALLET";  
-  
-return;  
-  
-}  
-  
-  
-walletAddress =  
-address.toLowerCase();  
-  
-  
-walletStatus.textContent =  
-"WALLET: " +  
-shortAddress(walletAddress);  
-  
-  
-connectWalletButton.textContent =  
-shortAddress(walletAddress);  
-  
-}  
-  
-  
-function saveWallet(address){  
-  
-localStorage.setItem(  
-WALLET_STORAGE_KEY,  
-address.toLowerCase()  
-);  
-  
-localStorage.removeItem(  
-WALLET_DISCONNECTED_KEY  
-);  
-  
-}  
-  
-  
-function clearWalletState(){  
-  
-localStorage.removeItem(  
-WALLET_STORAGE_KEY  
-);  
-  
-localStorage.setItem(  
-WALLET_DISCONNECTED_KEY,  
-"1"  
-);  
-  
-walletAddress = null;  
-  
-updateWalletUI(null);  
-  
-resetWalletUI();  
-  
-}  
-  
-  
-/* =========================================================  
-   WALLET POPUP  
-========================================================= */  
-  
-function showDisconnectPopup(){  
-  
-const popup =  
-document.createElement("div");  
-  
-popup.innerHTML = `  
-  
-<div class="wallet-popup-overlay">  
-  
-<div class="wallet-popup">  
-  
-<div class="wallet-popup-icon">  
-🔌  
-</div>  
-  
-<div class="wallet-popup-title">  
-WALLET CONNECTED  
-</div>  
-  
-<div class="wallet-popup-address">  
-${shortAddress(walletAddress)}  
-</div>  
-  
-<p>  
-Do you want to disconnect this wallet  
-from Rover Hub?  
-</p>  
-  
-<div class="wallet-popup-actions">  
-  
-<button  
-class="btn secondary"  
-id="cancelDisconnect">  
-CANCEL  
-</button>  
-  
-<button  
-class="btn"  
-id="confirmDisconnect">  
-DISCONNECT  
-</button>  
-  
-</div>  
-  
-</div>  
-  
-</div>  
-  
-`;  
-  
-  
-document.body.appendChild(popup);  
-  
-  
-document  
-.getElementById("cancelDisconnect")  
-.addEventListener(  
-"click",  
-() => popup.remove()  
-);  
-  
-  
-document  
-.getElementById("confirmDisconnect")  
-.addEventListener(  
-"click",  
-async () => {  
-  
-await disconnectWallet();  
-  
-popup.remove();  
-  
-}  
-);  
-  
-}  
-  
-  
-/* =========================================================  
-   DISCONNECT  
-========================================================= */  
-  
-async function disconnectWallet(){  
-  
-try{  
-  
-if(window.ethereum){  
-  
-try{  
-  
-await window.ethereum.request({  
-  
-method:  
-"wallet_revokePermissions",  
-  
-params:[  
-{  
-eth_accounts:{}  
-}  
-]  
-  
-});  
-  
-}catch(error){  
-  
-console.log(  
-"Provider revoke not supported:",  
-error  
-);  
-  
-}  
-  
-}  
-  
-}finally{  
-  
-clearWalletState();  
-  
-}  
-  
-}  
-  
-  
-/* =========================================================  
-   CONNECT  
-========================================================= */  
-  
-async function connectWallet(){  
-  
-if(!window.ethereum){  
-  
-alert(  
-"NO WEB3 WALLET DETECTED.\n\n" +  
-"Please open Rover Hub inside your wallet browser."  
-);  
-  
-return;  
-  
-}  
-  
-  
-try{  
-  
-connectWalletButton.disabled =  
-true;  
-  
-connectWalletButton.textContent =  
-"CONNECTING...";  
-  
-  
-const accounts =  
-await window.ethereum.request({  
-  
-method:  
-"eth_requestAccounts"  
-  
-});  
-  
-  
-if(  
-!accounts ||  
-accounts.length === 0  
-){  
-  
-throw new Error(  
-"No wallet account returned"  
-);  
-  
-}  
-  
-  
-const address =  
-accounts[0].toLowerCase();  
-  
-  
-saveWallet(address);  
-  
-updateWalletUI(address);  
-  
-loadWalletGame();  
-  
-}catch(error){  
-  
-console.error(  
-"Wallet connection failed:",  
-error  
-);  
-  
-  
-if(error.code === 4001){  
-  
-alert(  
-"WALLET CONNECTION CANCELLED."  
-);  
-  
-}else{  
-  
-alert(  
-"WALLET CONNECTION FAILED.\n\n" +  
-"Please try again."  
-);  
-  
-}  
-  
-}finally{  
-  
-connectWalletButton.disabled =  
-false;  
-  
-}  
-  
-}  
-  
-  
-connectWalletButton.addEventListener(  
-"click",  
-() => {  
-  
-if(walletAddress){  
-  
-showDisconnectPopup();  
-  
-}else{  
-  
-connectWallet();  
-  
-}  
-  
-}  
-);  
-  
-  
-/* =========================================================  
-   RESTORE WALLET  
-========================================================= */  
-  
-async function restoreWallet(){  
-  
-const savedWallet =  
-localStorage.getItem(  
-WALLET_STORAGE_KEY  
-);  
-  
-const disconnected =  
-localStorage.getItem(  
-WALLET_DISCONNECTED_KEY  
-) === "1";  
-  
-  
-if(disconnected){  
-  
-updateWalletUI(null);  
-  
-return;  
-  
-}  
-  
-  
-if(!window.ethereum){  
-  
-if(savedWallet){  
-  
-updateWalletUI(  
-savedWallet  
-);  
-  
-loadWalletGame();  
-  
-}  
-  
-return;  
-  
-}  
-  
-  
-try{  
-  
-const accounts =  
-await window.ethereum.request({  
-  
-method:  
-"eth_accounts"  
-  
-});  
-  
-  
-if(  
-accounts &&  
-accounts.length > 0  
-){  
-  
-const address =  
-accounts[0].toLowerCase();  
-  
-saveWallet(address);  
-  
-updateWalletUI(address);  
-  
-loadWalletGame();  
-  
-return;  
-  
-}  
-  
-  
-updateWalletUI(null);  
-  
-}catch(error){  
-  
-console.error(  
-"Wallet restore failed:",  
-error  
-);  
-  
-}  
-  
-}  
-  
-  
-if(window.ethereum){  
-  
-window.ethereum.on(  
-"accountsChanged",  
-accounts => {  
-  
-if(  
-!accounts ||  
-accounts.length === 0  
-){  
-  
-clearWalletState();  
-  
-return;  
-  
-}  
-  
-  
-const address =  
-accounts[0].toLowerCase();  
-  
-saveWallet(address);  
-  
-updateWalletUI(address);  
-  
-loadWalletGame();  
-  
-}  
-);  
-  
-}  
-  
-  
+</div>  </div>  </footer>  <script>
 /* =========================================================
-   GAME STORAGE — SUPABASE BACKEND
+   THE HOOD ROVER — ROVER HUB
+   X-first identity + optional wallet
 ========================================================= */
 
-/*
-  Wallet identity stays in the existing wallet/localStorage system.
-  Game/reward state is loaded from Supabase.
-*/
+/* MOBILE MENU */
+const menu = document.getElementById("menu");
+const nav = document.getElementById("nav");
+if (menu && nav) {
+  menu.addEventListener("click", () => nav.classList.toggle("open"));
+  nav.querySelectorAll("a").forEach(link => {
+    link.addEventListener("click", () => nav.classList.remove("open"));
+  });
+}
 
+/* SUPABASE */
+const SUPABASE_URL = "https://hyshlvuywbwhhjgqwfwi.supabase.co";
+const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_LWmPzfGLuzdjDZvnwKs0Ug_Gvs5yROF";
+const { createClient } = window.supabase;
+const supabaseClient = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+
+/* ELEMENTS */
+const xLoginButton = document.getElementById("xLoginButton");
+const xStatus = document.getElementById("xStatus");
+const connectWalletButton = document.getElementById("connectWalletButton");
+const walletStatus = document.getElementById("walletStatus");
+const checkinButton = document.getElementById("checkinButton");
+const streakNumber = document.getElementById("streakNumber");
+const missionCheckin = document.getElementById("missionCheckin");
+const missionQuiz = document.getElementById("missionQuiz");
+const missionSpin = document.getElementById("missionSpin");
+const missionMystery = document.getElementById("missionMystery");
+const roverBalance = document.getElementById("roverBalance");
+const roverToday = document.getElementById("roverToday");
+const quizButton = document.getElementById("quizButton");
+const quizStatus = document.getElementById("quizStatus");
+const spinButton = document.getElementById("spinButton");
+const spinCount = document.getElementById("spinCount");
+const wheel = document.getElementById("wheel");
+const spinRewardDisplay = document.getElementById("spinRewardDisplay");
+const mysteryKeys = document.getElementById("mysteryKeys");
+const mysteryBox = document.getElementById("mysteryBox");
+const mysteryButton = document.getElementById("mysteryButton");
+const mysteryResult = document.getElementById("mysteryResult");
+const mysteryHelp = document.getElementById("mysteryHelp");
+
+/* IDENTITY */
+let authUser = null;
+let authProfileId = null;
+let walletAddress = null;
+const WALLET_STORAGE_KEY = "roverHubWallet";
+const WALLET_DISCONNECTED_KEY = "roverHubWalletDisconnected";
+
+/* GAME STATE */
 let roverAmount = 0;
 let roverTodayAmount = 0;
 let backendHistory = [];
-let backendStatus = {
-  checkin_claimed:false,
-  quiz_claimed:false
-};
-
-
-function firstRow(data){
-  return Array.isArray(data) ? (data[0] || {}) : (data || {});
-}
-
-
-async function roverRPC(functionName,args={}){
-
-  if(!supabaseClient){
-    throw new Error("Supabase client is not initialized.");
-  }
-
-  console.log("[ROVER RPC]",functionName,args);
-
-  const { data, error } = await supabaseClient.rpc(
-    functionName,
-    args
-  );
-
-  if(error){
-    console.error("[ROVER RPC ERROR]",functionName,error);
-
-    const detail = [
-      error.message,
-      error.details,
-      error.hint,
-      error.code ? `code: ${error.code}` : ""
-    ].filter(Boolean).join("\n");
-
-    throw new Error(detail || `Supabase RPC failed: ${functionName}`);
-  }
-
-  console.log("[ROVER RPC OK]",functionName,data);
-  return data;
-}
-
-
-function todayKey(){
-  // Keep the browser date format identical to Supabase current_date.
-  return new Date().toISOString().slice(0,10);
-}
-
-
-function addLocalReward(rewardType,amount){
-
-  const value = Number(amount || 0);
-
-  backendHistory.unshift({
-    reward_type:rewardType,
-    amount:value,
-    reward_date:todayKey(),
-    created_at:new Date().toISOString()
-  });
-
-  if(value > 0){
-    roverAmount += value;
-    roverTodayAmount += value;
-  }
-
-  updateRoverUI();
-}
-
-
-function rewardDate(item){
-
-  if(!item) return "";
-
-  return String(
-    item.reward_date ||
-    item.created_at ||
-    ""
-  ).slice(0,10);
-}
-
-
-function rewardCount(type,todayOnly=false){
-
-  return backendHistory.filter(item => {
-
-    if(item.reward_type !== type)
-      return false;
-
-    if(todayOnly && rewardDate(item) !== todayKey())
-      return false;
-
-    return true;
-
-  }).length;
-}
-
-
-function rewardAmount(type,todayOnly=false){
-
-  return backendHistory
-    .filter(item => {
-
-      if(item.reward_type !== type)
-        return false;
-
-      if(todayOnly && rewardDate(item) !== todayKey())
-        return false;
-
-      return true;
-
-    })
-    .reduce(
-      (sum,item) =>
-        sum + Number(item.amount || 0),
-      0
-    );
-}
-
-
-function calculateCurrentStreak(){
-
-  const dates = [
-    ...new Set(
-      backendHistory
-        .filter(item =>
-          item.reward_type === "daily_checkin"
-        )
-        .map(item => rewardDate(item))
-        .filter(Boolean)
-    )
-  ].sort().reverse();
-
-
-  if(!dates.length)
-    return 0;
-
-
-  const today =
-    new Date(todayKey() + "T00:00:00");
-
-  const latest =
-    new Date(dates[0] + "T00:00:00");
-
-  const latestDiff = Math.round(
-    (today - latest) / 86400000
-  );
-
-
-  if(latestDiff > 1)
-    return 0;
-
-
-  let streak = 1;
-
-
-  for(let i=1;i<dates.length;i++){
-
-    const previous =
-      new Date(dates[i-1] + "T00:00:00");
-
-    const current =
-      new Date(dates[i] + "T00:00:00");
-
-    const diff = Math.round(
-      (previous - current) / 86400000
-    );
-
-    if(diff !== 1)
-      break;
-
-    streak++;
-  }
-
-
-  return streak;
-}
-
-
-/* =========================================================
-   LOAD ALL BACKEND GAME STATE
-========================================================= */
-
-async function loadBackendState(){
-
-  if(!walletAddress){
-
-    roverAmount = 0;
-    roverTodayAmount = 0;
-    backendHistory = [];
-    backendStatus = {
-      checkin_claimed:false,
-      quiz_claimed:false
-    };
-
-    updateRoverUI();
-    updateBackendUI();
-    return false;
-  }
-
-
-  /*
-     IMPORTANT:
-     Do NOT use Promise.all here. If one read RPC fails, the other
-     successful RPCs must still update the game.
-  */
-  const results = await Promise.allSettled([
-
-    roverRPC(
-      "get_rover_balance",
-      {p_wallet:walletAddress}
-    ),
-
-    roverRPC(
-      "rover_reward_status",
-      {p_wallet:walletAddress}
-    ),
-
-    roverRPC(
-      "get_rover_history",
-      {p_wallet:walletAddress}
-    )
-
-  ]);
-
-
-  const [balanceResult,statusResult,historyResult] = results;
-
-  if(balanceResult.status === "fulfilled"){
-
-    const balance = firstRow(balanceResult.value);
-
-    roverAmount = Number(balance.balance || 0);
-    roverTodayAmount = Number(balance.today_earned || 0);
-
-  }else{
-
-    console.error(
-      "get_rover_balance failed:",
-      balanceResult.reason
-    );
-
-  }
-
-
-  if(statusResult.status === "fulfilled"){
-
-    const status = firstRow(statusResult.value);
-
-    backendStatus = {
-      checkin_claimed:Boolean(status.checkin_claimed),
-      quiz_claimed:Boolean(status.quiz_claimed)
-    };
-
-  }else{
-
-    console.error(
-      "rover_reward_status failed:",
-      statusResult.reason
-    );
-
-  }
-
-
-  if(historyResult.status === "fulfilled"){
-
-    backendHistory = Array.isArray(historyResult.value)
-      ? historyResult.value
-      : [];
-
-  }else{
-
-    console.error(
-      "get_rover_history failed:",
-      historyResult.reason
-    );
-
-  }
-
-
-  updateRoverUI();
-  updateBackendUI();
-
-  return results.some(
-    result => result.status === "fulfilled"
-  );
-}
-
-
-/* =========================================================
-   ROVER BALANCE
-========================================================= */
-
-async function loadRoverBalance(){
-
-  if(!walletAddress){
-
-    roverAmount = 0;
-    roverTodayAmount = 0;
-    updateRoverUI();
-    return;
-  }
-
-
-  try{
-
-    const data = await roverRPC(
-      "get_rover_balance",
-      {p_wallet:walletAddress}
-    );
-
-    const row = firstRow(data);
-
-    roverAmount = Number(
-      row.balance || 0
-    );
-
-    roverTodayAmount = Number(
-      row.today_earned || 0
-    );
-
-    updateRoverUI();
-
-  }catch(error){
-
-    console.error(
-      "Supabase Rover Balance Error:",
-      error
-    );
-
-    roverAmount = 0;
-    roverTodayAmount = 0;
-
-    updateRoverUI();
-  }
-}
-
-
-function updateRoverUI(){
-
-  roverBalance.textContent =
-    roverAmount + " ROVER";
-
-  roverToday.textContent =
-    "TODAY: +" +
-    roverTodayAmount +
-    " ROVER";
-}
-
-
-/* =========================================================
-   DAILY CHECK-IN
-========================================================= */
-
-function loadCheckin(){
-
-  if(!walletAddress){
-
-    checkinButton.disabled = false;
-    checkinButton.textContent = "DAILY CHECK-IN";
-    missionCheckin.textContent = "READY";
-    missionCheckin.classList.remove("done");
-    return;
-  }
-
-
-  if(backendStatus.checkin_claimed){
-
-    checkinButton.disabled = true;
-    checkinButton.textContent = "ALREADY CHECKED IN";
-    missionCheckin.textContent = "DONE";
-    missionCheckin.classList.add("done");
-    return;
-  }
-
-
-  checkinButton.disabled = false;
-  checkinButton.textContent = "DAILY CHECK-IN";
-  missionCheckin.textContent = "READY";
-  missionCheckin.classList.remove("done");
-}
-
-
-checkinButton.addEventListener(
-  "click",
-  async () => {
-
-    if(!walletAddress){
-      alert("CONNECT YOUR WALLET FIRST.");
-      return;
-    }
-
-
-    if(checkinButton.disabled)
-      return;
-
-
-    checkinButton.disabled = true;
-    checkinButton.textContent = "CHECKING...";
-
-
-    try{
-
-      const data = await roverRPC(
-        "daily_checkin",
-        {p_wallet:walletAddress}
-      );
-
-      const result = firstRow(data);
-
-
-      if(result.already_checked_in){
-
-        await loadBackendState();
-        loadCheckin();
-        return;
-      }
-
-
-      if(!result.success){
-        throw new Error("Check-in was not completed.");
-      }
-
-
-      addLocalReward("daily_checkin",Number(result.reward || 1));
-
-      if(Number(result.bonus || 0) > 0){
-        addLocalReward("streak_bonus",Number(result.bonus));
-      }
-
-      backendStatus.checkin_claimed = true;
-      await loadBackendState();
-
-      const streak = Number(
-        result.streak ||
-        calculateCurrentStreak()
-      );
-
-      streakNumber.textContent = streak;
-
-      checkinButton.textContent = "CHECKED IN ✓";
-      checkinButton.disabled = true;
-
-      missionCheckin.textContent = "DONE";
-      missionCheckin.classList.add("done");
-
-      updateAchievements();
-
-    }catch(error){
-
-      console.error(
-        "Daily check-in error:",
-        error
-      );
-
-      checkinButton.disabled = false;
-      checkinButton.textContent = "DAILY CHECK-IN";
-
-      alert(
-        "CHECK-IN FAILED.\n\n" +
-        (error.message || "Please try again.")
-      );
-    }
-  }
-);
-
-
-/* =========================================================
-   QUIZ
-========================================================= */
-
-const quizQuestions = [
-
-{
-question:
-"What is The Hood Rover?",
-options:[
-"A Rover NFT ecosystem",
-"A music platform",
-"A payment app",
-"A news website"
-],
-answer:0
-},
-
-{
-question:
-"What is the main purpose of Rover Hub?",
-options:[
-"Watch movies",
-"Complete activities and earn Rover",
-"Buy groceries",
-"Create emails"
-],
-answer:1
-},
-
-{
-question:
-"How many NFTs are planned in The Hood Rover collection?",
-options:[
-"404",
-"555",
-"1,111",
-"10,000"
-],
-answer:2
-},
-
-{
-question:
-"How many times can a user attempt the daily quiz?",
-options:[
-"Unlimited",
-"Three times",
-"Two times",
-"One time"
-],
-answer:3
-},
-
-{
-question:
-"What happens if a quiz answer is wrong?",
-options:[
-"The user gets bonus Rover",
-"The quiz is failed",
-"The user gets another attempt",
-"Nothing happens"
-],
-answer:1
-}
-
-];
-
-
-function quizTodayResult(){
-
-  const quizItems = backendHistory.filter(
-    item =>
-      item.reward_type === "quiz" &&
-      rewardDate(item) === todayKey()
-  );
-
-  if(!quizItems.length)
-    return null;
-
-  const latest = quizItems[0];
-
-  return Number(latest.amount || 0) > 0
-    ? "passed"
-    : "failed";
-}
-
-
-function quizStatusLoad(){
-
-  const result = quizTodayResult();
-
-  if(result === "passed"){
-
-    quizStatus.textContent = "COMPLETED";
-    quizButton.textContent = "QUIZ COMPLETED";
-    quizButton.disabled = true;
-    missionQuiz.textContent = "DONE";
-    missionQuiz.classList.add("done");
-    return;
-  }
-
-
-  if(result === "failed"){
-
-    quizStatus.textContent = "FAILED";
-    quizButton.textContent = "TRY AGAIN TOMORROW";
-    quizButton.disabled = true;
-    missionQuiz.textContent = "FAILED";
-    missionQuiz.classList.remove("done");
-    return;
-  }
-
-
-  quizStatus.textContent = "READY";
-  quizButton.textContent = "START QUIZ";
-  quizButton.disabled = false;
-  missionQuiz.textContent = "0/1";
-  missionQuiz.classList.remove("done");
-}
-
-
-function openQuiz(){
-
-  if(!walletAddress){
-    alert("CONNECT YOUR WALLET FIRST.");
-    return;
-  }
-
-
-  const result = quizTodayResult();
-
-  if(result === "passed"){
-    alert("TODAY'S QUIZ IS ALREADY COMPLETED.");
-    return;
-  }
-
-  if(result === "failed"){
-    alert("TODAY'S QUIZ IS ALREADY FAILED.\n\nTRY AGAIN TOMORROW.");
-    return;
-  }
-
-
-  let questionIndex = 0;
-  let score = 0;
-  let finished = false;
-
-
-  const overlay = document.createElement("div");
-  overlay.className = "quiz-overlay";
-  document.body.appendChild(overlay);
-
-
-  function renderQuestion(){
-
-    const q = quizQuestions[questionIndex];
-
-    overlay.innerHTML = `
-
-<div class="quiz-modal">
-
-<div class="quiz-top">
-
-<div class="quiz-title">
-ROVER QUIZ
-</div>
-
-<div class="quiz-progress">
-${questionIndex + 1}
-/
-${quizQuestions.length}
-</div>
-
-</div>
-
-<div class="quiz-question">
-${q.question}
-</div>
-
-<div class="quiz-options">
-
-${q.options.map(
-(option,index) => `
-
-<button
-class="quiz-option"
-data-answer="${index}"
-type="button">
-
-${String.fromCharCode(65 + index)}.
-${option}
-
-</button>
-
-`
-).join("")}
-
-</div>
-
-<div class="quiz-warning">
-
-ONE WRONG ANSWER =
-TODAY'S QUIZ FAILED.
-
-</div>
-
-</div>
-
-`;
-
-
-    overlay
-      .querySelectorAll(".quiz-option")
-      .forEach(button => {
-
-        button.addEventListener(
-          "click",
-          () => {
-
-            const answer = Number(
-              button.dataset.answer
-            );
-
-            if(answer !== q.answer){
-              finishQuiz(false);
-              return;
-            }
-
-            score++;
-            questionIndex++;
-
-            if(questionIndex >= quizQuestions.length){
-              finishQuiz(true);
-              return;
-            }
-
-            renderQuestion();
-          }
-        );
-      });
-  }
-
-
-  async function finishQuiz(passed){
-
-    if(finished)
-      return;
-
-
-    try{
-
-      /*
-        Both success and failure are recorded in Supabase.
-        A failed quiz uses amount 0, so the existing RPC
-        still blocks another quiz claim on the same day.
-      */
-
-      const data = await roverRPC(
-        "claim_rover_reward",
-        {
-          p_wallet:walletAddress,
-          p_reward_type:"quiz",
-          p_amount:passed ? 2 : 0
-        }
-      );
-
-      const result = firstRow(data);
-
-
-      if(result.reason === "quiz_already_claimed"){
-
-        finished = true;
-        await loadBackendState();
-        quizStatusLoad();
-
-        overlay.innerHTML = `
-
-<div class="quiz-modal">
-
-<div class="quiz-result">
-
-<div class="quiz-result-icon">
-✓
-</div>
-
-<div class="quiz-result-title">
-QUIZ ALREADY CLAIMED
-</div>
-
-<div class="quiz-result-score">
-${score} / 5 CORRECT
-</div>
-
-<div class="quiz-result-reward">
-ALREADY CLAIMED
-</div>
-
-<button
-class="btn quiz-close"
-id="closeQuiz">
-
-DONE
-
-</button>
-
-</div>
-
-</div>
-
-`;
-
-        document
-          .getElementById("closeQuiz")
-          .addEventListener("click",() => overlay.remove());
-
-        return;
-      }
-
-
-      if(!result.success){
-        throw new Error("Quiz reward was not confirmed by Supabase.");
-      }
-
-
-      finished = true;
-
-      addLocalReward("quiz",passed ? 2 : 0);
-      backendStatus.quiz_claimed = true;
-      await loadBackendState();
-
-
-      if(passed){
-
-        overlay.innerHTML = `
-
-<div class="quiz-modal">
-
-<div class="quiz-result">
-
-<div class="quiz-result-icon">
-🎉
-</div>
-
-<div class="quiz-result-title">
-QUIZ COMPLETE
-</div>
-
-<div class="quiz-result-score">
-5 / 5 CORRECT
-</div>
-
-<div class="quiz-result-reward">
-+2 ROVER
-</div>
-
-<button
-class="btn quiz-close"
-id="closeQuiz">
-
-DONE
-
-</button>
-
-</div>
-
-</div>
-
-`;
-
-      }else{
-
-        overlay.innerHTML = `
-
-<div class="quiz-modal">
-
-<div class="quiz-result">
-
-<div class="quiz-result-icon">
-❌
-</div>
-
-<div class="quiz-result-title">
-QUIZ FAILED
-</div>
-
-<div class="quiz-result-score">
-${score} / 5 CORRECT
-</div>
-
-<div class="quiz-result-reward">
-0 ROVER
-</div>
-
-<p>
-One wrong answer ends today's quiz.
-Try again tomorrow.
-</p>
-
-<button
-class="btn secondary quiz-close"
-id="closeQuiz">
-
-CLOSE
-
-</button>
-
-</div>
-
-</div>
-
-`;
-      }
-
-
-      quizStatusLoad();
-
-      document
-        .getElementById("closeQuiz")
-        .addEventListener("click",() => overlay.remove());
-
-    }catch(error){
-
-      console.error(
-        "Quiz backend error:",
-        error
-      );
-
-      alert(
-        "QUIZ REWARD SYNC FAILED.\n\n" +
-        (error.message || "Please try again.")
-      );
-    }
-  }
-
-
-  renderQuestion();
-}
-
-
-quizButton.addEventListener(
-  "click",
-  openQuiz
-);
-
-
-/* =========================================================
-   SPIN SYSTEM
-========================================================= */
-
+let backendStatus = { checkin_claimed:false, quiz_claimed:false };
 let spinning = false;
 let rotation = 0;
 
-const spinRewards = [
-
-{
-name:"BAD LUCK",
-type:"bad",
-value:0,
-weight:50
-},
-
-{
-name:"+2 ROVER",
-type:"rover",
-value:2,
-weight:38
-},
-
-{
-name:"+4 ROVER",
-type:"rover",
-value:4,
-weight:5
-},
-
-{
-name:"+5 ROVER",
-type:"rover",
-value:5,
-weight:4
-},
-
-{
-name:"+6 ROVER",
-type:"rover",
-value:6,
-weight:3
-},
-
-{
-name:"MYSTERY REWARD",
-type:"mystery",
-value:1,
-weight:0
+/* HELPERS */
+function firstRow(data){ return Array.isArray(data) ? (data[0] || {}) : (data || {}); }
+function todayKey(){ return new Date().toISOString().slice(0,10); }
+function shortAddress(address){ return address ? address.slice(0,6) + "..." + address.slice(-4) : ""; }
+function getXUsername(user){
+  const m = user?.user_metadata || {};
+  return m.user_name || m.preferred_username || m.username || m.screen_name || "";
 }
-
-];
-
-
-const wheelPositions = {
-"BAD LUCK":0,
-"+2 ROVER":1,
-"+4 ROVER":2,
-"+5 ROVER":3,
-"+6 ROVER":4,
-"MYSTERY REWARD":5
-};
-
-
-const wheelSectorCenters = {
-"BAD LUCK":0,
-"+2 ROVER":60,
-"+4 ROVER":120,
-"+5 ROVER":180,
-"+6 ROVER":240,
-"MYSTERY REWARD":300
-};
-
-
-function getSpinCount(){
-  return rewardCount("spin",true);
+function shortUsername(username){
+  if(!username) return "";
+  const u = String(username).replace(/^@/,"");
+  return u.length <= 15 ? "@" + u : "@" + u.slice(0,10) + "..." + u.slice(-3);
 }
-
-
-function updateSpinUI(){
-
-  const used = getSpinCount();
-  const left = Math.max(0,3-used);
-
-  spinCount.textContent = left + " / 3";
-  missionSpin.textContent = used + "/3";
-
-  if(used >= 3){
-    spinButton.disabled = true;
-    spinButton.textContent = "COME BACK TOMORROW";
-    missionSpin.textContent = "DONE";
-    missionSpin.classList.add("done");
-  }else{
-    spinButton.disabled = false;
-    spinButton.textContent = "SPIN NOW";
-    missionSpin.classList.remove("done");
+function rewardDate(item){ return item ? String(item.reward_date || item.created_at || "").slice(0,10) : ""; }
+function rewardCount(type,todayOnly=false){
+  return backendHistory.filter(item => item.reward_type === type && (!todayOnly || rewardDate(item) === todayKey())).length;
+}
+function calculateCurrentStreak(){
+  const dates = [...new Set(backendHistory.filter(i => i.reward_type === "daily_checkin").map(rewardDate).filter(Boolean))].sort().reverse();
+  if(!dates.length) return 0;
+  const today = new Date(todayKey()+"T00:00:00");
+  const latest = new Date(dates[0]+"T00:00:00");
+  if(Math.round((today-latest)/86400000) > 1) return 0;
+  let streak = 1;
+  for(let i=1;i<dates.length;i++){
+    const a = new Date(dates[i-1]+"T00:00:00");
+    const b = new Date(dates[i]+"T00:00:00");
+    if(Math.round((a-b)/86400000) !== 1) break;
+    streak++;
   }
+  return streak;
 }
 
-
-function randomSpinReward(){
-
-  const total = spinRewards.reduce(
-    (sum,item) => sum + item.weight,
-    0
-  );
-
-  let random = Math.random() * total;
-
-  for(const reward of spinRewards){
-    random -= reward.weight;
-    if(random <= 0)
-      return reward;
+/* RPC */
+async function roverRPC(functionName,args={}){
+  const {data,error} = await supabaseClient.rpc(functionName,args);
+  if(error){
+    console.error("[ROVER RPC]",functionName,error);
+    throw new Error([error.message,error.details,error.hint,error.code ? "code: "+error.code : ""].filter(Boolean).join("\n"));
   }
-
-  return spinRewards[0];
+  return data;
 }
 
-
-function showSpinReward(reward){
-
-  spinRewardDisplay.className = "reward-display";
-
-  if(reward.type === "bad"){
-    spinRewardDisplay.classList.add("bad");
-    spinRewardDisplay.innerHTML = `
-<div class="reward-display-title">
-❌ BAD LUCK
-</div>
-<div class="reward-display-sub">
-NO REWARD THIS TIME
-</div>
-`;
+/* X UI */
+function updateXUI(){
+  if(!authUser){
+    if(xStatus) xStatus.textContent = "X: NOT LOGGED IN";
+    if(xLoginButton){ xLoginButton.textContent = "LOGIN WITH X"; xLoginButton.disabled = false; }
     return;
   }
+  const username = getXUsername(authUser);
+  if(xStatus) xStatus.textContent = username ? "X: " + shortUsername(username) : "X: LOGGED IN";
+  if(xLoginButton){ xLoginButton.textContent = username ? shortUsername(username) : "X LOGGED IN"; xLoginButton.disabled = false; }
+}
 
-  if(reward.type === "rover"){
-    spinRewardDisplay.innerHTML = `
-<div class="reward-display-title">
-🎉 ROVER REWARD
-</div>
-<div class="reward-display-sub">
-${reward.name}
-</div>
-`;
-    return;
+async function loginWithX(){
+  try{
+    xLoginButton.disabled = true;
+    xLoginButton.textContent = "CONNECTING...";
+    const {error} = await supabaseClient.auth.signInWithOAuth({
+      provider:"x",
+      options:{ redirectTo: window.location.href }
+    });
+    if(error) throw error;
+  }catch(error){
+    console.error("X login error:",error);
+    alert("X LOGIN FAILED.\n\n"+(error.message || "Please try again."));
+    updateXUI();
   }
-
-  spinRewardDisplay.classList.add("mystery");
-  spinRewardDisplay.innerHTML = `
-<div class="reward-display-title">
-🎁 MYSTERY REWARD
-</div>
-<div class="reward-display-sub">
-+1 MYSTERY KEY
-</div>
-`;
 }
 
-
-function normalizeDegrees(value){
-  return ((value % 360) + 360) % 360;
+function showXLogoutPopup(){
+  const username = getXUsername(authUser);
+  const popup = document.createElement("div");
+  popup.innerHTML = `
+    <div class="wallet-popup-overlay">
+      <div class="wallet-popup">
+        <div class="wallet-popup-icon">𝕏</div>
+        <div class="wallet-popup-title">X ACCOUNT CONNECTED</div>
+        <div class="wallet-popup-address">${shortUsername(username) || "X USER"}</div>
+        <p>Do you want to log out from Rover Hub?</p>
+        <div class="wallet-popup-actions">
+          <button class="btn secondary" id="cancelXLogout">CANCEL</button>
+          <button class="btn" id="confirmXLogout">LOG OUT</button>
+        </div>
+      </div>
+    </div>`;
+  document.body.appendChild(popup);
+  document.getElementById("cancelXLogout").onclick = () => popup.remove();
+  document.getElementById("confirmXLogout").onclick = async () => { popup.remove(); await supabaseClient.auth.signOut(); };
 }
 
+if(xLoginButton){
+  xLoginButton.addEventListener("click", () => authUser ? showXLogoutPopup() : loginWithX());
+}
 
-spinButton.addEventListener(
-  "click",
-  async () => {
+async function loadAuthProfile(){
+  if(!authUser){ authProfileId=null; return false; }
+  try{
+    const data = await roverRPC("auth_get_or_create_profile");
+    authProfileId = data?.profile_id || data || null;
+    return true;
+  }catch(error){ console.error("Auth profile error:",error); return false; }
+}
 
-    if(spinning)
-      return;
+/* X BACKEND */
+async function loadAuthBackendState(){
+  if(!authUser) return false;
+  await loadAuthProfile();
+  const results = await Promise.allSettled([
+    roverRPC("auth_get_rover_balance"),
+    roverRPC("auth_reward_status"),
+    roverRPC("auth_get_rover_history")
+  ]);
+  if(results[0].status === "fulfilled"){
+    const r=firstRow(results[0].value);
+    roverAmount=Number(r.balance||0); roverTodayAmount=Number(r.today_earned||0);
+  }
+  if(results[1].status === "fulfilled"){
+    const r=firstRow(results[1].value);
+    backendStatus={checkin_claimed:Boolean(r.checkin_claimed),quiz_claimed:Boolean(r.quiz_claimed)};
+  }
+  if(results[2].status === "fulfilled") backendHistory=Array.isArray(results[2].value)?results[2].value:[];
+  updateRoverUI(); updateBackendUI();
+  return true;
+}
 
-    if(!walletAddress){
-      alert("CONNECT YOUR WALLET FIRST.");
-      return;
+/* WALLET */
+function updateWalletUI(address){
+  if(!address){ walletAddress=null; walletStatus.textContent="WALLET: NOT CONNECTED"; connectWalletButton.textContent="CONNECT WALLET"; return; }
+  walletAddress=address.toLowerCase();
+  walletStatus.textContent="WALLET: "+shortAddress(walletAddress);
+  connectWalletButton.textContent=shortAddress(walletAddress);
+}
+function saveWallet(address){ localStorage.setItem(WALLET_STORAGE_KEY,address.toLowerCase()); localStorage.removeItem(WALLET_DISCONNECTED_KEY); }
+function clearWalletState(){ localStorage.removeItem(WALLET_STORAGE_KEY); localStorage.setItem(WALLET_DISCONNECTED_KEY,"1"); walletAddress=null; updateWalletUI(null); }
+
+function showDisconnectPopup(){
+  const popup=document.createElement("div");
+  popup.innerHTML=`
+    <div class="wallet-popup-overlay">
+      <div class="wallet-popup">
+        <div class="wallet-popup-icon">🔌</div>
+        <div class="wallet-popup-title">WALLET CONNECTED</div>
+        <div class="wallet-popup-address">${shortAddress(walletAddress)}</div>
+        <p>Do you want to disconnect this wallet from Rover Hub?</p>
+        <div class="wallet-popup-actions">
+          <button class="btn secondary" id="cancelDisconnect">CANCEL</button>
+          <button class="btn" id="confirmDisconnect">DISCONNECT</button>
+        </div>
+      </div>
+    </div>`;
+  document.body.appendChild(popup);
+  document.getElementById("cancelDisconnect").onclick=()=>popup.remove();
+  document.getElementById("confirmDisconnect").onclick=async()=>{ await disconnectWallet(); popup.remove(); };
+}
+
+async function disconnectWallet(){
+  try{
+    if(window.ethereum){
+      try{ await window.ethereum.request({method:"wallet_revokePermissions",params:[{eth_accounts:{}}]}); }
+      catch(error){ console.log("Provider revoke unsupported:",error); }
     }
-
-
-    let used = 0;
-
-    try{
-      used = getSpinCount();
-    }catch(error){
-      console.error("Spin count error:",error);
-      alert("SPIN FAILED.\n\n" + (error.message || "Please try again."));
-      updateSpinUI();
-      return;
-    }
-
-    if(used >= 3){
-      alert("YOU HAVE USED ALL 3 SPINS TODAY.\n\nCOME BACK TOMORROW.");
-      updateSpinUI();
-      return;
-    }
-
-
-    spinning = true;
-    spinButton.disabled = true;
-    spinButton.textContent = "SPINNING...";
-
-
-    const reward = randomSpinReward();
-
-
-    try{
-
-      /* Server records the spin and enforces 3/day. */
-      const spinData = await roverRPC(
-        "claim_rover_reward",
-        {
-          p_wallet:walletAddress,
-          p_reward_type:"spin",
-          p_amount:reward.value
-        }
-      );
-
-      const spinResult = firstRow(spinData);
-
-      if(spinResult.reason === "daily_spin_limit_reached"){
-        await loadBackendState();
-        updateSpinUI();
-        alert("YOU HAVE USED ALL 3 SPINS TODAY.\n\nCOME BACK TOMORROW.");
-        spinning = false;
-        return;
-      }
-
-      if(!spinResult.success){
-        throw new Error("Spin was not confirmed by Supabase.");
-      }
-
-
-      addLocalReward("spin",Number(reward.value || 0));
-
-      /* Mystery result gets one backend key. */
-      if(reward.type === "mystery"){
-
-        const keyData = await roverRPC(
-          "claim_rover_reward",
-          {
-            p_wallet:walletAddress,
-            p_reward_type:"mystery_key",
-            p_amount:0
-          }
-        );
-
-        const keyResult = firstRow(keyData);
-
-        if(!keyResult.success){
-          throw new Error("Mystery key was not confirmed by Supabase.");
-        }
-
-        addLocalReward("mystery_key",0);
-      }
-
-
-      const targetAngle =
-        wheelSectorCenters[reward.name];
-
-      const current =
-        normalizeDegrees(rotation);
-
-      let delta = normalizeDegrees(
-        -targetAngle - current
-      );
-
-      const fullSpins =
-        5 + Math.floor(Math.random() * 3);
-
-      delta += fullSpins * 360;
-      rotation += delta;
-
-      wheel.style.transform =
-        `rotate(${rotation}deg)`;
-
-
-      setTimeout(async () => {
-
-        showSpinReward(reward);
-
-        await loadBackendState();
-        updateSpinUI();
-        updateMysteryUI();
-        updateAchievements();
-
-        spinning = false;
-
-      },4700);
-
-    }catch(error){
-
-      console.error(
-        "Spin backend error:",
-        error
-      );
-
-      spinning = false;
-      spinButton.disabled = false;
-      updateSpinUI();
-
-      alert(
-        "SPIN FAILED.\n\n" +
-        (error.message || "Please try again.")
-      );
-    }
-  }
-);
-
-
-/* =========================================================
-   MYSTERY BOX
-========================================================= */
-
-function getMysteryKeys(){
-
-  const earned = rewardCount("mystery_key");
-  const opened = rewardCount("mystery_box");
-
-  return Math.max(0,earned-opened);
-}
-
-
-function updateMysteryUI(){
-
-  const keys = getMysteryKeys();
-
-  mysteryKeys.textContent = keys;
-
-  if(keys > 0){
-
-    mysteryBox.classList.remove("locked");
-    mysteryBox.textContent = "🎁";
-    mysteryButton.disabled = false;
-    mysteryButton.textContent = "OPEN MYSTERY BOX";
-    mysteryResult.textContent = "KEY READY";
-    mysteryHelp.textContent = "Use 1 Mystery Key to reveal your hidden reward.";
-
-  }else{
-
-    mysteryBox.classList.add("locked");
-    mysteryBox.textContent = "🔒";
-    mysteryButton.disabled = true;
-    mysteryButton.textContent = "NO KEY";
-    mysteryResult.textContent = "BOX LOCKED";
-    mysteryHelp.textContent = "Spin the wheel and find a Mystery Reward first.";
+  }finally{
+    clearWalletState();
+    await loadGame();
   }
 }
 
-
-const mysteryRewards = [
-
-{
-name:"+2 ROVER",
-type:"rover",
-value:2
-},
-
-{
-name:"+5 ROVER",
-type:"rover",
-value:5
-},
-
-{
-name:"+10 ROVER",
-type:"rover",
-value:10
-},
-
-{
-name:"BONUS ROVER",
-type:"rover",
-value:4
-},
-
-{
-name:"SPECIAL DROP",
-type:"special",
-value:0
+async function connectWallet(){
+  if(!window.ethereum){ alert("NO WEB3 WALLET DETECTED.\n\nPlease open Rover Hub inside your wallet browser."); return; }
+  try{
+    connectWalletButton.disabled=true; connectWalletButton.textContent="CONNECTING...";
+    const accounts=await window.ethereum.request({method:"eth_requestAccounts"});
+    if(!accounts?.length) throw new Error("No wallet account returned.");
+    const address=accounts[0].toLowerCase(); saveWallet(address); updateWalletUI(address);
+    await loadGame();
+  }catch(error){
+    console.error("Wallet connection failed:",error);
+    alert(error.code===4001 ? "WALLET CONNECTION CANCELLED." : "WALLET CONNECTION FAILED.\n\n"+(error.message||"Please try again."));
+  }finally{ connectWalletButton.disabled=false; updateWalletUI(walletAddress); }
 }
 
-];
+connectWalletButton.addEventListener("click",()=>walletAddress?showDisconnectPopup():connectWallet());
 
-
-mysteryButton.addEventListener(
-  "click",
-  async () => {
-
-    if(!walletAddress){
-      alert("CONNECT YOUR WALLET FIRST.");
-      return;
-    }
-
-
-    const keys = getMysteryKeys();
-
-    if(keys <= 0){
-      updateMysteryUI();
-      return;
-    }
-
-
-    mysteryButton.disabled = true;
-    mysteryBox.style.transform = "scale(.82) rotate(8deg)";
-    mysteryResult.textContent = "OPENING...";
-    mysteryHelp.textContent = "Unlocking your hidden reward...";
-
-
-    setTimeout(async () => {
-
-      const reward = mysteryRewards[
-        Math.floor(
-          Math.random() * mysteryRewards.length
-        )
-      ];
-
-
-      try{
-
-        const data = await roverRPC(
-          "claim_rover_reward",
-          {
-            p_wallet:walletAddress,
-            p_reward_type:"mystery_box",
-            p_amount:reward.value
-          }
-        );
-
-        const result = firstRow(data);
-
-        if(!result.success){
-          throw new Error("Mystery box was not confirmed by Supabase.");
-        }
-
-        addLocalReward("mystery_box",Number(reward.value || 0));
-        await loadBackendState();
-
-
-        if(reward.type === "rover"){
-          mysteryResult.textContent =
-            "🎉 " + reward.name;
-        }else{
-          mysteryResult.textContent =
-            "⭐ SPECIAL DROP";
-        }
-
-        mysteryBox.textContent = "★";
-        mysteryBox.style.transform = "scale(1) rotate(0deg)";
-        mysteryHelp.textContent = "Your Mystery Key was consumed.";
-
-        updateMysteryUI();
-        updateAchievements();
-
-      }catch(error){
-
-        console.error(
-          "Mystery box backend error:",
-          error
-        );
-
-        mysteryBox.style.transform = "scale(1) rotate(0deg)";
-        updateMysteryUI();
-
-        alert(
-          "MYSTERY BOX FAILED.\n\n" +
-          (error.message || "Please try again.")
-        );
-      }
-
-    },1000);
-  }
-);
-
-
-/* =========================================================
-   ACHIEVEMENTS
-========================================================= */
-
-function unlockAchievement(
-  element,
-  textElement,
-  current,
-  target
-){
-
-  const text = document.getElementById(textElement);
-  const elementBox = document.getElementById(element);
-
-  text.textContent = current + " / " + target;
-
-  if(current >= target){
-
-    elementBox.classList.remove("locked");
-    elementBox.classList.add("unlocked");
-    text.textContent = "✓ UNLOCKED";
-
-  }else{
-
-    elementBox.classList.add("locked");
-    elementBox.classList.remove("unlocked");
-  }
+async function restoreWallet(){
+  const saved=localStorage.getItem(WALLET_STORAGE_KEY);
+  const disconnected=localStorage.getItem(WALLET_DISCONNECTED_KEY)==="1";
+  if(disconnected){ updateWalletUI(null); return; }
+  if(!window.ethereum){ if(saved) updateWalletUI(saved); return; }
+  try{
+    const accounts=await window.ethereum.request({method:"eth_accounts"});
+    if(accounts?.length){ const address=accounts[0].toLowerCase(); saveWallet(address); updateWalletUI(address); }
+    else updateWalletUI(null);
+  }catch(error){ console.error("Wallet restore failed:",error); }
 }
 
-
-function updateAchievements(){
-
-  if(!walletAddress){
-    return;
-  }
-
-  const checkins = rewardCount("daily_checkin");
-  const streak = calculateCurrentStreak();
-  const spins = rewardCount("spin");
-  const mystery = rewardCount("mystery_box");
-
-  unlockAchievement(
-    "achievementFirst",
-    "achievementFirstText",
-    Math.min(checkins,1),
-    1
-  );
-
-  unlockAchievement(
-    "achievementStreak",
-    "achievementStreakText",
-    Math.min(streak,7),
-    7
-  );
-
-  unlockAchievement(
-    "achievementSpinner",
-    "achievementSpinnerText",
-    Math.min(spins,30),
-    30
-  );
-
-  unlockAchievement(
-    "achievementMystery",
-    "achievementMysteryText",
-    Math.min(mystery,5),
-    5
-  );
-}
-
-
-/* =========================================================
-   BACKEND UI SYNC
-========================================================= */
-
-function updateBackendUI(){
-
-  if(!walletAddress){
-    return;
-  }
-
-  loadCheckin();
-  quizStatusLoad();
-  updateSpinUI();
-  updateMysteryUI();
-
-  streakNumber.textContent =
-    calculateCurrentStreak();
-
-  updateAchievements();
-
-
-  const used = getSpinCount();
-  const left = Math.max(0,3-used);
-
-  if(used >= 3){
-
-    spinRewardDisplay.className = "reward-display";
-    spinRewardDisplay.innerHTML = `
-<div class="reward-display-title">
-DAILY SPINS COMPLETE
-</div>
-<div class="reward-display-sub">
-COME BACK TOMORROW
-</div>
-`;
-
-  }else if(!spinning){
-
-    spinRewardDisplay.className = "reward-display";
-    spinRewardDisplay.innerHTML = `
-<div class="reward-display-title">
-READY TO SPIN
-</div>
-<div class="reward-display-sub">
-${left} CHANCES TODAY
-</div>
-`;
-  }
-}
-
-
-/* =========================================================
-   LOAD GAME
-========================================================= */
-
-async function loadWalletGame(){
-
-  if(!walletAddress)
-    return;
-
-  await loadBackendState();
-}
-
-
-/* =========================================================
-   RESET UI WHEN WALLET DISCONNECTED
-========================================================= */
-
-function resetWalletUI(){
-
-  roverAmount = 0;
-  roverTodayAmount = 0;
-  backendHistory = [];
-  backendStatus = {
-    checkin_claimed:false,
-    quiz_claimed:false
-  };
-
-  updateRoverUI();
-
-  streakNumber.textContent = "0";
-
-  checkinButton.disabled = false;
-  checkinButton.textContent = "DAILY CHECK-IN";
-
-  missionCheckin.textContent = "READY";
-  missionCheckin.classList.remove("done");
-
-  quizStatus.textContent = "CONNECT WALLET";
-  quizButton.textContent = "CONNECT WALLET";
-  quizButton.disabled = false;
-  missionQuiz.textContent = "0/1";
-  missionQuiz.classList.remove("done");
-
-  spinCount.textContent = "3 / 3";
-  missionSpin.textContent = "0/3";
-  missionSpin.classList.remove("done");
-  spinButton.disabled = false;
-  spinButton.textContent = "SPIN NOW";
-
-  spinRewardDisplay.className = "reward-display";
-  spinRewardDisplay.innerHTML = `
-<div class="reward-display-title">
-READY TO SPIN
-</div>
-<div class="reward-display-sub">
-3 CHANCES TODAY
-</div>
-`;
-
-  mysteryKeys.textContent = "0";
-  mysteryBox.textContent = "🔒";
-  mysteryBox.classList.add("locked");
-  mysteryButton.disabled = true;
-  mysteryButton.textContent = "NO KEY";
-  mysteryResult.textContent = "BOX LOCKED";
-  mysteryHelp.textContent = "Connect your wallet to start earning.";
-
-  /* Reset visual achievement state without touching the design. */
-  [
-    ["achievementFirst","achievementFirstText"],
-    ["achievementStreak","achievementStreakText"],
-    ["achievementSpinner","achievementSpinnerText"],
-    ["achievementMystery","achievementMysteryText"]
-  ].forEach(([id,textId]) => {
-    const box = document.getElementById(id);
-    const text = document.getElementById(textId);
-    if(box) box.classList.add("locked");
-    if(box) box.classList.remove("unlocked");
-    if(text){
-      const target =
-        id === "achievementFirst" ? 1 :
-        id === "achievementStreak" ? 7 :
-        id === "achievementSpinner" ? 30 : 5;
-      text.textContent = "0 / " + target;
-    }
+if(window.ethereum){
+  window.ethereum.on("accountsChanged",async accounts=>{
+    if(!accounts?.length){ clearWalletState(); await loadGame(); return; }
+    const address=accounts[0].toLowerCase(); saveWallet(address); updateWalletUI(address); await loadGame();
   });
 }
 
+async function loadWalletBackendState(){
+  if(!walletAddress) return false;
+  const results=await Promise.allSettled([
+    roverRPC("get_rover_balance",{p_wallet:walletAddress}),
+    roverRPC("rover_reward_status",{p_wallet:walletAddress}),
+    roverRPC("get_rover_history",{p_wallet:walletAddress})
+  ]);
+  if(results[0].status==="fulfilled"){
+    const r=firstRow(results[0].value); roverAmount=Number(r.balance||0); roverTodayAmount=Number(r.today_earned||0);
+  }
+  if(results[1].status==="fulfilled"){
+    const r=firstRow(results[1].value); backendStatus={checkin_claimed:Boolean(r.checkin_claimed),quiz_claimed:Boolean(r.quiz_claimed)};
+  }
+  if(results[2].status==="fulfilled") backendHistory=Array.isArray(results[2].value)?results[2].value:[];
+  updateRoverUI(); updateBackendUI(); return true;
+}
 
-/* =========================================================  
-   SCROLL ANIMATION  
-========================================================= */  
-  
-const observer =  
-new IntersectionObserver(  
-entries => {  
-  
-entries.forEach(  
-(entry,index) => {  
-  
-if(entry.isIntersecting){  
-  
-setTimeout(  
-() => {  
-  
-entry.target.classList.add(  
-"visible"  
-);  
-  
-},  
-index * 70  
-);  
-  
-  
-observer.unobserve(  
-entry.target  
-);  
-  
-}  
-  
-}  
-  
-);  
-},  
-{  
-threshold:.08  
-}  
-);  
-  
-  
-document  
-.querySelectorAll(".reveal")  
-.forEach(  
-el =>  
-observer.observe(el)  
-);  
-  
-  
-/* =========================================================  
-   START  
-========================================================= */  
-  
-resetWalletUI();  
-  
-restoreWallet();  
-  
-</script>  </body>  
+/* BALANCE */
+function updateRoverUI(){ roverBalance.textContent=roverAmount+" ROVER"; roverToday.textContent="TODAY: +"+roverTodayAmount+" ROVER"; }
+
+/* CHECK-IN */
+function loadCheckin(){
+  if(!authUser && !walletAddress){
+    checkinButton.disabled=false; checkinButton.textContent="LOGIN WITH X"; missionCheckin.textContent="LOGIN"; missionCheckin.classList.remove("done"); return;
+  }
+  if(backendStatus.checkin_claimed){
+    checkinButton.disabled=true; checkinButton.textContent="ALREADY CHECKED IN"; missionCheckin.textContent="DONE"; missionCheckin.classList.add("done"); return;
+  }
+  checkinButton.disabled=false; checkinButton.textContent="DAILY CHECK-IN"; missionCheckin.textContent="READY"; missionCheckin.classList.remove("done");
+}
+
+checkinButton.addEventListener("click",async()=>{
+  if(!authUser && !walletAddress){ loginWithX(); return; }
+  checkinButton.disabled=true; checkinButton.textContent="CHECKING...";
+  try{
+    const data=authUser ? await roverRPC("auth_daily_checkin") : await roverRPC("daily_checkin",{p_wallet:walletAddress});
+    const result=firstRow(data);
+    if(result.already_checked_in || result.reason==="already_checked_in"){ await loadGame(); return; }
+    if(!result.success) throw new Error("Check-in was not completed.");
+    await loadGame();
+    streakNumber.textContent=Number(result.streak||calculateCurrentStreak());
+  }catch(error){
+    console.error("Check-in error:",error); checkinButton.disabled=false; checkinButton.textContent="DAILY CHECK-IN"; alert("CHECK-IN FAILED.\n\n"+(error.message||"Please try again."));
+  }
+});
+
+/* QUIZ */
+const quizQuestions=[
+  {question:"What is The Hood Rover?",options:["A Rover NFT ecosystem","A music platform","A payment app","A news website"],answer:0},
+  {question:"What is the main purpose of Rover Hub?",options:["Watch movies","Complete activities and earn Rover","Buy groceries","Create emails"],answer:1},
+  {question:"How many NFTs are planned in The Hood Rover collection?",options:["404","555","1,111","10,000"],answer:2},
+  {question:"How many times can a user attempt the daily quiz?",options:["Unlimited","Three times","Two times","One time"],answer:3},
+  {question:"What happens if a quiz answer is wrong?",options:["The user gets bonus Rover","The quiz is failed","The user gets another attempt","Nothing happens"],answer:1}
+];
+
+function quizTodayResult(){
+  const items=backendHistory.filter(i=>i.reward_type==="quiz" && rewardDate(i)===todayKey());
+  if(!items.length) return null;
+  return Number(items[0].amount||0)>0 ? "passed" : "failed";
+}
+function quizStatusLoad(){
+  const result=quizTodayResult();
+  if(result==="passed"){
+    quizStatus.textContent="COMPLETED"; quizButton.textContent="QUIZ COMPLETED"; quizButton.disabled=true; missionQuiz.textContent="DONE"; missionQuiz.classList.add("done"); return;
+  }
+  if(result==="failed"){
+    quizStatus.textContent="FAILED"; quizButton.textContent="TRY AGAIN TOMORROW"; quizButton.disabled=true; missionQuiz.textContent="FAILED"; missionQuiz.classList.remove("done"); return;
+  }
+  if(authUser || walletAddress){ quizStatus.textContent="READY"; quizButton.textContent="START QUIZ"; quizButton.disabled=false; missionQuiz.textContent="0/1"; missionQuiz.classList.remove("done"); }
+  else { quizStatus.textContent="LOGIN"; quizButton.textContent="LOGIN WITH X"; quizButton.disabled=false; missionQuiz.textContent="LOGIN"; }
+}
+
+function openQuiz(){
+  if(!authUser && !walletAddress){ loginWithX(); return; }
+  const result=quizTodayResult();
+  if(result==="passed"){ alert("TODAY'S QUIZ IS ALREADY COMPLETED."); return; }
+  if(result==="failed"){ alert("TODAY'S QUIZ IS ALREADY FAILED.\n\nTRY AGAIN TOMORROW."); return; }
+  let questionIndex=0, score=0, finished=false;
+  const overlay=document.createElement("div"); overlay.className="quiz-overlay"; document.body.appendChild(overlay);
+  function renderQuestion(){
+    const q=quizQuestions[questionIndex];
+    overlay.innerHTML=`<div class="quiz-modal"><div class="quiz-top"><div class="quiz-title">ROVER QUIZ</div><div class="quiz-progress">${questionIndex+1}/${quizQuestions.length}</div></div><div class="quiz-question">${q.question}</div><div class="quiz-options">${q.options.map((o,i)=>`<button class="quiz-option" data-answer="${i}" type="button">${String.fromCharCode(65+i)}. ${o}</button>`).join("")}</div><div class="quiz-warning">ONE WRONG ANSWER = TODAY'S QUIZ FAILED.</div></div>`;
+    overlay.querySelectorAll(".quiz-option").forEach(button=>button.addEventListener("click",()=>{
+      const answer=Number(button.dataset.answer);
+      if(answer!==q.answer){ finishQuiz(false); return; }
+      score++; questionIndex++;
+      if(questionIndex>=quizQuestions.length) finishQuiz(true); else renderQuestion();
+    }));
+  }
+  async function finishQuiz(passed){
+    if(finished) return;
+    try{
+      const data=authUser ? await roverRPC("auth_claim_rover_reward",{p_reward_type:"quiz",p_quiz_passed:passed}) : await roverRPC("claim_rover_reward",{p_wallet:walletAddress,p_reward_type:"quiz",p_amount:passed?2:0});
+      const result=firstRow(data);
+      if(result.reason==="quiz_already_claimed"){ finished=true; await loadGame(); overlay.remove(); return; }
+      if(!result.success) throw new Error("Quiz reward was not confirmed.");
+      finished=true; await loadGame();
+      overlay.innerHTML=`<div class="quiz-modal"><div class="quiz-result"><div class="quiz-result-icon">${passed?"🎉":"❌"}</div><div class="quiz-result-title">${passed?"QUIZ COMPLETE":"QUIZ FAILED"}</div><div class="quiz-result-score">${score} / 5 CORRECT</div><div class="quiz-result-reward">${passed?"+2 ROVER":"0 ROVER"}</div><button class="btn quiz-close" id="closeQuiz">DONE</button></div></div>`;
+      document.getElementById("closeQuiz").onclick=()=>overlay.remove();
+    }catch(error){ console.error("Quiz error:",error); alert("QUIZ REWARD SYNC FAILED.\n\n"+(error.message||"Please try again.")); }
+  }
+  renderQuestion();
+}
+quizButton.addEventListener("click",openQuiz);
+
+/* SPIN */
+const spinRewards=[
+  {name:"BAD LUCK",type:"bad",value:0,weight:50},
+  {name:"+2 ROVER",type:"rover",value:2,weight:38},
+  {name:"+4 ROVER",type:"rover",value:4,weight:5},
+  {name:"+5 ROVER",type:"rover",value:5,weight:4},
+  {name:"+6 ROVER",type:"rover",value:6,weight:3}
+];
+const wheelSectorCenters={"BAD LUCK":0,"+2 ROVER":60,"+4 ROVER":120,"+5 ROVER":180,"+6 ROVER":240,"MYSTERY REWARD":300};
+function getSpinCount(){ return rewardCount("spin",true); }
+function updateSpinUI(){
+  const used=getSpinCount(), left=Math.max(0,3-used);
+  spinCount.textContent=left+" / 3"; missionSpin.textContent=used+"/3";
+  if(used>=3){ spinButton.disabled=true; spinButton.textContent="COME BACK TOMORROW"; missionSpin.textContent="DONE"; missionSpin.classList.add("done"); }
+  else { spinButton.disabled=false; spinButton.textContent="SPIN NOW"; missionSpin.classList.remove("done"); }
+}
+function randomSpinReward(){
+  const r=Math.random()*100;
+  if(r<50) return spinRewards[0];
+  if(r<88) return spinRewards[1];
+  if(r<93) return spinRewards[2];
+  if(r<97) return spinRewards[3];
+  return spinRewards[4];
+}
+function showSpinReward(name){
+  if(name==="BAD LUCK"){
+    spinRewardDisplay.className="reward-display bad";
+    spinRewardDisplay.innerHTML=`<div class="reward-display-title">❌ BAD LUCK</div><div class="reward-display-sub">NO REWARD THIS TIME</div>`;
+  }else{
+    spinRewardDisplay.className="reward-display";
+    spinRewardDisplay.innerHTML=`<div class="reward-display-title">🎉 ROVER REWARD</div><div class="reward-display-sub">${name}</div>`;
+  }
+}
+function normalizeDegrees(v){ return ((v%360)+360)%360; }
+
+spinButton.addEventListener("click",async()=>{
+  if(spinning) return;
+  if(!authUser && !walletAddress){ loginWithX(); return; }
+  if(getSpinCount()>=3){ alert("YOU HAVE USED ALL 3 SPINS TODAY.\n\nCOME BACK TOMORROW."); return; }
+  spinning=true; spinButton.disabled=true; spinButton.textContent="SPINNING...";
+  const localReward=randomSpinReward();
+  try{
+    let result, actualName, actualValue;
+    if(authUser){
+      result=firstRow(await roverRPC("auth_claim_rover_reward",{p_reward_type:"spin"}));
+      actualValue=Number(result.reward||0);
+      actualName=result.reward_name || (actualValue>0 ? "+"+actualValue+" ROVER" : "BAD LUCK");
+    }else{
+      result=firstRow(await roverRPC("claim_rover_reward",{p_wallet:walletAddress,p_reward_type:"spin",p_amount:localReward.value}));
+      actualValue=localReward.value; actualName=localReward.name;
+    }
+    if(result.reason==="daily_spin_limit_reached"){ await loadGame(); spinning=false; alert("YOU HAVE USED ALL 3 SPINS TODAY.\n\nCOME BACK TOMORROW."); return; }
+    if(!result.success) throw new Error("Spin was not confirmed.");
+    const target=wheelSectorCenters[actualName] ?? wheelSectorCenters[localReward.name];
+    const current=normalizeDegrees(rotation);
+    rotation += normalizeDegrees(-target-current) + (5+Math.floor(Math.random()*3))*360;
+    wheel.style.transform=`rotate(${rotation}deg)`;
+    setTimeout(async()=>{
+      showSpinReward(actualName);
+      await loadGame();
+      updateSpinUI(); updateMysteryUI(); updateAchievements();
+      spinning=false;
+    },4700);
+  }catch(error){
+    console.error("Spin error:",error); spinning=false; updateSpinUI(); alert("SPIN FAILED.\n\n"+(error.message||"Please try again."));
+  }
+});
+
+/* MYSTERY BOX
+   X mystery-key support requires auth_claim_rover_reward
+   to support p_reward_type='mystery_key'. The current SQL
+   supplied for X does not. Wallet flow remains compatible
+   with the existing wallet reward function. */
+function getMysteryKeys(){ return Math.max(0,rewardCount("mystery_key")-rewardCount("mystery_box")); }
+function updateMysteryUI(){
+  const keys=getMysteryKeys(); mysteryKeys.textContent=keys;
+  if(keys>0){
+    mysteryBox.classList.remove("locked"); mysteryBox.textContent="🎁"; mysteryButton.disabled=false; mysteryButton.textContent="OPEN MYSTERY BOX"; mysteryResult.textContent="KEY READY"; mysteryHelp.textContent="Use 1 Mystery Key to reveal your hidden reward.";
+  }else{
+    mysteryBox.classList.add("locked"); mysteryBox.textContent="🔒"; mysteryButton.disabled=true; mysteryButton.textContent="NO KEY"; mysteryResult.textContent="BOX LOCKED"; mysteryHelp.textContent=authUser ? "Find a Mystery Reward from the wheel first." : "Login with X or connect your wallet to start earning.";
+  }
+}
+
+mysteryButton.addEventListener("click",async()=>{
+  if(!authUser && !walletAddress){ loginWithX(); return; }
+  if(getMysteryKeys()<=0){ updateMysteryUI(); return; }
+  mysteryButton.disabled=true; mysteryBox.style.transform="scale(.82) rotate(8deg)"; mysteryResult.textContent="OPENING..."; mysteryHelp.textContent="Unlocking your hidden reward...";
+  try{
+    const data=authUser ? await roverRPC("auth_claim_rover_reward",{p_reward_type:"mystery_box"}) : await roverRPC("claim_rover_reward",{p_wallet:walletAddress,p_reward_type:"mystery_box",p_amount:0});
+    const result=firstRow(data);
+    if(!result.success) throw new Error(result.reason || "Mystery box was not confirmed.");
+    await loadGame();
+    mysteryResult.textContent="🎉 REWARD UNLOCKED"; mysteryBox.textContent="★"; mysteryBox.style.transform="scale(1) rotate(0deg)"; mysteryHelp.textContent="Your Mystery Key was consumed."; updateMysteryUI(); updateAchievements();
+  }catch(error){
+    console.error("Mystery error:",error); mysteryBox.style.transform="scale(1) rotate(0deg)"; updateMysteryUI(); alert("MYSTERY BOX FAILED.\n\n"+(error.message||"Please try again."));
+  }
+});
+
+/* ACHIEVEMENTS */
+function unlockAchievement(element,textElement,current,target){
+  const text=document.getElementById(textElement), box=document.getElementById(element);
+  text.textContent=current+" / "+target;
+  if(current>=target){ box.classList.remove("locked"); box.classList.add("unlocked"); text.textContent="✓ UNLOCKED"; }
+  else { box.classList.add("locked"); box.classList.remove("unlocked"); }
+}
+function updateAchievements(){
+  if(!authUser && !walletAddress) return;
+  unlockAchievement("achievementFirst","achievementFirstText",Math.min(rewardCount("daily_checkin"),1),1);
+  unlockAchievement("achievementStreak","achievementStreakText",Math.min(calculateCurrentStreak(),7),7);
+  unlockAchievement("achievementSpinner","achievementSpinnerText",Math.min(rewardCount("spin"),30),30);
+  unlockAchievement("achievementMystery","achievementMysteryText",Math.min(rewardCount("mystery_box"),5),5);
+}
+
+/* UI */
+function updateBackendUI(){
+  if(!authUser && !walletAddress) return;
+  loadCheckin(); quizStatusLoad(); updateSpinUI(); updateMysteryUI(); streakNumber.textContent=calculateCurrentStreak(); updateAchievements();
+  const used=getSpinCount(), left=Math.max(0,3-used);
+  if(used>=3 && !spinning){
+    spinRewardDisplay.className="reward-display";
+    spinRewardDisplay.innerHTML=`<div class="reward-display-title">DAILY SPINS COMPLETE</div><div class="reward-display-sub">COME BACK TOMORROW</div>`;
+  }else if(!spinning){
+    spinRewardDisplay.className="reward-display";
+    spinRewardDisplay.innerHTML=`<div class="reward-display-title">READY TO SPIN</div><div class="reward-display-sub">${left} CHANCES TODAY</div>`;
+  }
+}
+
+function resetGameUI(){
+  roverAmount=0; roverTodayAmount=0; backendHistory=[]; backendStatus={checkin_claimed:false,quiz_claimed:false}; updateRoverUI(); streakNumber.textContent="0";
+  checkinButton.disabled=false; checkinButton.textContent="LOGIN WITH X"; missionCheckin.textContent="LOGIN"; missionCheckin.classList.remove("done");
+  quizStatus.textContent="LOGIN"; quizButton.textContent="LOGIN WITH X"; quizButton.disabled=false; missionQuiz.textContent="LOGIN"; missionQuiz.classList.remove("done");
+  spinCount.textContent="3 / 3"; missionSpin.textContent="0/3"; missionSpin.classList.remove("done"); spinButton.disabled=false; spinButton.textContent="SPIN NOW";
+  spinRewardDisplay.className="reward-display"; spinRewardDisplay.innerHTML=`<div class="reward-display-title">READY TO SPIN</div><div class="reward-display-sub">LOGIN TO START</div>`;
+  mysteryKeys.textContent="0"; mysteryBox.textContent="🔒"; mysteryBox.classList.add("locked"); mysteryButton.disabled=true; mysteryButton.textContent="NO KEY"; mysteryResult.textContent="BOX LOCKED"; mysteryHelp.textContent="Login with X or connect your wallet to start earning.";
+  [["achievementFirst","achievementFirstText",1],["achievementStreak","achievementStreakText",7],["achievementSpinner","achievementSpinnerText",30],["achievementMystery","achievementMysteryText",5]].forEach(([id,textId,target])=>{ const box=document.getElementById(id),text=document.getElementById(textId); box.classList.add("locked"); box.classList.remove("unlocked"); text.textContent="0 / "+target; });
+}
+
+async function loadGame(){
+  /* X identity is primary. Wallet never replaces it. */
+  if(authUser){ await loadAuthBackendState(); return; }
+  if(walletAddress){ await loadWalletBackendState(); return; }
+  resetGameUI();
+}
+
+/* AUTH STATE */
+supabaseClient.auth.onAuthStateChange(async(event,session)=>{
+  console.log("AUTH EVENT:",event);
+  authUser=session?.user || null;
+  updateXUI();
+  if(authUser){ await loadAuthProfile(); await loadAuthBackendState(); }
+  else { authProfileId=null; await loadGame(); }
+});
+
+/* SCROLL ANIMATION */
+const observer=new IntersectionObserver(entries=>{
+  entries.forEach((entry,index)=>{
+    if(entry.isIntersecting){ setTimeout(()=>entry.target.classList.add("visible"),index*70); observer.unobserve(entry.target); }
+  });
+},{threshold:.08});
+document.querySelectorAll(".reveal").forEach(el=>observer.observe(el));
+
+/* START */
+async function startRoverHub(){
+  resetGameUI();
+  updateXUI();
+  await restoreWallet();
+  const {data}=await supabaseClient.auth.getSession();
+  authUser=data?.session?.user || null;
+  updateXUI();
+  await loadGame();
+}
+startRoverHub();
+
+</script>
+  </body>  
 </html>
